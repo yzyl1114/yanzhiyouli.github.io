@@ -1,56 +1,40 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2487.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倒计时</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="zh-CN"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;倒计时&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="stylesheet" href="style.css"&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="countdown-section"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;2025年考研初试&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="countdown-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="countdown-number"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="days"&gt;00&lt;/span&gt;&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;天&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="countdown-number"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="hours"&gt;00&lt;/span&gt;&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;时&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="countdown-number"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="minutes"&gt;00&lt;/span&gt;&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;分&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="countdown-number"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span id="seconds"&gt;00&lt;/span&gt;&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;span&gt;秒&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Ad Section --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="ad-space"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="closeAd()"&gt;关闭广告&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p&gt;广告内容&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="script.js"&gt;&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+    <section class="countdown-section">
+        <h2>2025年考研初试</h2>
+        <div class="countdown-container">
+            <div class="countdown-number">
+                <span id="days">00</span><br>
+                <span>天</span>
+            </div>
+            <div class="countdown-number">
+                <span id="hours">00</span><br>
+                <span>时</span>
+            </div>
+            <div class="countdown-number">
+                <span id="minutes">00</span><br>
+                <span>分</span>
+            </div>
+            <div class="countdown-number">
+                <span id="seconds">00</span><br>
+                <span>秒</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ad Section -->
+    <div class="ad-space">
+        <button onclick="closeAd()">关闭广告</button>
+        <p>广告内容</p>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

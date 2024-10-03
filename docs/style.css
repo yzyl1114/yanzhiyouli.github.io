@@ -11,21 +11,21 @@ body {
 .header {
     background-color: #33738D;
     color: white;
-    padding: 7px; /* 再降低header区域高度 */
+    padding: 7px;
     display: flex;
     align-items: center;
 }
 
 .header h1 {
     margin-left: 10px;
-    font-size: 1.5rem; /* 维持字体大小 */
+    font-size: 1.5rem;
 }
 
 /* Title Section */
 .title-section {
     background-color: #E3E5E9;
     text-align: center;
-    padding: 73px 20px; /* 增加title的高度，保持整体高度不变 */
+    padding: 73px 20px;
 }
 
 .title-section h2 {
@@ -55,7 +55,7 @@ body {
 .entry img {
     width: 300px;
     height: 200px;
-    border-radius: 15px; /* 圆角图片 */
+    border-radius: 15px;
 }
 
 .entry p {
@@ -68,28 +68,59 @@ body {
     background-color: #3280F6;
     color: #FFFFFF;
     padding: 50px;
-    height: 100vh; /* 确保背景色填充整个页面 */
+    height: 100vh;
 }
 
+/* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
 .countdown-container {
     display: flex;
+    flex-direction: row; /* 改为水平排列 */
     justify-content: center;
-    gap: 20px;
-    margin-top: 100px; /* 进一步下移倒计时部分，使其居中 */
+    align-items: center;
+    gap: 10px;
+    margin-top: 100px;
 }
 
+/* Adjust the countdown numbers with individual boxes */
 .countdown-number {
     background-color: #222222;
-    border-radius: 10px; /* 为倒计时框增加小圆角 */
+    border-radius: 10px;
     padding: 20px;
-    font-size: 6rem; /* 增加数字大小 */
+    font-size: 6rem;
     color: #FFFFFF;
+    display: inline-block; /* 每个数字都有单独的黑框 */
+    min-width: 100px; /* 确保数字为双位数显示 */
+    text-align: center;
 }
 
+/* Add colon between numbers */
 .countdown-colon {
     font-size: 6rem;
     color: #FFFFFF;
     padding: 0 10px;
+}
+
+/* Countdown Page Title */
+.countdown-title {
+    font-size: 3rem;
+    margin-bottom: 30px;
+    margin-top: 50px;
+}
+
+/* Text below countdown without background */
+.countdown-label {
+    font-size: 2rem; /* 缩小字号 */
+    color: #FFFFFF;
+    margin-top: 20px;
+    text-align: center;
+}
+
+/* Layout adjustment */
+.countdown-section-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
 }
 
 .ad-space {
@@ -106,19 +137,4 @@ body {
     position: absolute;
     top: 5px;
     right: 5px;
-}
-
-/* Countdown Page Title */
-.countdown-title {
-    font-size: 3rem; /* 加大标题字号 */
-    margin-bottom: 30px;
-    margin-top: 50px; /* 使标题下移 */
-}
-
-/* Adjusting overall layout */
-.countdown-section-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
 }

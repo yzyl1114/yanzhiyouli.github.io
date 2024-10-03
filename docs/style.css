@@ -74,7 +74,7 @@ body {
 /* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
 .countdown-container {
     display: flex;
-    flex-direction: row; /* 改为水平排列 */
+    flex-direction: row; /* 水平排列 */
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -82,14 +82,23 @@ body {
 }
 
 /* Adjust the countdown numbers with individual boxes */
-.countdown-number {
-    background-color: #222222;
+.countdown-number span:first-child {
+    background-color: #222222; /* 仅应用于数字的黑框 */
     border-radius: 10px;
     padding: 20px;
     font-size: 6rem;
     color: #FFFFFF;
-    display: inline-block; /* 每个数字都有单独的黑框 */
+    display: inline-block;
     min-width: 100px; /* 确保数字为双位数显示 */
+    text-align: center;
+}
+
+/* Remove background and border for the text (e.g., 天、时、分、秒) */
+.countdown-number span:last-child {
+    background-color: transparent; /* 确保文字无黑框 */
+    padding: 10px;
+    font-size: 2rem; /* 字号调整为适合的大小 */
+    color: #FFFFFF;
     text-align: center;
 }
 
@@ -105,14 +114,6 @@ body {
     font-size: 3rem;
     margin-bottom: 30px;
     margin-top: 50px;
-}
-
-/* Text below countdown without background */
-.countdown-label {
-    font-size: 2rem; /* 缩小字号 */
-    color: #FFFFFF;
-    margin-top: 20px;
-    text-align: center;
 }
 
 /* Layout adjustment */

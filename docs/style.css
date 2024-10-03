@@ -71,10 +71,12 @@ body {
     height: 100vh;
 }
 
-/* Adjust the countdown layout */
+/* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
 .countdown-container {
     display: flex;
+    flex-direction: column; /* 使倒计时数字和文字上下排列 */
     justify-content: center;
+    align-items: center;
     gap: 10px;
     margin-top: 100px;
 }
@@ -86,9 +88,9 @@ body {
     padding: 20px;
     font-size: 6rem;
     color: #FFFFFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: inline-block; /* 每个数字都有单独的黑框 */
+    min-width: 100px; /* 确保数字为双位数显示 */
+    text-align: center;
 }
 
 /* Add colon between numbers */
@@ -107,9 +109,10 @@ body {
 
 /* Text below countdown without background */
 .countdown-label {
-    font-size: 3rem; /* 缩小到与标题相同 */
+    font-size: 2rem; /* 缩小字号 */
     color: #FFFFFF;
     margin-top: 20px;
+    text-align: center;
 }
 
 /* Layout adjustment */

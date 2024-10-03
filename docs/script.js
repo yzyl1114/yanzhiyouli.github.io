@@ -5,7 +5,7 @@ function openCountdown(page) {
 
 // Countdown Page: Countdown Timer Logic
 function startCountdown(examTitle) {
-    // 定义每个考试的目标时间
+    // Define target dates for each exam
     var targetDate;
     if (examTitle.includes("2024年税务师考试")) {
         targetDate = new Date("2024-11-02T09:00:00");
@@ -35,11 +35,13 @@ function startCountdown(examTitle) {
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        document.getElementById("days").innerHTML = days;
-        document.getElementById("hours").innerHTML = hours;
-        document.getElementById("minutes").innerHTML = minutes;
-        document.getElementById("seconds").innerHTML = seconds;
+        // Ensure the numbers are always two digits using padStart()
+        document.getElementById("days").innerHTML = String(days).padStart(2, '0');
+        document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
+        document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
+        document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
 
+        // When the countdown is finished, reset to "00:00:00:00"
         if (distance < 0) {
             clearInterval(countdownfunction);
             document.getElementById("days").innerHTML = "00";
@@ -56,6 +58,5 @@ function closeAd() {
 }
 
 // Example: Start countdown based on the exam title
-var examTitle = document.title; // 假设标题和考试名称一致
+var examTitle = document.title; // Assume the title is the exam name
 startCountdown(examTitle);
-

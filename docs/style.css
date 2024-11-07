@@ -139,3 +139,21 @@ body {
     top: 5px;
     right: 5px;
 }
+
+/* Footer Styles */
+.footer {
+    text-align: center;
+    font-size: 0.8rem; /* 小字 */
+    color: #999999; /* 常见备案信息色值 */
+    margin-top: 20px;
+    padding: 10px 0;
+}
+
+.footer a {
+    color: #999999;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}

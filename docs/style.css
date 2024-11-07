@@ -142,7 +142,9 @@ body {
 
 /* Footer Styles */
 .footer {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 确保文字内容居中对齐 */
     font-size: 0.8rem; /* 小字 */
     color: #999999; /* 常见备案信息色值 */
     margin-top: 20px;
@@ -150,10 +152,11 @@ body {
 }
 
 .footer a {
-    color: #999999;
-    text-decoration: none;
+    color: #999999; /* 链接颜色与其他文字相同 */
+    text-decoration: none; /* 默认无下划线 */
 }
 
 .footer a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* 悬停时显示下划线 */
 }
+

@@ -7,8 +7,8 @@ function openCountdown(page) {
 function startCountdown(examTitle) {
     // Define target dates for each exam
     var targetDate;
-    if (examTitle.includes("2024年税务师考试")) {
-        targetDate = new Date("2024-11-02T09:00:00");
+    if (examTitle.includes("2025年计算机二级考试")) {
+        targetDate = new Date("2025-03-23T09:00:00");
     } else if (examTitle.includes("2025年国考")) {
         targetDate = new Date("2024-11-24T09:00:00");
     } else if (examTitle.includes("2024年教资面试")) {

@@ -1,3 +1,4 @@
+// Countdown Page: Start Countdown
 function startCountdown(examTitle) {
     // Define target dates for each exam
     var targetDate;
@@ -50,6 +51,11 @@ function startCountdown(examTitle) {
             document.getElementById("seconds").innerHTML = "00";
         }
     }, 1000);
+
+    // Ensure countdown stops if the page is unloaded
+    window.addEventListener('beforeunload', function() {
+        clearInterval(countdownfunction);
+    });
 }
 
 // Countdown Page: Close Ad
@@ -63,5 +69,7 @@ function closeAd() {
 }
 
 // Example: Start countdown based on the exam title
-var examTitle = document.title; // Assume the title is the exam name
-startCountdown(examTitle);
+document.addEventListener('DOMContentLoaded', function() {
+    var examTitle = document.title;
+    startCountdown(examTitle);
+});

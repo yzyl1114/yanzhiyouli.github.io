@@ -42,19 +42,27 @@ body {
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr);  /* Use grid for layout */
     gap: 20px;
     padding: 20px;
 }
 
+/* Ensure each entry has the same size */
 .entry {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 300px;  /* Fixed height */
+    max-width: 250px;  /* Fixed width */
+    margin: 0 auto;
     text-align: center;
     cursor: pointer;
 }
 
 .entry img {
-    width: 100%;
-    height: auto;
+    width: 100%;   /* Make image adapt to container */
+    height: auto;  /* Maintain aspect ratio */
     border-radius: 15px;
 }
 

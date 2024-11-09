@@ -42,9 +42,23 @@ body {
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* 默认显示4列 */
     gap: 20px;
     padding: 20px;
+}
+
+/* 响应式布局：当屏幕宽度小于768px时，改为2列显示 */
+@media (max-width: 768px) {
+    .entries-section {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 响应式布局：当屏幕宽度小于480px时，改为1列显示 */
+@media (max-width: 480px) {
+    .entries-section {
+        grid-template-columns: 1fr;
+    }
 }
 
 .entry {
@@ -53,8 +67,8 @@ body {
 }
 
 .entry img {
-    width: 300px;
-    height: 200px;
+    width: 100%; /* 让图片自适应容器宽度 */
+    height: auto; /* 保持图片比例 */
     border-radius: 15px;
 }
 
@@ -159,4 +173,3 @@ body {
 .footer a:hover {
     text-decoration: underline; /* 悬停时显示下划线 */
 }
-

@@ -1,9 +1,3 @@
-// Homepage: open countdown in a new tab
-function openCountdown(page) {
-    window.open(page, '_blank');
-}
-
-// Countdown Page: Countdown Timer Logic
 function startCountdown(examTitle) {
     // Define target dates for each exam
     var targetDate;
@@ -23,6 +17,12 @@ function startCountdown(examTitle) {
         targetDate = new Date("2025-08-23T09:00:00");
     } else if (examTitle.includes("2025年法考")) {
         targetDate = new Date("2025-09-20T09:00:00");
+    }
+
+    // Ensure the targetDate is valid
+    if (!targetDate || isNaN(targetDate.getTime())) {
+        console.error("Invalid target date:", examTitle);
+        return;  // Exit the function early
     }
 
     var countDownDate = targetDate.getTime();
@@ -54,7 +54,12 @@ function startCountdown(examTitle) {
 
 // Countdown Page: Close Ad
 function closeAd() {
-    document.querySelector('.ad-space').style.display = 'none';
+    var adSpace = document.querySelector('.ad-space');
+    if (adSpace) {
+        adSpace.style.display = 'none';
+    } else {
+        console.warn('Ad space element not found.');
+    }
 }
 
 // Example: Start countdown based on the exam title

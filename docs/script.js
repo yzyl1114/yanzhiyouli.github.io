@@ -1,6 +1,16 @@
+// Function to open the countdown page in a new tab
+function openCountdown(page) {
+    window.open(page, '_blank');
+}
+
+// Example: Start countdown based on the exam title
+document.addEventListener('DOMContentLoaded', function() {
+    var examTitle = document.title; // Assume the title is the exam name
+    startCountdown(examTitle);
+});
+
 // Countdown Page: Start Countdown
 function startCountdown(examTitle) {
-    // Define target dates for each exam
     var targetDate;
     if (examTitle.includes("2025年计算机二级考试")) {
         targetDate = new Date("2025-03-23T09:00:00");
@@ -20,10 +30,9 @@ function startCountdown(examTitle) {
         targetDate = new Date("2025-09-20T09:00:00");
     }
 
-    // Ensure the targetDate is valid
     if (!targetDate || isNaN(targetDate.getTime())) {
         console.error("Invalid target date:", examTitle);
-        return;  // Exit the function early
+        return; // Exit the function early
     }
 
     var countDownDate = targetDate.getTime();
@@ -36,13 +45,11 @@ function startCountdown(examTitle) {
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Ensure the numbers are always two digits using padStart()
         document.getElementById("days").innerHTML = String(days).padStart(2, '0');
         document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
         document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
         document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
 
-        // When the countdown is finished, reset to "00:00:00:00"
         if (distance < 0) {
             clearInterval(countdownfunction);
             document.getElementById("days").innerHTML = "00";
@@ -51,25 +58,4 @@ function startCountdown(examTitle) {
             document.getElementById("seconds").innerHTML = "00";
         }
     }, 1000);
-
-    // Ensure countdown stops if the page is unloaded
-    window.addEventListener('beforeunload', function() {
-        clearInterval(countdownfunction);
-    });
 }
-
-// Countdown Page: Close Ad
-function closeAd() {
-    var adSpace = document.querySelector('.ad-space');
-    if (adSpace) {
-        adSpace.style.display = 'none';
-    } else {
-        console.warn('Ad space element not found.');
-    }
-}
-
-// Example: Start countdown based on the exam title
-document.addEventListener('DOMContentLoaded', function() {
-    var examTitle = document.title;
-    startCountdown(examTitle);
-});

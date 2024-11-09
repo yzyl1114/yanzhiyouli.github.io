@@ -42,41 +42,19 @@ body {
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 默认显示4列 */
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 20px;
-}
-
-/* 响应式布局：当屏幕宽度小于768px时，改为2列显示 */
-@media (max-width: 768px) {
-    .entries-section {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* 响应式布局：当屏幕宽度小于480px时，改为1列显示 */
-@media (max-width: 480px) {
-    .entries-section {
-        grid-template-columns: 1fr;
-    }
 }
 
 .entry {
     text-align: center;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 300px; /* 确保每个入口条目宽度相同 */
-    max-height: 350px; /* 确保每个入口条目高度相同 */
-    margin: 0 auto;
 }
 
 .entry img {
-    width: 100%; /* 让图片自适应容器宽度 */
-    height: 100%; /* 让图片自适应容器高度 */
-    object-fit: cover; /* 保持图片比例并裁剪多余部分 */
+    width: 100%;
+    height: auto;
     border-radius: 15px;
 }
 
@@ -85,100 +63,22 @@ body {
     font-size: 1.2rem;
 }
 
-/* Countdown Page Styles */
-.countdown-section {
-    text-align: center;
-    background-color: #3280F6;
-    color: #FFFFFF;
-    padding: 50px;
-    height: 100vh;
-}
-
-/* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
-.countdown-container {
-    display: flex;
-    flex-direction: row; /* 水平排列 */
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-top: 100px;
-}
-
-/* Adjust the countdown numbers with individual boxes */
-.countdown-number span:first-child {
-    background-color: #222222; /* 仅应用于数字的黑框 */
-    border-radius: 10px;
-    padding: 20px;
-    font-size: 6rem;
-    color: #FFFFFF;
-    display: inline-block;
-    min-width: 100px; /* 确保数字为双位数显示 */
-    text-align: center;
-}
-
-/* Remove background and border for the text (e.g., 天、时、分、秒) */
-.countdown-number span:last-child {
-    background-color: transparent; /* 确保文字无黑框 */
-    padding: 10px;
-    font-size: 2rem; /* 字号调整为适合的大小 */
-    color: #FFFFFF;
-    text-align: center;
-}
-
-/* Add colon between numbers */
-.countdown-colon {
-    font-size: 6rem;
-    color: #FFFFFF;
-    padding: 0 10px;
-}
-
-/* Countdown Page Title */
-.countdown-title {
-    font-size: 3rem;
-    margin-bottom: 30px;
-    margin-top: 50px;
-}
-
-/* Layout adjustment */
-.countdown-section-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-}
-
-.ad-space {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    text-align: center;
-    padding: 10px;
-    z-index: 1000;
-}
-
-.ad-space button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
-
 /* Footer Styles */
 .footer {
     display: flex;
     flex-direction: column;
-    align-items: center; /* 确保文字内容居中对齐 */
-    font-size: 0.8rem; /* 小字 */
-    color: #999999; /* 常见备案信息色值 */
+    align-items: center; /* Center the footer content */
+    font-size: 0.8rem;
+    color: #999999;
     margin-top: 20px;
     padding: 10px 0;
 }
 
 .footer a {
-    color: #999999; /* 链接颜色与其他文字相同 */
-    text-decoration: none; /* 默认无下划线 */
+    color: #999999;
+    text-decoration: none;
 }
 
 .footer a:hover {
-    text-decoration: underline; /* 悬停时显示下划线 */
+    text-decoration: underline;
 }

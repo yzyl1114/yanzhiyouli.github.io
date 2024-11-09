@@ -1,13 +1,7 @@
 // Function to open the countdown page in a new tab
 function openCountdown(page) {
-    window.open(page, '_blank');
+    window.open(page, '_blank');  // Opens the specified page in a new tab
 }
-
-// Example: Start countdown based on the exam title
-document.addEventListener('DOMContentLoaded', function() {
-    var examTitle = document.title; // Assume the title is the exam name
-    startCountdown(examTitle);
-});
 
 // Countdown Page: Start Countdown
 function startCountdown(examTitle) {
@@ -32,7 +26,7 @@ function startCountdown(examTitle) {
 
     if (!targetDate || isNaN(targetDate.getTime())) {
         console.error("Invalid target date:", examTitle);
-        return; // Exit the function early
+        return; // Exit the function early if the date is invalid
     }
 
     var countDownDate = targetDate.getTime();
@@ -40,22 +34,31 @@ function startCountdown(examTitle) {
         var now = new Date().getTime();
         var distance = countDownDate - now;
 
+        // Calculate days, hours, minutes, and seconds
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+        // Update the countdown values on the page
         document.getElementById("days").innerHTML = String(days).padStart(2, '0');
         document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
         document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
         document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
 
+        // When the countdown finishes, reset to "00:00:00:00"
         if (distance < 0) {
-            clearInterval(countdownfunction);
+            clearInterval(countdownfunction); // Stop the countdown
             document.getElementById("days").innerHTML = "00";
             document.getElementById("hours").innerHTML = "00";
             document.getElementById("minutes").innerHTML = "00";
             document.getElementById("seconds").innerHTML = "00";
         }
-    }, 1000);
+    }, 1000); // Update every second
 }
+
+// Ensure startCountdown is triggered when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    var examTitle = document.title; // Get the page title
+    startCountdown(examTitle);      // Start countdown based on the page title
+});

@@ -42,7 +42,7 @@ body {
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);  /* Use grid for layout */
+    grid-template-columns: repeat(4, 1fr); /* Create 4 columns for grid layout */
     gap: 20px;
     padding: 20px;
 }
@@ -53,17 +53,19 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 300px;  /* Fixed height */
-    max-width: 250px;  /* Fixed width */
+    max-width: 250px;  /* Ensure all entries have the same width */
+    height: 250px;  /* Fixed height to make sure the size is consistent */
     margin: 0 auto;
     text-align: center;
     cursor: pointer;
+    border-radius: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);  /* Optional: Add a shadow for better visibility */
 }
 
 .entry img {
-    width: 100%;   /* Make image adapt to container */
+    width: 100%;  /* Make image adapt to the container's width */
     height: auto;  /* Maintain aspect ratio */
-    border-radius: 15px;
+    border-radius: 10px;
 }
 
 .entry p {

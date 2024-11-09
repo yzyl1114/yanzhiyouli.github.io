@@ -11,13 +11,13 @@ function startCountdown() {
     // Define target dates for each exam in the new order
     var targetDate;
     if (examTitle.includes("2025年国考")) {
-        targetDate = new Date("2024-11-24T09:00:00");
+        targetDate = new Date("2024-12-01T09:00:00");
     } else if (examTitle.includes("2024年教资面试")) {
         targetDate = new Date("2024-12-07T09:00:00");
     } else if (examTitle.includes("2024年英语四六级考试")) {
         targetDate = new Date("2024-12-14T09:00:00");
     } else if (examTitle.includes("2025年考研初试")) {
-        targetDate = new Date("2024-12-21T09:00:00");
+        targetDate = new Date("2024-12-21T08:30:00");
     } else if (examTitle.includes("2025年计算机二级考试")) {
         targetDate = new Date("2025-03-23T09:00:00");
     } else if (examTitle.includes("2025年高考")) {

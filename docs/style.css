@@ -64,16 +64,25 @@ body {
 .entry {
     text-align: center;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 300px; /* 确保每个入口条目宽度相同 */
+    max-height: 350px; /* 确保每个入口条目高度相同 */
+    margin: 0 auto;
 }
 
 .entry img {
     width: 100%; /* 让图片自适应容器宽度 */
-    height: auto; /* 保持图片比例 */
+    height: 100%; /* 让图片自适应容器高度 */
+    object-fit: cover; /* 保持图片比例并裁剪多余部分 */
     border-radius: 15px;
 }
 
 .entry p {
     margin-top: 10px;
+    font-size: 1.2rem;
 }
 
 /* Countdown Page Styles */

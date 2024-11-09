@@ -42,24 +42,19 @@ body {
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Ensure 4 columns in grid */
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 20px;
 }
 
-/* Ensure consistent entry size */
 .entry {
     text-align: center;
     cursor: pointer;
-    height: 250px;  /* Fixed height */
-    width: 100%; /* Full width of its grid cell */
-    max-width: 250px;  /* Ensure all entries have the same width */
-    margin: 0 auto;  /* Ensure centered */
 }
 
 .entry img {
-    width: 100%;  /* Let the image adapt to the container width */
-    height: auto; /* Maintain aspect ratio */
+    width: 300px;
+    height: 200px;
     border-radius: 15px;
 }
 
@@ -79,7 +74,7 @@ body {
 /* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
 .countdown-container {
     display: flex;
-    flex-direction: row; /* Horizontal arrangement */
+    flex-direction: row; /* 水平排列 */
     justify-content: center;
     align-items: center;
     gap: 10px;
@@ -88,21 +83,21 @@ body {
 
 /* Adjust the countdown numbers with individual boxes */
 .countdown-number span:first-child {
-    background-color: #222222; /* Black background for numbers */
+    background-color: #222222; /* 仅应用于数字的黑框 */
     border-radius: 10px;
     padding: 20px;
     font-size: 6rem;
     color: #FFFFFF;
     display: inline-block;
-    min-width: 100px; /* Ensure numbers are two digits */
+    min-width: 100px; /* 确保数字为双位数显示 */
     text-align: center;
 }
 
 /* Remove background and border for the text (e.g., 天、时、分、秒) */
 .countdown-number span:last-child {
-    background-color: transparent; /* No background for labels */
+    background-color: transparent; /* 确保文字无黑框 */
     padding: 10px;
-    font-size: 2rem;
+    font-size: 2rem; /* 字号调整为适合的大小 */
     color: #FFFFFF;
     text-align: center;
 }
@@ -149,31 +144,19 @@ body {
 .footer {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    font-size: 0.8rem;
-    color: #999999;
+    align-items: center; /* 确保文字内容居中对齐 */
+    font-size: 0.8rem; /* 小字 */
+    color: #999999; /* 常见备案信息色值 */
     margin-top: 20px;
     padding: 10px 0;
 }
 
 .footer a {
-    color: #999999;
-    text-decoration: none;
+    color: #999999; /* 链接颜色与其他文字相同 */
+    text-decoration: none; /* 默认无下划线 */
 }
 
 .footer a:hover {
-    text-decoration: underline;
+    text-decoration: underline; /* 悬停时显示下划线 */
 }
 
-/* Ensure all entries are in 4 columns in one row */
-@media (max-width: 768px) {
-    .entries-section {
-        grid-template-columns: repeat(2, 1fr); /* On smaller screens, use 2 columns */
-    }
-}
-
-@media (max-width: 480px) {
-    .entries-section {
-        grid-template-columns: 1fr; /* On very small screens, use 1 column */
-    }
-}

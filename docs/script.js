@@ -1,15 +1,13 @@
 // Homepage: open countdown in a new tab
 function openCountdown(page) {
-    window.open(page, '_blank');
+    window.open(page, '_blank');  // Opens the specified page in a new tab
 }
 
 // Countdown Page: Countdown Timer Logic
 function startCountdown(examTitle) {
-    // Define target dates for each exam
+    // Define target dates for each exam in the new order
     var targetDate;
-    if (examTitle.includes("2025年计算机二级考试")) {
-        targetDate = new Date("2025-03-23T09:00:00");
-    } else if (examTitle.includes("2025年国考")) {
+    if (examTitle.includes("2025年国考")) {
         targetDate = new Date("2024-11-24T09:00:00");
     } else if (examTitle.includes("2024年教资面试")) {
         targetDate = new Date("2024-12-07T09:00:00");
@@ -17,6 +15,8 @@ function startCountdown(examTitle) {
         targetDate = new Date("2024-12-14T09:00:00");
     } else if (examTitle.includes("2025年考研初试")) {
         targetDate = new Date("2024-12-21T09:00:00");
+    } else if (examTitle.includes("2025年计算机二级考试")) {
+        targetDate = new Date("2025-03-23T09:00:00");
     } else if (examTitle.includes("2025年高考")) {
         targetDate = new Date("2025-06-07T09:00:00");
     } else if (examTitle.includes("2025年CPA考试")) {
@@ -49,7 +49,7 @@ function startCountdown(examTitle) {
             document.getElementById("minutes").innerHTML = "00";
             document.getElementById("seconds").innerHTML = "00";
         }
-    }, 1000);
+    }, 1000); // Update every second
 }
 
 // Countdown Page: Close Ad

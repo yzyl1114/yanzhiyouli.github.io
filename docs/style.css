@@ -164,3 +164,16 @@ body {
 .footer a:hover {
     text-decoration: underline;
 }
+
+/* Ensure all entries are in 4 columns in one row */
+@media (max-width: 768px) {
+    .entries-section {
+        grid-template-columns: repeat(2, 1fr); /* On smaller screens, use 2 columns */
+    }
+}
+
+@media (max-width: 480px) {
+    .entries-section {
+        grid-template-columns: 1fr; /* On very small screens, use 1 column */
+    }
+}

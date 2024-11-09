@@ -1,10 +1,11 @@
-// Function to open the countdown page in a new tab
+// Homepage: open countdown in a new tab
 function openCountdown(page) {
-    window.open(page, '_blank');  // Opens the specified page in a new tab
+    window.open(page, '_blank');
 }
 
-// Countdown Page: Start Countdown
+// Countdown Page: Countdown Timer Logic
 function startCountdown(examTitle) {
+    // Define target dates for each exam
     var targetDate;
     if (examTitle.includes("2025年计算机二级考试")) {
         targetDate = new Date("2025-03-23T09:00:00");
@@ -24,41 +25,38 @@ function startCountdown(examTitle) {
         targetDate = new Date("2025-09-20T09:00:00");
     }
 
-    if (!targetDate || isNaN(targetDate.getTime())) {
-        console.error("Invalid target date:", examTitle);
-        return; // Exit the function early if the date is invalid
-    }
-
     var countDownDate = targetDate.getTime();
     var countdownfunction = setInterval(function() {
         var now = new Date().getTime();
         var distance = countDownDate - now;
 
-        // Calculate days, hours, minutes, and seconds
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Update the countdown values on the page
+        // Ensure the numbers are always two digits using padStart()
         document.getElementById("days").innerHTML = String(days).padStart(2, '0');
         document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
         document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
         document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
 
-        // When the countdown finishes, reset to "00:00:00:00"
+        // When the countdown is finished, reset to "00:00:00:00"
         if (distance < 0) {
-            clearInterval(countdownfunction); // Stop the countdown
+            clearInterval(countdownfunction);
             document.getElementById("days").innerHTML = "00";
             document.getElementById("hours").innerHTML = "00";
             document.getElementById("minutes").innerHTML = "00";
             document.getElementById("seconds").innerHTML = "00";
         }
-    }, 1000); // Update every second
+    }, 1000);
 }
 
-// Ensure startCountdown is triggered when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    var examTitle = document.title; // Get the page title
-    startCountdown(examTitle);      // Start countdown based on the page title
-});
+// Countdown Page: Close Ad
+function closeAd() {
+    document.querySelector('.ad-space').style.display = 'none';
+}
+
+// Example: Start countdown based on the exam title
+var examTitle = document.title; // Assume the title is the exam name
+startCountdown(examTitle);

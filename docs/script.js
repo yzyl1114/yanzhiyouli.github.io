@@ -4,7 +4,10 @@ function openCountdown(page) {
 }
 
 // Countdown Page: Countdown Timer Logic
-function startCountdown(examTitle) {
+function startCountdown() {
+    var examTitle = document.title; // Get the exam title from the page title
+    console.log("Exam Title: " + examTitle); // Debugging log to check the exam title
+
     // Define target dates for each exam in the new order
     var targetDate;
     if (examTitle.includes("2025年国考")) {
@@ -23,6 +26,14 @@ function startCountdown(examTitle) {
         targetDate = new Date("2025-08-23T09:00:00");
     } else if (examTitle.includes("2025年法考")) {
         targetDate = new Date("2025-09-20T09:00:00");
+    }
+
+    console.log("Target Date before check: " + targetDate); // Debugging log to check the target date
+
+    // Ensure the targetDate is valid
+    if (!targetDate || isNaN(targetDate.getTime())) {
+        console.error("Invalid target date for exam: " + examTitle);
+        return; // Exit the function early if the date is invalid
     }
 
     var countDownDate = targetDate.getTime();
@@ -58,5 +69,6 @@ function closeAd() {
 }
 
 // Example: Start countdown based on the exam title
-var examTitle = document.title; // Assume the title is the exam name
-startCountdown(examTitle);
+document.addEventListener('DOMContentLoaded', function() {
+    startCountdown();  // Start countdown based on the page title
+});

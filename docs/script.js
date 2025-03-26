@@ -29,7 +29,7 @@ function startCountdown(exam) {
         `${targetDate.getFullYear()}年${(targetDate.getMonth() + 1).toString().padStart(2, '0')}月${targetDate.getDate().toString().padStart(2, '0')}日${targetDate.getHours().toString().padStart(2, '0')}时${targetDate.getMinutes().toString().padStart(2, '0')}分`;
 
     var countdownfunction = setInterval(function() {
-        const currentTime = new Date().getTime(); // 修复重复声明的变量
+        const currentTime = new Date().getTime();
         var distance = countDownDate - currentTime;
 
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -104,7 +104,7 @@ function changeBackground(backgroundIndex) {
 // Initialize Homepage
 function initHomepage() {
     // Set current date
-    const currentDate = new Date(); // 修复重复声明的变量
+    const currentDate = new Date();
     const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     document.querySelector('.current-date').textContent = currentDate.toLocaleDateString('zh-CN', options);
 

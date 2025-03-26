@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GoalCountDown - 精准的考试倒计时，助力你逐梦前行！"> <!-- 添加描述 -->
+    <meta name="description" content="GoalCountDown - 精准的考试倒计时，助力你逐梦前行！">
     <meta name="baidu-site-verification" content="codeva-B6IypxX0H6" />
     <title>GoalCountdown</title>
     <link rel="stylesheet" href="style.css">
@@ -18,12 +18,12 @@
     </script>        
 </head>
 <body>
-
     <!-- Header Section -->
     <header class="header">
         <div class="logo">
             <h1>GoalCountdown</h1>
         </div>
+        <div class="current-date"></div>
     </header>
 
     <!-- Title Section -->
@@ -32,41 +32,32 @@
         <p>即刻开启倒计时，开始你的逐梦之旅</p>
     </section>
 
-    <!-- Countdown Entries Section -->
-    <section class="entries-section">
-        <div class="entry" onclick="openCountdown('guokao.html')">
-            <img src="guokao.png" alt="2025年国考">
-            <p>2025年国考</p>
+    <!-- Banner Section -->
+    <section class="banner-section">
+        <div class="banner active" id="banner1">
+            <img src="banner1.jpg" alt="Banner 1" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
-        <div class="entry" onclick="openCountdown('teacher.html')">
-            <img src="teacher.png" alt="2024年教资面试">
-            <p>2024年教资面试</p>
-        </div>
-        <div class="entry" onclick="openCountdown('cet.html')">
-            <img src="cet.png" alt="2024年英语四六级考试">
-            <p>2024年英语四六级考试</p>
-        </div>
-        <div class="entry" onclick="openCountdown('kaoyan.html')">
-            <img src="kaoyan.png" alt="2025年考研初试">
-            <p>2025年考研初试</p>
-        </div>
-        <div class="entry" onclick="openCountdown('computer.html')">
-            <img src="computer.png" alt="2025年计算机二级考试">
-            <p>2025年计算机二级考试</p>
-        </div>
-        <div class="entry" onclick="openCountdown('gaokao.html')">
-            <img src="gaokao.png" alt="2025年高考">
-            <p>2025年高考</p>
-        </div>
-        <div class="entry" onclick="openCountdown('cpa.html')">
-            <img src="cpa.png" alt="2025年CPA考试">
-            <p>2025年CPA考试</p>
-        </div>
-        <div class="entry" onclick="openCountdown('fakao.html')">
-            <img src="fakao.png" alt="2025年法考">
-            <p>2025年法考</p>
+        <div class="banner" id="banner2">
+            <img src="banner2.jpg" alt="Banner 2" style="width: 100%; height: 100%; object-fit: cover;">
+            <button class="banner-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
         </div>
     </section>
+
+    <!-- Countdown Entries Section -->
+    <section class="entries-section">
+        <!-- 倒计时入口将在这里动态生成 -->
+    </section>
+
+    <!-- Activity Popup -->
+    <div class="activity-popup">
+        <div class="popup-content">
+            <h3>活动标题</h3>
+            <p>活动副标题</p>
+            <img src="activity-image.jpg" alt="活动配图">
+            <button class="popup-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
+            <button class="close-popup">关闭</button>
+        </div>
+    </div>
 
     <!-- Footer Section -->
     <div class="footer">

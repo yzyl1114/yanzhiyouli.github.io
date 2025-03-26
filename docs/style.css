@@ -14,11 +14,17 @@ body {
     padding: 7px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
 .header h1 {
     margin-left: 10px;
     font-size: 1.5rem;
+}
+
+.current-date {
+    margin-right: 10px;
+    font-size: 1rem;
 }
 
 /* Title Section */
@@ -39,27 +45,158 @@ body {
     color: #666;
 }
 
+/* Banner Section */
+.banner-section {
+    position: relative;
+    height: 400px;
+    overflow: hidden;
+}
+
+.banner-container {
+    height: 100%;
+}
+
+.banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ccc;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.banner.active {
+    opacity: 1;
+}
+
+.banner-btn {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    padding: 10px 20px;
+    background-color: #33738D;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.banner-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+}
+
+.indicator {
+    width: 30px;
+    height: 4px;
+    background-color: white;
+    margin: 0 5px;
+    transition: background-color 0.3s;
+}
+
+.indicator.active {
+    background-color: #33738D;
+}
+
 /* Countdown Entries Section */
 .entries-section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     padding: 20px;
+    position: relative;
 }
 
 .entry {
     text-align: center;
     cursor: pointer;
+    position: relative;
 }
 
 .entry img {
-    width: 300px;
+    width: 100%;
     height: 200px;
     border-radius: 15px;
+    object-fit: cover;
 }
 
 .entry p {
     margin-top: 10px;
+}
+
+.entry.ended::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    z-index: 1;
+}
+
+.entry.ended .ended-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+/* Activity Popup */
+.activity-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+}
+
+.popup-content h3 {
+    margin-top: 0;
+}
+
+.popup-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 15px 0;
+}
+
+.popup-btn, .close-popup {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.popup-btn {
+    background-color: #33738D;
+    color: white;
+}
+
+.close-popup {
+    background-color: #f0f0f0;
+    color: #333;
 }
 
 /* Countdown Page Styles */
@@ -69,94 +206,158 @@ body {
     color: #FFFFFF;
     padding: 50px;
     height: 100vh;
+    position: relative;
 }
 
-/* Adjust the countdown layout: Ensure numbers and labels are on separate rows */
+.countdown-time {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Adjust the countdown layout */
 .countdown-container {
     display: flex;
-    flex-direction: row; /* 水平排列 */
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 10px;
     margin-top: 100px;
 }
 
-/* Adjust the countdown numbers with individual boxes */
+/* Adjust the countdown numbers */
 .countdown-number span:first-child {
-    background-color: #222222; /* 仅应用于数字的黑框 */
+    background-color: #222222;
     border-radius: 10px;
     padding: 20px;
     font-size: 6rem;
     color: #FFFFFF;
     display: inline-block;
-    min-width: 100px; /* 确保数字为双位数显示 */
+    min-width: 100px;
     text-align: center;
 }
 
-/* Remove background and border for the text (e.g., 天、时、分、秒) */
 .countdown-number span:last-child {
-    background-color: transparent; /* 确保文字无黑框 */
+    background-color: transparent;
     padding: 10px;
-    font-size: 2rem; /* 字号调整为适合的大小 */
+    font-size: 2rem;
     color: #FFFFFF;
     text-align: center;
 }
 
-/* Add colon between numbers */
 .countdown-colon {
     font-size: 6rem;
     color: #FFFFFF;
     padding: 0 10px;
 }
 
-/* Countdown Page Title */
 .countdown-title {
     font-size: 3rem;
     margin-bottom: 30px;
     margin-top: 50px;
 }
 
-/* Layout adjustment */
-.countdown-section-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-}
-
-.ad-space {
+/* Settings Popup */
+.settings-popup {
     position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    text-align: center;
-    padding: 10px;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s;
     z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
 }
 
-.ad-space button {
+.settings-popup.open {
+    left: 0;
+}
+
+.settings-popup h3 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.sound-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+}
+
+.sound-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.background-options {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.background-option {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.background-option img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+}
+
+.background-option.selected::after {
+    content: "";
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #33738D;
+    border-radius: 5px;
 }
 
 /* Footer Styles */
 .footer {
     display: flex;
     flex-direction: column;
-    align-items: center; /* 确保文字内容居中对齐 */
-    font-size: 0.8rem; /* 小字 */
-    color: #999999; /* 常见备案信息色值 */
+    align-items: center;
+    font-size: 0.8rem;
+    color: #999999;
     margin-top: 20px;
     padding: 10px 0;
 }
 
 .footer a {
-    color: #999999; /* 链接颜色与其他文字相同 */
-    text-decoration: none; /* 默认无下划线 */
+    color: #999999;
+    text-decoration: none;
 }
 
 .footer a:hover {
-    text-decoration: underline; /* 悬停时显示下划线 */
+    text-decoration: underline;
 }
 
+/* Scrollbar Styles */
+.entries-section::-webkit-scrollbar {
+    width: 10px;
+}
+
+.entries-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.entries-section::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+.entries-section::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

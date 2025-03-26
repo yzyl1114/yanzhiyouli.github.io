@@ -3,38 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="GoalCountDown - 精准的考试倒计时，助力你逐梦前行！">
-    <meta name="baidu-site-verification" content="codeva-B6IypxX0H6" />
-    <title>GoalCountdown</title>
+    <title>Countdown - 考试倒计时</title>
     <link rel="stylesheet" href="style.css">
-    <script>
-        var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?c6baf7031f6b21df12e918a4efa3d7e9";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
-        })();
-    </script>        
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- 头部标题栏 -->
     <header class="header">
         <div class="logo">
-            <h1>GoalCountdown</h1>
+            <img src="logo.png" alt="Countdown Logo">
+            <h1>Countdown</h1>
         </div>
         <div class="current-date"></div>
     </header>
 
-    <!-- Banner Section -->
+    <!-- 轮播Banner -->
     <section class="banner-section">
         <div class="banner-container">
-            <div class="banner active" id="banner1">
-                <img src="banner1.jpg" alt="Banner 1" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="banner active">
+                <img src="banner1.jpg" alt="网站介绍">
             </div>
-            <div class="banner" id="banner2">
-                <img src="banner2.jpg" alt="Banner 2" style="width: 100%; height: 100%; object-fit: cover;">
-                <button class="banner-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
+            <div class="banner">
+                <img src="banner2.jpg" alt="活动推广">
+                <button class="banner-btn">立即抢</button>
             </div>
         </div>
         <div class="banner-indicators">
@@ -43,30 +33,28 @@
         </div>
     </section>
 
-    <!-- Countdown Entries Section -->
+    <!-- 倒计时入口 -->
     <section class="entries-section">
-        <!-- 倒计时入口将在这里动态生成 -->
+        <!-- 倒计时入口将通过JavaScript动态生成 -->
     </section>
 
-    <!-- Activity Popup -->
+    <!-- 活动弹窗 -->
     <div class="activity-popup">
         <div class="popup-content">
             <h3>活动标题</h3>
             <p>活动副标题</p>
             <img src="activity-image.jpg" alt="活动配图">
-            <button class="popup-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
+            <button class="popup-btn">立即抢</button>
             <button class="close-popup">关闭</button>
         </div>
     </div>
 
-    <!-- Footer Section -->
-    <div class="footer">
-        <p>
-            <a href="http://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
-                京ICP备2024094021号
-            </a>
-        </p>
-        <p>意见或建议 QQ401716829</p>
+    <!-- 广告位 -->
+    <div class="ad-space">
+        <div class="ad-content">
+            <!-- 广告内容 -->
+        </div>
+        <button class="close-ad">关闭</button>
     </div>
 
     <script src="script.js"></script>

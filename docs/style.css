@@ -1,56 +1,82 @@
-/* Global Styles */
-body {
+/* 全局样式 */
+* {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
-    color: #333;
-    background-color: #f5f5f5;
+    box-sizing: border-box;
 }
 
-/* Header */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* 头部标题栏 */
 .header {
     background-color: #33738D;
     color: white;
-    padding: 7px;
+    padding: 10px 20px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
 }
 
-.header h1 {
-    margin-left: 10px;
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo h1 {
     font-size: 1.5rem;
+    margin: 0;
 }
 
 .current-date {
-    margin-right: 10px;
     font-size: 1rem;
 }
 
-/* Banner Section */
+/* 轮播Banner */
 .banner-section {
     position: relative;
     height: 400px;
     overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .banner-container {
     height: 100%;
+    position: relative;
 }
 
 .banner {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 100%;
     width: 100%;
     height: 100%;
-    background-color: #ccc;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ccc;
 }
 
 .banner.active {
+    position: absolute;
+    left: 0;
     opacity: 1;
+}
+
+.banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .banner-btn {
@@ -63,6 +89,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1rem;
 }
 
 .banner-indicators {
@@ -78,6 +105,7 @@ body {
     height: 4px;
     background-color: white;
     margin: 0 5px;
+    cursor: pointer;
     transition: background-color 0.3s;
 }
 
@@ -85,30 +113,38 @@ body {
     background-color: #33738D;
 }
 
-/* Countdown Entries Section */
+/* 倒计时入口 */
 .entries-section {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    padding: 20px;
-    position: relative;
+    padding: 0 20px;
+    margin-bottom: 20px;
 }
 
 .entry {
-    text-align: center;
-    cursor: pointer;
     position: relative;
+    cursor: pointer;
+    transition: transform 0.3s;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.entry:hover {
+    transform: translateY(-5px);
 }
 
 .entry img {
     width: 100%;
-    height: 200px;
-    border-radius: 15px;
+    height: 180px;
     object-fit: cover;
 }
 
 .entry p {
-    margin-top: 10px;
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9rem;
 }
 
 .entry.ended::before {
@@ -119,7 +155,6 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 15px;
     z-index: 1;
 }
 
@@ -127,10 +162,15 @@ body {
     position: absolute;
     top: 10px;
     left: 10px;
+    background-color: #ff0000;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
     z-index: 2;
 }
 
-/* Activity Popup */
+/* 活动弹窗 */
 .activity-popup {
     position: fixed;
     top: 0;
@@ -138,15 +178,23 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.activity-popup.show {
+    visibility: visible;
+    opacity: 1;
 }
 
 .popup-content {
     background-color: white;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     text-align: center;
     max-width: 500px;
@@ -154,21 +202,28 @@ body {
 }
 
 .popup-content h3 {
-    margin-top: 0;
+    margin-bottom: 10px;
+    color: #33738D;
+}
+
+.popup-content p {
+    margin-bottom: 20px;
+    font-size: 1rem;
 }
 
 .popup-content img {
     max-width: 100%;
     height: auto;
-    margin: 15px 0;
+    margin: 20px 0;
 }
 
 .popup-btn, .close-popup {
     padding: 10px 20px;
-    margin: 10px 5px;
-    cursor: pointer;
+    margin: 0 10px;
     border: none;
     border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
 }
 
 .popup-btn {
@@ -181,40 +236,36 @@ body {
     color: #333;
 }
 
-/* Footer Styles */
-.footer {
+/* 广告位 */
+.ad-space {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 900;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.ad-space.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.ad-content {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
-    color: #999999;
-    margin-top: 20px;
-    padding: 10px 0;
+    padding: 15px 20px;
 }
 
-.footer a {
-    color: #999999;
-    text-decoration: none;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-}
-
-/* Scrollbar Styles */
-.entries-section::-webkit-scrollbar {
-    width: 10px;
-}
-
-.entries-section::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.entries-section::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-}
-
-.entries-section::-webkit-scrollbar-thumb:hover {
-    background: #555;
+.close-ad {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #999;
 }

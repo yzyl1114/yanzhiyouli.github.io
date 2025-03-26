@@ -5,37 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>考试倒计时</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
 </head>
 <body>
-    <section class="countdown-section">
-        <div class="countdown-time"></div>
-        <h2 class="countdown-title"></h2>
+    <!-- 设置弹窗 -->
+    <div class="settings-popup">
+        <h3>设置</h3>
+        <div class="sound-toggle">
+            <span>背景音乐</span>
+            <span class="sound-icon sound-on">🔊</span>
+        </div>
+        <div class="background-options">
+            <div class="background-option selected">
+                <img src="background1.jpg" alt="背景1">
+            </div>
+            <div class="background-option">
+                <img src="background2.jpg" alt="背景2">
+            </div>
+            <div class="background-option">
+                <img src="background3.jpg" alt="背景3">
+            </div>
+            <div class="background-option">
+                <img src="background4.jpg" alt="背景4">
+            </div>
+        </div>
+    </div>
+
+    <!-- 倒计时页面主体 -->
+    <div class="countdown-page">
+        <h1 class="exam-title"></h1>
+        <p class="exam-time"></p>
         <div class="countdown-container">
-            <!-- Days -->
-            <div class="countdown-number">
+            <div class="countdown-section">
                 <span id="days">00</span>
                 <span class="countdown-label">天</span>
             </div>
-            
-            <!-- Hours -->
-            <div class="countdown-number">
+            <div class="countdown-section">
                 <span id="hours">00</span>
                 <span class="countdown-label">时</span>
             </div>
-            
-            <!-- Minutes -->
-            <div class="countdown-number">
+            <div class="countdown-section">
                 <span id="minutes">00</span>
                 <span class="countdown-label">分</span>
             </div>
-            
-            <!-- Seconds -->
-            <div class="countdown-number">
+            <div class="countdown-section">
                 <span id="seconds">00</span>
                 <span class="countdown-label">秒</span>
             </div>
         </div>
-    </section>
+    </div>
+
+    <!-- 广告位 -->
+    <div class="ad-space">
+        <div class="ad-content">
+            <!-- 广告内容 -->
+        </div>
+        <button class="close-ad">关闭</button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

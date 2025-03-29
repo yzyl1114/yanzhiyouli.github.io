@@ -9,9 +9,8 @@
 <body>
     <!-- 设置弹窗 -->
     <div class="settings-popup">
-        <h3>设置</h3>
-        <div class="sound-toggle">
-            <span>背景音乐</span>
+        <div class="settings-header">
+            <h3>设置</h3>
             <span class="sound-icon sound-on">🔊</span>
         </div>
         <div class="background-options">
@@ -28,30 +27,34 @@
                 <img src="background4.jpg" alt="背景4">
             </div>
         </div>
+        <div class="settings-scrollbar"></div>
     </div>
 
     <!-- 倒计时页面主体 -->
     <div class="countdown-page">
-        <h1 class="exam-title"></h1>
-        <p class="exam-time"></p>
-        <div class="countdown-container">
-            <div class="countdown-section">
-                <span id="days">00</span>
-                <span class="countdown-label">天</span>
-            </div>
-            <div class="countdown-section">
-                <span id="hours">00</span>
-                <span class="countdown-label">时</span>
-            </div>
-            <div class="countdown-section">
-                <span id="minutes">00</span>
-                <span class="countdown-label">分</span>
-            </div>
-            <div class="countdown-section">
-                <span id="seconds">00</span>
-                <span class="countdown-label">秒</span>
+        <div class="countdown-content">
+            <h1 class="exam-title"></h1>
+            <p class="exam-time"></p>
+            <div class="countdown-container">
+                <div class="countdown-number" id="days">
+                    <span>00</span>
+                    <div class="countdown-label">天</div>
+                </div>
+                <div class="countdown-number" id="hours">
+                    <span>00</span>
+                    <div class="countdown-label">时</div>
+                </div>
+                <div class="countdown-number" id="minutes">
+                    <span>00</span>
+                    <div class="countdown-label">分</div>
+                </div>
+                <div class="countdown-number" id="seconds">
+                    <span>00</span>
+                    <div class="countdown-label">秒</div>
+                </div>
             </div>
         </div>
+        <div class="settings-btn">⚙️</div>
     </div>
 
     <!-- 广告位 -->
@@ -59,7 +62,7 @@
         <div class="ad-content">
             <!-- 广告内容 -->
         </div>
-        <button class="close-ad">关闭</button>
+        <button class="close-ad" onclick="closeAd()">✕</button>
     </div>
 
     <script src="script.js"></script>

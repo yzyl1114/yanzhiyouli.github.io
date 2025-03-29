@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Countdown - 考试倒计时</title>
+    <title>GoalCountdown</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 头部标题栏 -->
+    <!-- Header Section -->
     <header class="header">
         <div class="logo">
-            <img src="logo.png" alt="Countdown Logo">
-            <h1>Countdown</h1>
+            <img src="logo.png" alt="GoalCountdown Logo">
+            <h1>GoalCountdown</h1>
         </div>
         <div class="current-date"></div>
     </header>
 
-    <!-- 轮播Banner -->
+    <!-- Banner Section -->
     <section class="banner-section">
         <div class="banner-container">
-            <div class="banner active">
+            <div class="banner active" id="banner1">
                 <img src="banner1.jpg" alt="网站介绍">
             </div>
-            <div class="banner">
+            <div class="banner" id="banner2">
                 <img src="banner2.jpg" alt="活动推广">
-                <button class="banner-btn">立即抢</button>
+                <button class="banner-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
             </div>
         </div>
         <div class="banner-indicators">
@@ -33,28 +33,30 @@
         </div>
     </section>
 
-    <!-- 倒计时入口 -->
+    <!-- Countdown Entries Section -->
     <section class="entries-section">
-        <!-- 倒计时入口将通过JavaScript动态生成 -->
+        <!-- 倒计时入口将在这里动态生成 -->
     </section>
 
-    <!-- 活动弹窗 -->
+    <!-- Activity Popup -->
     <div class="activity-popup">
         <div class="popup-content">
             <h3>活动标题</h3>
             <p>活动副标题</p>
             <img src="activity-image.jpg" alt="活动配图">
-            <button class="popup-btn">立即抢</button>
-            <button class="close-popup">关闭</button>
+            <button class="popup-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
         </div>
+        <button class="close-popup">✕</button>
     </div>
 
-    <!-- 广告位 -->
-    <div class="ad-space">
-        <div class="ad-content">
-            <!-- 广告内容 -->
-        </div>
-        <button class="close-ad">关闭</button>
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>
+            <a href="http://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+                京ICP备2024094021号
+            </a>
+        </p>
+        <p>商务合作 goalcountdown@gmail.com</p>
     </div>
 
     <script src="script.js"></script>

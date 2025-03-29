@@ -236,10 +236,13 @@ body {
     color: #FFFFFF;
     height: 100vh;
     position: relative;
+    background-image: url('background1.jpg');
+    background-size: cover;
+    background-position: center;
 }
 
 .exam-title {
-    font-size: 3rem;
+    font-size: 2.5rem;
     margin-bottom: 10px;
 }
 
@@ -262,8 +265,8 @@ body {
     align-items: center;
 }
 
-.countdown-number span:first-child {
-    background-color: #222222;
+.countdown-number span {
+    background-color: #000000;
     border-radius: 10px;
     padding: 20px;
     font-size: 6rem;
@@ -273,10 +276,10 @@ body {
     text-align: center;
 }
 
-.countdown-number span:last-child {
+.countdown-label {
     background-color: transparent;
     padding: 10px;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #FFFFFF;
     text-align: center;
 }
@@ -285,6 +288,9 @@ body {
     font-size: 6rem;
     color: #FFFFFF;
     padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* 设置弹窗 */
@@ -368,6 +374,7 @@ body {
     border-radius: 0 10px 10px 0;
     cursor: pointer;
     z-index: 1001;
+    font-size: 24px;
 }
 
 /* 广告位 */
@@ -392,7 +399,7 @@ body {
 .close-ad {
     background: none;
     border: none;
-    font-size: 1rem;
+    font-size: 1.5rem;
     cursor: pointer;
     color: #999;
 }

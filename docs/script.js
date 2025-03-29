@@ -25,43 +25,48 @@ function startCountdown(exam) {
     const countDownDate = targetDate.getTime();
 
     // Update the exam time display
-    document.querySelector('.countdown-time').textContent = 
+    document.querySelector('.exam-time').textContent = 
         `${targetDate.getFullYear()}年${(targetDate.getMonth() + 1).toString().padStart(2, '0')}月${targetDate.getDate().toString().padStart(2, '0')}日${targetDate.getHours().toString().padStart(2, '0')}时${targetDate.getMinutes().toString().padStart(2, '0')}分`;
 
-    var countdownfunction = setInterval(function() {
-        const currentTime = new Date().getTime();
-        var distance = countDownDate - currentTime;
+    var countdownInterval = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
 
-        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        // Ensure the numbers are always two digits using padStart()
-        document.getElementById("days").innerHTML = String(days).padStart(2, '0');
-        document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
-        document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
-        document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
+        // 确保数字始终为两位
+        document.getElementById('days').textContent = padZero(days);
+        document.getElementById('hours').textContent = padZero(hours);
+        document.getElementById('minutes').textContent = padZero(minutes);
+        document.getElementById('seconds').textContent = padZero(seconds);
 
-        // When the countdown is finished, reset to "00:00:00:00"
+        // 当倒计时结束时，停止计时器
         if (distance < 0) {
-            clearInterval(countdownfunction);
-            document.getElementById("days").innerHTML = "00";
-            document.getElementById("hours").innerHTML = "00";
-            document.getElementById("minutes").innerHTML = "00";
-            document.getElementById("seconds").innerHTML = "00";
+            clearInterval(countdownInterval);
+            document.getElementById('days').textContent = '00';
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
         }
-    }, 1000); // Update every second
+    }, 1000); // 每秒更新一次
 }
 
-// Initialize Homepage
+// 补零函数
+function padZero(num) {
+    return num.toString().padStart(2, '0');
+}
+
+// 初始化首页
 function initHomepage() {
-    // Set current date
+    // 设置当前日期
     const currentDate = new Date();
     const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
     document.querySelector('.current-date').textContent = currentDate.toLocaleDateString('zh-CN', options);
 
-    // Banner carousel
+    // 轮播图
     let currentBanner = 1;
     const banners = document.querySelectorAll('.banner');
     const indicators = document.querySelectorAll('.indicator');
@@ -79,13 +84,13 @@ function initHomepage() {
         showBanner(currentBanner);
     }
     
-    // Auto change banner every 3 seconds
+    // 每3秒自动切换轮播图
     setInterval(nextBanner, 3000);
     
-    // Initialize with first banner
+    // 初始化显示第一张轮播图
     showBanner(1);
     
-    // Generate exam entries
+    // 生成考试入口
     const exams = [
         { name: "中小学教师资格考试（笔试）", date: new Date("2025-03-08T09:00:00"), ended: false },
         { name: "全国计算机等级考试", date: new Date("2025-03-29T09:00:00"), ended: false },
@@ -101,23 +106,23 @@ function initHomepage() {
         { name: "硕士研究生招生考试（初试）", date: new Date("2025-12-21T09:00:00"), ended: false }
     ];
     
-    // Sort exams by date
+    // 按考试日期排序
     exams.sort((a, b) => a.date - b.date);
     
-    // Check which exams have ended
+    // 检查考试是否已结束
     const now = new Date();
     exams.forEach(exam => {
         exam.ended = exam.date <= now;
     });
     
-    // Move ended exams to the end
+    // 将已结束的考试移到末尾
     exams.sort((a, b) => {
         if (a.ended && !b.ended) return 1;
         if (!a.ended && b.ended) return -1;
         return 0;
     });
     
-    // Create exam entries
+    // 创建考试入口
     const entriesSection = document.querySelector('.entries-section');
     exams.forEach(exam => {
         const entry = document.createElement('div');
@@ -143,40 +148,49 @@ function initHomepage() {
         entriesSection.appendChild(entry);
     });
     
-    // Show activity popup
+    // 显示活动弹窗
     setTimeout(() => {
         document.querySelector('.activity-popup').style.display = 'flex';
     }, 1000);
 }
 
-// Close Activity Popup
+// 初始化页面
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname === '/index.html') {
+        initHomepage();
+    } else {
+        initCountdownPage();
+    }
+});
+
+// 关闭活动弹窗
 function closeActivityPopup() {
     document.querySelector('.activity-popup').style.display = 'none';
 }
 
-// Toggle Settings
+// 切换设置弹窗
 function toggleSettings() {
     const settingsPopup = document.querySelector('.settings-popup');
     settingsPopup.classList.toggle('open');
 }
 
-// Change Background
+// 切换背景
 function changeBackground(backgroundIndex) {
     const backgroundOptions = document.querySelectorAll('.background-option');
     backgroundOptions.forEach(option => option.classList.remove('selected'));
     document.querySelector(`.background-option:nth-child(${backgroundIndex + 1})`).classList.add('selected');
     
-    // Change background and play corresponding music
+    // 更改背景图
     document.body.style.backgroundImage = `url('background${backgroundIndex + 1}.jpg')`;
     
-    // Stop current music if any
+    // 停止当前音乐
     const currentAudio = document.querySelector('audio');
     if (currentAudio) {
         currentAudio.pause();
         currentAudio.remove();
     }
     
-    // Add new audio element
+    // 播放新背景对应的音乐
     const audio = document.createElement('audio');
     audio.src = `music${backgroundIndex + 1}.mp3`;
     audio.loop = true;
@@ -185,13 +199,13 @@ function changeBackground(backgroundIndex) {
     audio.play();
 }
 
-// Initialize Countdown Page
+// 初始化倒计时页面
 function initCountdownPage() {
-    // Get exam name from URL hash
+    // 获取URL中的考试名称
     const urlParams = new URLSearchParams(window.location.search);
     const exam = urlParams.get('exam');
     
-    // Show settings popup button
+    // 显示设置按钮
     const settingsBtn = document.createElement('button');
     settingsBtn.className = 'settings-btn';
     settingsBtn.innerHTML = '⚙️';
@@ -207,55 +221,42 @@ function initCountdownPage() {
     settingsBtn.onclick = toggleSettings;
     document.body.appendChild(settingsBtn);
     
-    // Create settings popup
+    // 创建设置弹窗
     const settingsPopup = document.createElement('div');
     settingsPopup.className = 'settings-popup';
     
-    const settingsTitle = document.createElement('h3');
-    settingsTitle.textContent = '设置';
+    const settingsHeader = document.createElement('div');
+    settingsHeader.className = 'settings-header';
+    settingsHeader.innerHTML = `
+        <h3>设置</h3>
+        <span class="sound-icon sound-on">🔊</span>
+    `;
     
-    const soundSection = document.createElement('div');
-    soundSection.className = 'sound-toggle';
+    const backgroundOptions = document.createElement('div');
+    backgroundOptions.className = 'background-options';
+    backgroundOptions.innerHTML = `
+        <div class="background-option selected">
+            <img src="background1.jpg" alt="背景1">
+        </div>
+        <div class="background-option">
+            <img src="background2.jpg" alt="背景2">
+        </div>
+        <div class="background-option">
+            <img src="background3.jpg" alt="背景3">
+        </div>
+        <div class="background-option">
+            <img src="background4.jpg" alt="背景4">
+        </div>
+    `;
     
-    const soundText = document.createElement('span');
-    soundText.textContent = '背景音乐';
-    
-    const soundIcon = document.createElement('span');
-    soundIcon.className = 'sound-icon sound-on';
-    soundIcon.textContent = '🔊';
-    
-    soundSection.appendChild(soundText);
-    soundSection.appendChild(soundIcon);
-    
-    const backgroundSection = document.createElement('div');
-    backgroundSection.className = 'background-options';
-    
-    for (let i = 0; i < 4; i++) {
-        const backgroundOption = document.createElement('div');
-        backgroundOption.className = 'background-option';
-        if (i === 0) {
-            backgroundOption.classList.add('selected');
-        }
-        
-        const backgroundImg = document.createElement('img');
-        backgroundImg.src = `background${i + 1}.jpg`;
-        backgroundImg.alt = `背景${i + 1}`;
-        
-        backgroundOption.appendChild(backgroundImg);
-        backgroundOption.onclick = () => changeBackground(i);
-        
-        backgroundSection.appendChild(backgroundOption);
-    }
-    
-    settingsPopup.appendChild(settingsTitle);
-    settingsPopup.appendChild(soundSection);
-    settingsPopup.appendChild(backgroundSection);
+    settingsPopup.appendChild(settingsHeader);
+    settingsPopup.appendChild(backgroundOptions);
     document.body.appendChild(settingsPopup);
     
-    // Start countdown
+    // 启动倒计时
     startCountdown(exam);
     
-    // Play default background music
+    // 播放默认背景音乐
     const audio = document.createElement('audio');
     audio.src = 'music1.mp3';
     audio.loop = true;
@@ -263,26 +264,16 @@ function initCountdownPage() {
     audio.play();
     document.body.appendChild(audio);
     
-    // Show ad space
+    // 显示广告位
     setTimeout(showAdSpace, 5000);
 }
 
-// Show Ad Space
+// 显示广告位
 function showAdSpace() {
-    const adSpace = document.querySelector('.ad-space');
-    adSpace.style.display = 'flex';
+    document.querySelector('.ad-space').style.display = 'flex';
 }
 
-// Close Ad
+// 关闭广告
 function closeAd() {
     document.querySelector('.ad-space').style.display = 'none';
 }
-
-// Initialize the correct page
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname === '/index.html') {
-        initHomepage();
-    } else {
-        initCountdownPage();
-    }
-});

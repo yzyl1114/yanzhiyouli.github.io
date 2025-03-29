@@ -306,17 +306,17 @@ body {
     left: 0;
 }
 
-.settings-popup h3 {
-    margin-top: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.sound-toggle {
+.settings-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 0;
+    padding: 10px;
+    background-color: #33738D;
+    color: white;
+}
+
+.settings-header h3 {
+    margin: 0;
 }
 
 .sound-icon {
@@ -325,34 +325,25 @@ body {
 }
 
 .background-options {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
 }
 
 .background-option {
-    position: relative;
-    border-radius: 5px;
-    overflow: hidden;
+    margin: 10px 0;
     cursor: pointer;
 }
 
-.background-option img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
+.background-option.selected {
+    border: 2px solid #33738D;
 }
 
-.background-option.selected::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 2px solid #33738D;
-    border-radius: 5px;
+.background-option img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
 }
 
 .settings-scrollbar {

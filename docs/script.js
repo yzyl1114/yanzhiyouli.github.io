@@ -149,15 +149,6 @@ function initHomepage() {
     }, 1000);
 }
 
-// Initialize the correct page
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname === '/index.html') {
-        initHomepage();
-    } else {
-        initCountdownPage();
-    }
-});
-
 // Close Activity Popup
 function closeActivityPopup() {
     document.querySelector('.activity-popup').style.display = 'none';
@@ -286,3 +277,12 @@ function showAdSpace() {
 function closeAd() {
     document.querySelector('.ad-space').style.display = 'none';
 }
+
+// Initialize the correct page
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname === '/index.html') {
+        initHomepage();
+    } else {
+        initCountdownPage();
+    }
+});

@@ -141,7 +141,17 @@ const exams = [
           item.classList.toggle('active', i === index);
         });
       },
-  
+      // Banner点击事件
+      setupBannerEvents() {  
+        document.querySelectorAll('.banner-item').forEach((item, index) => {
+          if(index === 1) {
+            item.addEventListener('click', () => {
+              window.open(item.dataset.link);
+            });
+          }
+        });
+      },
+
       // 渲染考试入口
       renderExams() {
         const now = new Date();
@@ -174,11 +184,33 @@ const exams = [
         // 显示弹窗
         popup.style.display = 'flex';
         
-        // 关闭事件
-        closeBtn.addEventListener('click', () => {
-          popup.style.display = 'none';
-        });
   
+        // 首页弹窗关闭动画
+        function initPopupCloseAnimation() {
+            const closeBtn = document.querySelector('.popup-close');
+            let count = 3;
+            const circle = document.createElement('div');
+            circle.className = 'close-animation';
+            closeBtn.appendChild(circle);
+        
+            // 允许用户提前点击关闭
+        closeBtn.addEventListener('click', () => {
+            document.getElementById('popup').style.display = 'none';
+        });
+
+            const timer = setInterval(() => {
+                count--;
+                circle.style.background = `conic-gradient(#33738D ${(3-count)*120}deg, transparent 0)`;
+                if(count <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('popup').style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // 调用初始化
+        initPopupCloseAnimation();
+
         // 点击外部关闭
         popup.addEventListener('click', e => {
           if (e.target === popup) popup.style.display = 'none';
@@ -300,6 +332,19 @@ const exams = [
         btn.textContent = this.audio.muted ? '🔇 音效关闭' : '🔊 音效开启';
       },
   
+      // 倒计时页设置面板动画
+      isSettingsOpen: false, // 改为对象属性
+      toggleSettings() {     // 改为对象方法
+        const panel = document.getElementById('settingsPanel');
+        const trigger = document.querySelector('.settings-trigger img');
+        this.isSettingsOpen = !this.isSettingsOpen; // 使用this访问
+  
+        panel.classList.toggle('open');
+        trigger.src = this.isSettingsOpen ? 
+            'images/settings-expand.png' : 
+            'images/settings-collapse.png';
+      },
+
       // 广告控制
       initAd() {
         if (utils.storage.get('adClosed')) {

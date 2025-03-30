@@ -1,35 +1,33 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考试倒计时 - 首页</title>
+    <title>考试倒计时</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 头部 -->
     <header class="header">
         <div class="logo">
-            <img src="images/logo.png" alt="网站Logo" class="logo-img">
-            <h1 class="site-title">Countdown</h1>
+            <img src="images/logo.png" alt="logo" class="logo-img">
+            <h1 class="site-title">GoalCountdown</h1>
         </div>
         <div class="current-date" id="currentDate"></div>
     </header>
 
-    <!-- 轮播图 -->
-    <section class="banner-section">
-        <div class="banner-container">
-            <div class="banner-wrapper">
-                <div class="banner-item">
-                    <img src="images/banner1.jpg" alt="备考资料" class="banner-img">
-                </div>
-                <div class="banner-item">
-                    <img src="images/banner2.jpg" alt="冲刺课程" class="banner-img">
-                    <button class="banner-cta">立即抢</button>
-                </div>
+    <!-- 修改后的轮播结构 -->
+    <div class="banner-container">
+        <div class="banner-wrapper">
+            <div class="banner-item">
+                <img src="images/banner1.jpg" class="banner-img" alt="Banner1">
             </div>
-            <div class="banner-indicator"></div>
+            <div class="banner-item" data-link="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com">
+                <img src="images/banner2.jpg" class="banner-img" alt="Banner2">
+            </div>
         </div>
+        <div class="banner-indicator"></div>
+    </div>
     </section>
 
     <!-- 考试入口 -->

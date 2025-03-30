@@ -7,66 +7,57 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 设置弹窗 -->
-    <div class="settings-popup">
-        <div class="settings-header">
-            <h3>设置</h3>
-            <span class="sound-icon sound-on">🔊</span>
+    <!-- 倒计时主体 -->
+    <div class="countdown-container">
+        <h1 class="exam-title" id="examTitle"></h1>
+        <p class="exam-date" id="examDate"></p>
+        <div class="time-container" id="timer">
+            <!-- 倒计时数字通过JS动态生成 -->
         </div>
-        <div class="background-options">
-            <div class="background-option selected">
-                <img src="background1.jpg" alt="背景1">
-            </div>
-            <div class="background-option">
-                <img src="background2.jpg" alt="背景2">
-            </div>
-            <div class="background-option">
-                <img src="background3.jpg" alt="背景3">
-            </div>
-            <div class="background-option">
-                <img src="background4.jpg" alt="背景4">
-            </div>
+        <div class="time-units">
+            <span class="time-unit">天</span>
+            <span class="time-unit">时</span>
+            <span class="time-unit">分</span>
+            <span class="time-unit">秒</span>
         </div>
-        <div class="settings-scrollbar"></div>
     </div>
 
-    <!-- 倒计时页面主体 -->
-    <div class="countdown-page">
-        <div class="countdown-content">
-            <h1 class="exam-title"></h1>
-            <p class="exam-time"></p>
-            <div class="countdown-container">
-                <div class="countdown-number">
-                    <span id="days">00</span>
-                    <div class="countdown-label">天</div>
-                </div>
-                <div class="countdown-colon">:</div>
-                <div class="countdown-number">
-                    <span id="hours">00</span>
-                    <div class="countdown-label">时</div>
-                </div>
-                <div class="countdown-colon">:</div>
-                <div class="countdown-number">
-                    <span id="minutes">00</span>
-                    <div class="countdown-label">分</div>
-                </div>
-                <div class="countdown-colon">:</div>
-                <div class="countdown-number">
-                    <span id="seconds">00</span>
-                    <div class="countdown-label">秒</div>
-                </div>
+    <!-- 设置入口 -->
+    <div class="settings-trigger" onclick="toggleSettings()">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.44.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+        </svg>
+    </div>
+
+    <!-- 设置面板 -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>设置中心</h3>
+            <button id="soundToggle" class="sound-toggle"></button>
+        </div>
+        
+        <div class="background-selector">
+            <h4>背景主题</h4>
+            <div class="bg-options">
+                <!-- 背景选项通过JS动态生成 -->
             </div>
         </div>
-        <div class="settings-btn">⚙️</div>
     </div>
 
     <!-- 广告位 -->
-    <div class="ad-space">
+    <div class="ad-container">
+        <div class="ad-close" onclick="closeAd()">×</div>
         <div class="ad-content">
-            <!-- 广告内容 -->
+            <p>备考资料限时优惠</p>
+            <button onclick="window.open('https://taobao.com')">立即查看</button>
         </div>
-        <button class="close-ad" onclick="closeAd()">✕</button>
     </div>
+
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="audio/music1.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放
+    </audio>
 
     <script src="script.js"></script>
 </body>

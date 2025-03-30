@@ -1,279 +1,356 @@
-// Homepage: open countdown in a new tab
-function openCountdown(exam) {
-    window.open(`countdown.html?exam=${encodeURIComponent(exam)}`, '_blank');
-}
+// script.js - 完整功能脚本
 
-// Countdown Page: Countdown Timer Logic
-function startCountdown(exam) {
-    // Define target dates for each exam in the new order
-    const exams = {
-        "中小学教师资格考试（笔试）": { date: new Date("2025-03-08T09:00:00") },
-        "全国计算机等级考试": { date: new Date("2025-03-29T09:00:00") },
-        "中小学教师资格考试（面试）": { date: new Date("2025-05-17T09:00:00") },
-        "同等学力全国统考": { date: new Date("2025-05-18T09:00:00") },
-        "英语四六级考试（口语）": { date: new Date("2025-05-24T09:00:00") },
-        "高考": { date: new Date("2025-06-07T09:00:00") },
-        "英语四六级考试（笔试）": { date: new Date("2025-06-14T09:00:00") },
-        "注册会计师（CPA）考试": { date: new Date("2025-08-23T09:00:00") },
-        "法律职业资格考试（客观题）": { date: new Date("2025-09-13T09:00:00") },
-        "法律职业资格考试（主观题）": { date: new Date("2025-10-12T09:00:00") },
-        "国家公务员考试（笔试）": { date: new Date("2025-11-29T09:00:00") },
-        "硕士研究生招生考试（初试）": { date: new Date("2025-12-21T09:00:00") }
+/********************
+ *  通用工具函数
+ ********************/
+const utils = {
+    // 时间格式化
+    formatTime: (date, type = 'full') => {
+      const pad = n => n.toString().padStart(2, '0');
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+  
+      if (type === 'date') {
+        return `${year}年${month}月${day}日`;
+      }
+      return `${year}年${month}月${day}日 ${hours}时${minutes}分`;
+    },
+  
+    // 本地存储
+    storage: {
+      get: key => JSON.parse(localStorage.getItem(key)),
+      set: (key, value) => localStorage.setItem(key, JSON.stringify(value))
+    }
+  };
+  
+  /********************
+   *  首页功能模块
+   ********************/
+  if (document.querySelector('.header')) {
+// 考试数据
+const exams = [
+    { 
+      name: '中小学教师资格考试（笔试）',
+      date: '2025-03-08T09:00+08:00',
+      cover: 'images/exams/teacher.jpg'
+    },
+    {
+      name: '全国计算机等级考试',
+      date: '2025-03-29T09:00+08:00',
+      cover: 'images/exams/computer.jpg'
+    },
+    {
+      name: '中小学教师资格考试（面试）',
+      date: '2025-05-17T09:00+08:00',
+      cover: 'images/exams/interview.jpg'
+    },
+    {
+      name: '同等学力全国统考',
+      date: '2025-05-18T09:00+08:00',
+      cover: 'images/exams/degree.jpg'
+    },
+    {
+      name: '英语四六级考试（口语）',
+      date: '2025-05-24T09:00+08:00',
+      cover: 'images/exams/speaking.jpg'
+    },
+    {
+      name: '高考',
+      date: '2025-06-07T09:00+08:00',
+      cover: 'images/exams/gaokao.jpg'
+    },
+    {
+      name: '英语四六级考试（笔试）',
+      date: '2025-06-14T09:00+08:00',
+      cover: 'images/exams/writing.jpg'
+    },
+    {
+      name: '注册会计师（CPA）考试',
+      date: '2025-08-23T09:00+08:00',
+      cover: 'images/exams/cpa.jpg'
+    },
+    {
+      name: '法律职业资格考试（客观题）',
+      date: '2025-09-13T09:00+08:00',
+      cover: 'images/exams/law1.jpg'
+    },
+    {
+      name: '法律职业资格考试（主观题）',
+      date: '2025-10-12T09:00+08:00',
+      cover: 'images/exams/law2.jpg'
+    },
+    {
+      name: '国家公务员考试（笔试）',
+      date: '2025-11-29T09:00+08:00',
+      cover: 'images/exams/civil.jpg'
+    },
+    {
+      name: '硕士研究生招生考试（初试）',
+      date: '2025-12-21T09:00+08:00',
+      cover: 'images/exams/master.jpg'
+    }
+  ];
+  
+    // 页面模块
+    const homeModule = {
+      init() {
+        this.initDate();
+        this.initBanner();
+        this.renderExams();
+        this.setupPopup();
+        setInterval(() => this.initDate(), 1000);
+      },
+  
+      // 初始化时间
+      initDate() {
+        const dateStr = new Date().toLocaleString('zh-CN', { 
+          timeZone: 'Asia/Shanghai',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          weekday: 'long'
+        });
+        document.getElementById('currentDate').textContent = dateStr.replace(/\//g, '年').replace(/\//g, '月') + '日';
+      },
+  
+      // 轮播图初始化
+      initBanner() {
+        const banner = document.querySelector('.banner-wrapper');
+        const indicators = document.querySelector('.banner-indicator');
+        let currentIndex = 0;
+  
+        // 初始化指示器
+        indicators.innerHTML = exams.slice(0,2).map((_,i) => `
+          <div class="${i === 0 ? 'active' : ''}"></div>
+        `).join('');
+  
+        // 自动轮播
+        this.bannerInterval = setInterval(() => {
+          currentIndex = (currentIndex + 1) % 2;
+          banner.style.transform = `translateX(-${currentIndex * 100}%)`;
+          this.updateIndicators(currentIndex);
+        }, 3000);
+      },
+  
+      // 更新指示器
+      updateIndicators(index) {
+        document.querySelectorAll('.banner-indicator div').forEach((item, i) => {
+          item.classList.toggle('active', i === index);
+        });
+      },
+  
+      // 渲染考试入口
+      renderExams() {
+        const now = new Date();
+        const container = document.getElementById('examContainer');
+        
+        exams.sort((a, b) => {
+          const aEnded = new Date(a.date) < now;
+          const bEnded = new Date(b.date) < now;
+          return aEnded - bEnded || new Date(a.date) - new Date(b.date);
+        });
+  
+        container.innerHTML = exams.map(exam => {
+          const ended = new Date(exam.date) < now;
+          return `
+            <div class="exam-card ${ended ? 'exam-ended' : ''}" 
+                 onclick="window.open('countdown.html?exam=${encodeURIComponent(exam.name)}')">
+              ${ended ? '<img src="images/ended-badge.png" class="ended-badge">' : ''}
+              <img src="${exam.cover}" class="exam-cover">
+              <div class="exam-title">${exam.name}</div>
+            </div>
+          `;
+        }).join('');
+      },
+  
+      // 弹窗控制
+      setupPopup() {
+        const popup = document.getElementById('popupOverlay');
+        const closeBtn = popup.querySelector('.popup-close');
+        
+        // 显示弹窗
+        popup.style.display = 'flex';
+        
+        // 关闭事件
+        closeBtn.addEventListener('click', () => {
+          popup.style.display = 'none';
+        });
+  
+        // 点击外部关闭
+        popup.addEventListener('click', e => {
+          if (e.target === popup) popup.style.display = 'none';
+        });
+      }
     };
-
-    const targetDate = exams[exam].date;
-    const countDownDate = targetDate.getTime();
-
-    // Update the exam time display
-    document.querySelector('.exam-time').textContent = 
-        `${targetDate.getFullYear()}年${(targetDate.getMonth() + 1).toString().padStart(2, '0')}月${targetDate.getDate().toString().padStart(2, '0')}日${targetDate.getHours().toString().padStart(2, '0')}时${targetDate.getMinutes().toString().padStart(2, '0')}分`;
-
-    var countdownInterval = setInterval(function() {
-        const now = new Date().getTime();
-        const distance = countDownDate - now;
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        // 确保数字始终为两位
-        document.getElementById('days').textContent = padZero(days);
-        document.getElementById('hours').textContent = padZero(hours);
-        document.getElementById('minutes').textContent = padZero(minutes);
-        document.getElementById('seconds').textContent = padZero(seconds);
-
-        // 当倒计时结束时，停止计时器
-        if (distance < 0) {
-            clearInterval(countdownInterval);
-            document.getElementById('days').textContent = '00';
-            document.getElementById('hours').textContent = '00';
-            document.getElementById('minutes').textContent = '00';
-            document.getElementById('seconds').textContent = '00';
+  
+    // 初始化首页
+    window.addEventListener('DOMContentLoaded', () => homeModule.init());
+  }
+  
+  /********************
+   *  倒计时页功能模块
+   ********************/
+  if (document.querySelector('.countdown-container')) {
+    // 页面配置
+    const config = {
+        backgrounds: [
+            { 
+                image: 'images/backgrounds/bg1.jpg',
+                music: 'audio/music1.mp3' 
+            },
+            {
+                image: 'images/backgrounds/bg2.jpg',
+                music: 'audio/music2.mp3'
+            },
+            {
+                image: 'images/backgrounds/bg3.jpg',
+                music: 'audio/music3.mp3'
+            },
+            {
+                image: 'images/backgrounds/bg4.jpg',
+                music: 'audio/music4.mp3'
+            }
+        ],
+        exams: {
+            '中小学教师资格考试（笔试）': '2025-03-08T09:00+08:00',
+            '全国计算机等级考试': '2025-03-29T09:00+08:00',
+            '中小学教师资格考试（面试）': '2025-05-17T09:00+08:00',
+            '同等学力全国统考': '2025-05-18T09:00+08:00',
+            '英语四六级考试（口语）': '2025-05-24T09:00+08:00',
+            '高考': '2025-06-07T09:00+08:00',
+            '英语四六级考试（笔试）': '2025-06-14T09:00+08:00',
+            '注册会计师（CPA）考试': '2025-08-23T09:00+08:00',
+            '法律职业资格考试（客观题）': '2025-09-13T09:00+08:00',
+            '法律职业资格考试（主观题）': '2025-10-12T09:00+08:00',
+            '国家公务员考试（笔试）': '2025-11-29T09:00+08:00',
+            '硕士研究生招生考试（初试）': '2025-12-21T09:00+08:00'
         }
-    }, 1000); // 每秒更新一次
-}
-
-// 补零函数
-function padZero(num) {
-    return num.toString().padStart(2, '0');
-}
-
-// 初始化首页
-function initHomepage() {
-    // 设置当前日期
-    const currentDate = new Date();
-    const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-    document.querySelector('.current-date').textContent = currentDate.toLocaleDateString('zh-CN', options);
-
-    // 轮播图
-    let currentBanner = 1;
-    const banners = document.querySelectorAll('.banner');
-    const indicators = document.querySelectorAll('.indicator');
-    
-    function showBanner(index) {
-        banners.forEach(banner => banner.classList.remove('active'));
-        indicators.forEach(indicator => indicator.classList.remove('active'));
-        banners[index - 1].classList.add('active');
-        indicators[index - 1].classList.add('active');
-        currentBanner = index;
-    }
-    
-    function nextBanner() {
-        currentBanner = currentBanner === banners.length ? 1 : currentBanner + 1;
-        showBanner(currentBanner);
-    }
-    
-    // 每3秒自动切换轮播图
-    setInterval(nextBanner, 3000);
-    
-    // 初始化显示第一张轮播图
-    showBanner(1);
-    
-    // 生成考试入口
-    const exams = [
-        { name: "中小学教师资格考试（笔试）", date: new Date("2025-03-08T09:00:00"), ended: false },
-        { name: "全国计算机等级考试", date: new Date("2025-03-29T09:00:00"), ended: false },
-        { name: "中小学教师资格考试（面试）", date: new Date("2025-05-17T09:00:00"), ended: false },
-        { name: "同等学力全国统考", date: new Date("2025-05-18T09:00:00"), ended: false },
-        { name: "英语四六级考试（口语）", date: new Date("2025-05-24T09:00:00"), ended: false },
-        { name: "高考", date: new Date("2025-06-07T09:00:00"), ended: false },
-        { name: "英语四六级考试（笔试）", date: new Date("2025-06-14T09:00:00"), ended: false },
-        { name: "注册会计师（CPA）考试", date: new Date("2025-08-23T09:00:00"), ended: false },
-        { name: "法律职业资格考试（客观题）", date: new Date("2025-09-13T09:00:00"), ended: false },
-        { name: "法律职业资格考试（主观题）", date: new Date("2025-10-12T09:00:00"), ended: false },
-        { name: "国家公务员考试（笔试）", date: new Date("2025-11-29T09:00:00"), ended: false },
-        { name: "硕士研究生招生考试（初试）", date: new Date("2025-12-21T09:00:00"), ended: false }
-    ];
-    
-    // 按考试日期排序
-    exams.sort((a, b) => a.date - b.date);
-    
-    // 检查考试是否已结束
-    const now = new Date();
-    exams.forEach(exam => {
-        exam.ended = exam.date <= now;
-    });
-    
-    // 将已结束的考试移到末尾
-    exams.sort((a, b) => {
-        if (a.ended && !b.ended) return 1;
-        if (!a.ended && b.ended) return -1;
-        return 0;
-    });
-    
-    // 创建考试入口
-    const entriesSection = document.querySelector('.entries-section');
-    exams.forEach(exam => {
-        const entry = document.createElement('div');
-        entry.className = `entry ${exam.ended ? 'ended' : ''}`;
-        entry.onclick = () => openCountdown(exam.name);
+    };
+  
+    // 倒计时模块
+    const countdownModule = {
+      init() {
+        this.initParams();
+        this.initAudio();
+        this.initSettings();
+        this.initAd();
+        this.startTimer();
+      },
+  
+      // 初始化参数
+      initParams() {
+        const params = new URLSearchParams(location.search);
+        this.examName = decodeURIComponent(params.get('exam'));
+        this.endDate = new Date(config.exams[this.examName]);
         
-        const img = document.createElement('img');
-        img.src = `${exam.name.replace(/\(/g, '').replace(/\)/g, '').replace(/\s+/g, '')}.png`;
-        img.alt = exam.name;
+        document.getElementById('examTitle').textContent = this.examName;
+        document.getElementById('examDate').textContent = utils.formatTime(this.endDate, 'full');
+      },
+  
+      // 音频控制
+      initAudio() {
+        this.audio = document.getElementById('bgMusic');
+        this.audio.src = config.backgrounds[0].music;
+        this.audio.muted = utils.storage.get('isMuted') || false;
         
-        const endedBadge = document.createElement('div');
-        endedBadge.className = 'ended-badge';
-        endedBadge.textContent = '已结束';
+        // 自动播放处理
+        document.body.addEventListener('click', () => {
+          if (this.audio.paused) this.audio.play().catch(() => {});
+        }, { once: true });
+      },
+  
+      // 初始化设置
+      initSettings() {
+        const panel = document.getElementById('settingsPanel');
+        document.querySelector('.bg-options').innerHTML = config.backgrounds
+          .map((bg, i) => `
+            <div class="bg-option ${i === 0 ? 'selected' : ''}" 
+                 onclick="countdownModule.changeBackground(${i})">
+              <img src="${bg.image}" alt="背景${i+1}">
+            </div>
+          `).join('');
         
-        const p = document.createElement('p');
-        p.textContent = exam.name;
+        // 声音切换
+        document.getElementById('soundToggle').addEventListener('click', () => {
+          this.audio.muted = !this.audio.muted;
+          utils.storage.set('isMuted', this.audio.muted);
+          this.updateSoundButton();
+        });
         
-        entry.appendChild(img);
-        if (exam.ended) {
-            entry.appendChild(endedBadge);
+        this.updateSoundButton();
+      },
+  
+      // 切换背景
+      changeBackground(index) {
+        document.body.style.backgroundImage = `url('${config.backgrounds[index].image}')`;
+        this.audio.src = config.backgrounds[index].music;
+        this.audio.play();
+        
+        document.querySelectorAll('.bg-option').forEach((item, i) => {
+          item.classList.toggle('selected', i === index);
+        });
+      },
+  
+      // 更新声音按钮
+      updateSoundButton() {
+        const btn = document.getElementById('soundToggle');
+        btn.textContent = this.audio.muted ? '🔇 音效关闭' : '🔊 音效开启';
+      },
+  
+      // 广告控制
+      initAd() {
+        if (utils.storage.get('adClosed')) {
+          document.querySelector('.ad-container').style.display = 'none';
         }
-        entry.appendChild(p);
-        entriesSection.appendChild(entry);
-    });
-    
-    // 显示活动弹窗
-    setTimeout(() => {
-        document.querySelector('.activity-popup').style.display = 'flex';
-    }, 1000);
-}
-
-// 初始化页面
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.location.pathname === '/index.html') {
-        initHomepage();
-    } else {
-        initCountdownPage();
-    }
-});
-
-// 关闭活动弹窗
-function closeActivityPopup() {
-    document.querySelector('.activity-popup').style.display = 'none';
-}
-
-// 切换设置弹窗
-function toggleSettings() {
-    const settingsPopup = document.querySelector('.settings-popup');
-    settingsPopup.classList.toggle('open');
-}
-
-// 切换背景
-function changeBackground(backgroundIndex) {
-    const backgroundOptions = document.querySelectorAll('.background-option');
-    backgroundOptions.forEach(option => option.classList.remove('selected'));
-    document.querySelector(`.background-option:nth-child(${backgroundIndex + 1})`).classList.add('selected');
-    
-    // 更改背景图
-    document.body.style.backgroundImage = `url('background${backgroundIndex + 1}.jpg')`;
-    
-    // 停止当前音乐
-    const currentAudio = document.querySelector('audio');
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.remove();
-    }
-    
-    // 播放新背景对应的音乐
-    const audio = document.createElement('audio');
-    audio.src = `music${backgroundIndex + 1}.mp3`;
-    audio.loop = true;
-    audio.volume = 0.5;
-    document.body.appendChild(audio);
-    audio.play();
-}
-
-// 初始化倒计时页面
-function initCountdownPage() {
-    // 获取URL中的考试名称
-    const urlParams = new URLSearchParams(window.location.search);
-    const exam = urlParams.get('exam');
-    
-    // 显示设置按钮
-    const settingsBtn = document.createElement('button');
-    settingsBtn.className = 'settings-btn';
-    settingsBtn.innerHTML = '⚙️';
-    settingsBtn.style.position = 'fixed';
-    settingsBtn.style.top = '50%';
-    settingsBtn.style.left = '0';
-    settingsBtn.style.transform = 'translateY(-50%)';
-    settingsBtn.style.zIndex = '1000';
-    settingsBtn.style.background = 'none';
-    settingsBtn.style.border = 'none';
-    settingsBtn.style.fontSize = '24px';
-    settingsBtn.style.cursor = 'pointer';
-    settingsBtn.onclick = toggleSettings;
-    document.body.appendChild(settingsBtn);
-    
-    // 创建设置弹窗
-    const settingsPopup = document.createElement('div');
-    settingsPopup.className = 'settings-popup';
-    
-    const settingsHeader = document.createElement('div');
-    settingsHeader.className = 'settings-header';
-    settingsHeader.innerHTML = `
-        <h3>设置</h3>
-        <span class="sound-icon sound-on">🔊</span>
-    `;
-    
-    const backgroundOptions = document.createElement('div');
-    backgroundOptions.className = 'background-options';
-    backgroundOptions.innerHTML = `
-        <div class="background-option selected">
-            <img src="background1.jpg" alt="背景1">
-        </div>
-        <div class="background-option">
-            <img src="background2.jpg" alt="背景2">
-        </div>
-        <div class="background-option">
-            <img src="background3.jpg" alt="背景3">
-        </div>
-        <div class="background-option">
-            <img src="background4.jpg" alt="背景4">
-        </div>
-    `;
-    
-    settingsPopup.appendChild(settingsHeader);
-    settingsPopup.appendChild(backgroundOptions);
-    document.body.appendChild(settingsPopup);
-    
-    // 启动倒计时
-    startCountdown(exam);
-    
-    // 播放默认背景音乐
-    const audio = document.createElement('audio');
-    audio.src = 'music1.mp3';
-    audio.loop = true;
-    audio.volume = 0.5;
-    audio.play();
-    document.body.appendChild(audio);
-    
-    // 显示广告位
-    setTimeout(showAdSpace, 5000);
-}
-
-// 显示广告位
-function showAdSpace() {
-    document.querySelector('.ad-space').style.display = 'flex';
-}
-
-// 关闭广告
-function closeAd() {
-    document.querySelector('.ad-space').style.display = 'none';
-}
+      },
+  
+      // 启动倒计时
+      startTimer() {
+        const update = () => {
+          const now = new Date();
+          let diff = this.endDate - now;
+          
+          if (diff < 0) diff = 0;
+          
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          document.getElementById('timer').innerHTML = `
+            <div class="time-box">
+              <span class="time-number">${days.toString().padStart(2, '0')}</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number">${hours.toString().padStart(2, '0')}</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number">${minutes.toString().padStart(2, '0')}</span>
+            </div>
+            <div class="time-box">
+              <span class="time-number">${seconds.toString().padStart(2, '0')}</span>
+            </div>
+          `;
+        };
+        
+        update();
+        this.timerInterval = setInterval(update, 1000);
+      }
+    };
+  
+    // 全局方法
+    window.toggleSettings = () => {
+      document.getElementById('settingsPanel').classList.toggle('open');
+    };
+  
+    window.closeAd = () => {
+      utils.storage.set('adClosed', true);
+      document.querySelector('.ad-container').style.display = 'none';
+    };
+  
+    // 初始化倒计时页
+    window.addEventListener('DOMContentLoaded', () => countdownModule.init());
+  }

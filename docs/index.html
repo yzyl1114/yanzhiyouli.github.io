@@ -3,62 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown</title>
+    <title>考试倒计时 - 首页</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Header Section -->
+    <!-- 头部 -->
     <header class="header">
         <div class="logo">
-            <img src="logo.png" alt="GoalCountdown Logo">
-            <h1>GoalCountdown</h1>
+            <img src="images/logo.png" alt="网站Logo" class="logo-img">
+            <h1 class="site-title">Countdown</h1>
         </div>
-        <div class="current-date"></div>
+        <div class="current-date" id="currentDate"></div>
     </header>
 
-    <!-- Banner Section -->
+    <!-- 轮播图 -->
     <section class="banner-section">
         <div class="banner-container">
-            <div class="banner active" id="banner1">
-                <img src="banner1.jpg" alt="网站介绍">
+            <div class="banner-wrapper">
+                <div class="banner-item">
+                    <img src="images/banner1.jpg" alt="备考资料" class="banner-img">
+                </div>
+                <div class="banner-item">
+                    <img src="images/banner2.jpg" alt="冲刺课程" class="banner-img">
+                    <button class="banner-cta">立即抢</button>
+                </div>
             </div>
-            <div class="banner" id="banner2">
-                <img src="banner2.jpg" alt="活动推广">
-                <button class="banner-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
-            </div>
-        </div>
-        <div class="banner-indicators">
-            <div class="indicator active"></div>
-            <div class="indicator"></div>
+            <div class="banner-indicator"></div>
         </div>
     </section>
 
-    <!-- Countdown Entries Section -->
-    <section class="entries-section">
-        <!-- 倒计时入口将在这里动态生成 -->
-    </section>
+    <!-- 考试入口 -->
+    <main class="main-content">
+        <div class="exam-grid" id="examContainer"></div>
+    </main>
 
-    <!-- Activity Popup -->
-    <div class="activity-popup">
-        <div class="popup-content">
-            <h3>活动标题</h3>
-            <p>活动副标题</p>
-            <img src="activity-image.jpg" alt="活动配图">
-            <button class="popup-btn" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">立即抢</button>
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p class="icp-info">
+                <a href="http://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2024094021号</a>
+            </p>
+            <p class="contact-info">商务合作 goalcountdown@gmail.com</p>
         </div>
-        <button class="close-popup">✕</button>
+    </footer>
+
+    <!-- 弹窗 -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-modal">
+            <h2 class="popup-title">限时福利</h2>
+            <p class="popup-subtitle">冲刺备考资料包</p>
+            <img src="images/promo.jpg" alt="备考资料" class="popup-image">
+            <button class="popup-cta">立即领取</button>
+            <button class="popup-close" aria-label="关闭弹窗">×</button>
+        </div>
     </div>
 
-    <!-- Footer Section -->
-    <div class="footer">
-        <p>
-            <a href="http://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
-                京ICP备2024094021号
-            </a>
-        </p>
-        <p>商务合作 goalcountdown@gmail.com</p>
-    </div>
-
+    <!-- 外部脚本 -->
     <script src="script.js"></script>
 </body>
 </html>

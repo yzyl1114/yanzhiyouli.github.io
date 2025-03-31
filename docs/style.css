@@ -81,8 +81,11 @@ body {
 .current-date {
     font-size: 16px;
     color: rgba(255,255,255,0.9);
-    content: "";
 }
+
+.current-date::after {
+    content: ""; /* ✅ 添加伪元素 */
+  }
 
 /* 轮播图 */
 .banner-section {
@@ -257,7 +260,7 @@ body {
     padding: 25px;
     border-radius: 12px;
     width: 100px;
-    height: 120ox;
+    height: 120px;
     position:relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }

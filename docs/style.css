@@ -67,8 +67,9 @@ body {
 }
 
 .logo-img {
-    width: 36px;
-    height: 36px;
+    background: none !important; /* 移除白色背景 */
+    width: 32px;
+    height: 32px;
 }
 
 .site-title {
@@ -83,8 +84,8 @@ body {
     color: rgba(255,255,255,0.9);
 }
 
-.current-date::after {
-    content: ""; /* ✅ 添加伪元素 */
+#current-date::after {
+    content: ""; /* 移除多余的“日”字*/
   }
 
 /* 轮播图 */
@@ -94,10 +95,10 @@ body {
 
 .banner-container {
     position: relative;
-    height: 220px;
+    height: 240px;
     overflow: hidden;
-    border-radius: 8px;
-    margin: 0 15px;
+    border-radius: 0px;
+    margin: 0;
 }
 
 .banner-wrapper {
@@ -185,8 +186,8 @@ body {
 }
 
 .exam-title {
-    padding: 8px;
-    font-size: 14px;
+    padding: 6px;
+    font-size: 12px;
     text-align: center;
     background: white;
     white-space: nowrap;
@@ -202,9 +203,9 @@ body {
 .exam-ended::after {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 0 !important;
+    left: 0 !important;
+    width: 50px;
     height: 100%;
     background: rgba(0,0,0,0.5);
 }
@@ -275,9 +276,10 @@ body {
 
 .time-unit {
     font-size: 16px;
+    color: #fff;
     opacity: 0.9;
     position: absolute;
-    bottom: 15px;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -294,9 +296,9 @@ body {
     left: 25px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.95);
-    width: 45px;
-    height: 45px;
+    background: none !important;;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -306,14 +308,23 @@ body {
     transition: all 0.3s ease;
 }
 
+.settings-trigger img {
+    width: 100%;
+    height: 100%;
+  }
+
 .settings-trigger:hover {
     transform: translateY(-50%) scale(1.1);
 }
 
+.bg-option {
+    margin: 15px 0;
+  }
+
 .bg-option img {
-    height: 80px;
+    height: 100px;
     width: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .settings-panel {
@@ -338,17 +349,21 @@ body {
 /* 广告位 */
 .ad-container {
     position: fixed;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    padding: 15px 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #f5f5f5;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .ad-placeholder {
+    height: 90px;
+    background: #eee;
     display: flex;
     align-items: center;
-    gap: 15px;
-}
+    justify-content: center;
+  }
 
 .ad-close {
     position: absolute;
@@ -425,6 +440,14 @@ body {
     font-size: 12px;
 }
 
+.close-circle {
+    stroke: #33738D;
+    stroke-width: 2;
+    stroke-dasharray: 62.8; /* 2πr (r=10) */
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
 .popup-cta {
     padding: 12px 40px;
     font-size: 16px;
@@ -450,12 +473,15 @@ body {
     }
 
     .time-box {
-        padding: 15px;
-        min-width: 80px;
+        width: 80px;
+        height: 100px;
+        margin: 0 10px;
+        position: relative;
     }
 
     .time-number {
-        font-size: 40px;
+        font-size: 48px;
+        color: #fff; /* 根据背景调整 */
     }
 }
 

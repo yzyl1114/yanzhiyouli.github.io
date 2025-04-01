@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>考试倒计时</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -46,16 +46,18 @@
 
     <!-- 弹窗 -->
     <div class="popup-overlay" id="popupOverlay">
-        <div class="popup-modal">
-            <h2 class="popup-title">限时福利</h2>
-            <p class="popup-subtitle">冲刺备考资料包</p>
-            <img src="images/promo.jpg" alt="备考资料" class="popup-image">
-            <button class="popup-cta">立即领取</button>
-            <button class="popup-close" aria-label="关闭弹窗">×</button>
-              <div class="close-timer"></div> <!-- 添加倒计时圆圈 -->
-              <span>×</span>
-            </button>
+      <div class="popup-modal">
+        <div class="popup-header">
+          <button class="popup-close">
+            <svg class="close-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" class="close-circle"/>
+              <path d="M8 8l8 8M16 8l-8 8" class="close-x"/>
+            </svg>
+          </button>
         </div>
+        <img src="images/promo.jpg" class="popup-image">
+        <button class="popup-cta">立即领取</button>
+      </div>
     </div>
 
     <!-- 外部脚本 -->

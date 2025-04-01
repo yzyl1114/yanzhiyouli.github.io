@@ -179,24 +179,27 @@ if (document.querySelector('.header')) {
 
     initPopupCloseAnimation() {
       const closeBtn = document.querySelector('.popup-close');
+      const circle = closeBtn.querySelector('.close-circle');
       let count = 3;
-      const circle = document.createElement('div');
-      circle.className = 'close-animation';
-      closeBtn.innerHTML = '';
-      closeBtn.appendChild(circle);
-
+  
+    // 动画效果
+      const animate = () => {
+        count--;
+        const dashOffset = 62.8 * (count/3); // 圆形周长计算
+        circle.style.strokeDashoffset = dashOffset;
+    
+        if(count <= 0) {
+          document.getElementById('popupOverlay').style.display = 'none';
+        } else {
+          requestAnimationFrame(animate);
+        }
+      };
+  
       closeBtn.addEventListener('click', () => {
         document.getElementById('popupOverlay').style.display = 'none';
       });
-
-      const timer = setInterval(() => {
-        count--;
-        circle.style.background = `conic-gradient(#33738D ${(3-count)*120}deg, transparent 0)`;
-        if(count <= 0) {
-          clearInterval(timer);
-          document.getElementById('popupOverlay').style.display = 'none';
-        }
-      }, 1000);
+  
+      animate();
     }
   };
 
@@ -267,10 +270,13 @@ if (document.querySelector('.countdown-container')) {
     initAudio() {
       this.audio = document.getElementById('bgMusic');
       this.audio.src = config.backgrounds[0].music;
-      this.audio.muted = utils.storage.get('isMuted') || false;
+      this.audio.muted = false;
       
       document.body.addEventListener('click', () => {
-        if (this.audio.paused) this.audio.play().catch(console.error);
+        if (this.audio.paused){
+          this.audio.preload = 'auto';
+          this.audio.play().catch(e => console.log('自动播放失败:', e));
+        }
       }, { once: true });
     },
 
@@ -299,12 +305,12 @@ if (document.querySelector('.countdown-container')) {
     },
 
     changeBackground(index) {
+      const colors = ['#fff', '#333', '#fff', '#333']; // 预设颜色
       document.body.style.backgroundImage = `url('${config.backgrounds[index].image}')`;
-      this.audio.src = config.backgrounds[index].music;
-      this.audio.play();
       
-      document.querySelectorAll('.bg-option').forEach((item, i) => {
-        item.classList.toggle('selected', i === index);
+      // 设置文字颜色
+      document.querySelectorAll('.time-number, .time-unit').forEach(el => {
+        el.style.color = colors[index];
       });
     },
 

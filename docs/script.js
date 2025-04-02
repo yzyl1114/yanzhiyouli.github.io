@@ -205,83 +205,127 @@ if (document.querySelector('.header')) {
   window.addEventListener('DOMContentLoaded', () => homeModule.init());
 }
 
-// script.js - 修正版 (第二部分)
-/********************
- *  倒计时页功能模块
- ********************/
+/*********************
+ * 倒计时页 JS 逻辑
+ *********************/
 if (document.querySelector('.countdown-container')) {
   const config = {
-      backgrounds: [
-          { 
-              image: 'images/backgrounds/bg1.jpg',
-              music: 'audio/music1.mp3' 
-          },
-          {
-              image: 'images/backgrounds/bg2.jpg',
-              music: 'audio/music2.mp3'
-          },
-          {
-              image: 'images/backgrounds/bg3.jpg',
-              music: 'audio/music3.mp3'
-          },
-          {
-             image: 'images/backgrounds/bg4.jpg',
-             music: 'audio/music4.mp3'
-          }
-      ],
-
-      exams: {
-          '中小学教师资格考试（笔试）': {
-              date: '2025-03-08T09:00+08:00',
-              cover: 'images/exams/teacher.jpg'
-          }
-      },
-
-      selectedBackgroundIndex: 0, // 默认背景
-      selectedMusicIndex: 0 // 默认音乐
+    exams: {
+      '中小学教师资格考试（笔试）': '2025-03-08T09:00:00+08:00',
+      '全国计算机等级考试': '2025-03-29T09:00:00+08:00',
+      '中小学教师资格考试（面试）': '2025-05-17T09:00:00+08:00',
+      '同等学力全国统考': '2025-05-18T09:00:00+08:00',
+      '英语四六级考试（口语）': '2025-05-24T09:00:00+08:00',
+      '高考': '2025-06-07T09:00:00+08:00',
+      '英语四六级考试（笔试）': '2025-06-14T09:00:00+08:00',
+      '注册会计师（CPA）考试': '2025-08-23T09:00:00+08:00',
+      '法律职业资格考试（客观题）': '2025-09-13T09:00:00+08:00',
+      '法律职业资格考试（主观题）': '2025-10-12T09:00:00+08:00',
+      '国家公务员考试（笔试）': '2025-11-29T09:00:00+08:00',
+      '硕士研究生招生考试（初试）': '2025-12-21T09:00:00+08:00'
+    },
+    backgrounds: [
+      { image: 'images/backgrounds/bg1.jpg', music: 'audio/music1.mp3' },
+      { image: 'images/backgrounds/bg2.jpg', music: 'audio/music2.mp3' },
+      { image: 'images/backgrounds/bg3.jpg', music: 'audio/music3.mp3' },
+      { image: 'images/backgrounds/bg4.jpg', music: 'audio/music4.mp3' }
+    ]
   };
 
-  const countdownPage = {
-      init() {
-          this.initBackground();
-          this.startTimer();
-          this.initAudio();
-      },
-
-      initBackground() {
-          const bg = document.querySelector('.countdown-bg');
-          bg.style.backgroundImage = `url(${config.backgrounds[config.selectedBackgroundIndex].image})`;
-      },
-
-      startTimer() {
-          const examTime = new Date(config.exams['中小学教师资格考试（笔试）'].date);
-          const countdownDisplay = document.querySelector('.countdown-time');
-
-          const updateTimer = () => {
-              const now = new Date();
-              const timeRemaining = examTime - now;
-              
-              if (timeRemaining <= 0) {
-                  countdownDisplay.innerHTML = '考试开始！';
-                  clearInterval(this.timer);
-              } else {
-                  const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
-                  const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-                  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
-                  countdownDisplay.innerHTML = `${hours}小时 ${minutes}分钟 ${seconds}秒`;
-              }
-          };
-
-          this.timer = setInterval(updateTimer, 1000);
-          updateTimer();
-      },
-
-      initAudio() {
-          const audio = new Audio(config.backgrounds[config.selectedMusicIndex].music);
-          audio.play();
-          audio.loop = true;
-      }
+  const state = {
+    selectedIndex: 0,
+    audio: document.getElementById('bgMusic')
   };
 
-  window.addEventListener('DOMContentLoaded', () => countdownPage.init());
+  const utils = {
+    pad: n => n.toString().padStart(2, '0'),
+    formatDate: (date) => {
+      const y = date.getFullYear();
+      const m = date.getMonth() + 1;
+      const d = date.getDate();
+      const h = date.getHours().toString().padStart(2, '0');
+      const min = date.getMinutes().toString().padStart(2, '0');
+      return `${y}年${m}月${d}日${h}时${min}分`;
+    }
+  };
+
+  const getExamName = () => {
+    const params = new URLSearchParams(location.search);
+    return decodeURIComponent(params.get('exam') || '中小学教师资格考试（笔试）');
+  };
+
+  const startCountdown = (endTime) => {
+    const timerEl = document.getElementById('timer');
+
+    const update = () => {
+      const now = new Date();
+      let diff = new Date(endTime) - now;
+      if (diff < 0) diff = 0;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+      const minutes = Math.floor(diff / (1000 * 60)) % 60;
+      const seconds = Math.floor(diff / 1000) % 60;
+
+      document.getElementById('days').textContent = utils.pad(days);
+      document.getElementById('hours').textContent = utils.pad(hours);
+      document.getElementById('minutes').textContent = utils.pad(minutes);
+      document.getElementById('seconds').textContent = utils.pad(seconds);
+    };
+
+    update();
+    setInterval(update, 1000);
+  };
+
+  const bindSettingsPanel = () => {
+    const panel = document.getElementById('settingsPanel');
+    const options = document.querySelectorAll('.bg-option');
+    const toggleBtn = document.getElementById('soundToggle');
+
+    document.querySelector('.bg-options').addEventListener('click', e => {
+      const option = e.target.closest('.bg-option');
+      if (!option) return;
+      const index = parseInt(option.dataset.index);
+      state.selectedIndex = index;
+
+      document.body.style.backgroundImage = `url(${config.backgrounds[index].image})`;
+      state.audio.src = config.backgrounds[index].music;
+      state.audio.play();
+
+      options.forEach(el => el.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      state.audio.muted = !state.audio.muted;
+      toggleBtn.textContent = state.audio.muted ? '🔇 音效关闭' : '🔊 音效开启';
+    });
+  };
+
+  window.toggleSettings = () => {
+    const panel = document.getElementById('settingsPanel');
+    const trigger = document.querySelector('.settings-trigger img');
+    panel.classList.toggle('open');
+    trigger.src = panel.classList.contains('open') ?
+      'images/settings-expand.png' : 'images/settings-collapse.png';
+  };
+
+  window.closeAd = () => {
+    document.querySelector('.ad-container').style.display = 'none';
+  };
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const examName = getExamName();
+    const examDate = config.exams[examName];
+
+    document.getElementById('examTitle').textContent = examName;
+    document.getElementById('examDate').textContent = utils.formatDate(new Date(examDate));
+
+    document.body.style.backgroundImage = `url(${config.backgrounds[0].image})`;
+    state.audio.src = config.backgrounds[0].music;
+    state.audio.play();
+
+    startCountdown(examDate);
+    bindSettingsPanel();
+  });
 }

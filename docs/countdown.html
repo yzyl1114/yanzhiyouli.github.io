@@ -3,68 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>考试倒计时</title>
+    <title>GoalCountdown - 倒计时</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 倒计时主体 -->
+    <!-- Title Bar -->
+    <div id="title-bar">
+        <div>GoalCountdown</div>
+        <div id="date" class="date"></div>
+    </div>
+
+    <!-- Countdown -->
     <div class="countdown-container">
-        <h1 id="examTitle"> id="examTitle"</h1> <!-- 从URL参数获取 -->
-        <p id="examDate"> id="examDate"</p> <!-- 考试时间 -->
-      </div>
+        <h1 id="examTitle">考试倒计时</h1>
+        <p id="examDate">考试时间: 2025年3月8日09时00分</p>
+    </div>
 
     <div class="time-container" id="timer">
         <div class="time-box">
-            <span class="time-number">00</div>
-            <span class="time-unit">天</div>
+            <span class="time-number" id="days">00</span>
+            <span class="time-unit">天</span>
         </div>
         <div class="time-box">
-            <span class="time-number">00</div>
-            <span class="time-unit">时</div>
+            <span class="time-number" id="hours">00</span>
+            <span class="time-unit">时</span>
         </div>
         <div class="time-box">
-            <span class="time-number">00</div>
-            <span class="time-unit">分</div>
+            <span class="time-number" id="minutes">00</span>
+            <span class="time-unit">分</span>
         </div>
         <div class="time-box">
-            <span class="time-number">00</div>
-            <span class="time-unit">秒</div>
+            <span class="time-number" id="seconds">00</span>
+            <span class="time-unit">秒</span>
         </div>
     </div>
 
-    <!-- 设置入口 -->
-    <div class="settings-trigger" onclick="toggleSettings()">
-        <img src="images/settings-collapse.png" alt="设置" class="settings-icon">
+    <!-- Footer -->
+    <div class="footer">
+        <p>京ICP备2024094021号 <a href="http://beian.miit.gov.cn/" target="_blank">点击查看</a></p>
     </div>
-
-    <!-- 设置面板 -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-header">
-            <h3>设置中心</h3>
-            <button id="soundToggle" class="sound-toggle"></button>
-        </div>
-        
-        <div class="background-selector">
-            <h4>背景主题</h4>
-            <div class="bg-options">
-                <!-- 背景选项通过JS动态生成 -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 广告位 -->
-    <div class="ad-container">
-        <div class="ad-close" onclick="closeAd()">×</div>
-        <div class="ad-placeholder">
-          <!-- 广告代码将在此处插入 -->
-        </div>
-      </div>
-
-    <!-- 背景音乐 -->
-    <audio id="bgMusic" loop>
-        <source src="audio/music1.mp3" type="audio/mpeg">
-        您的浏览器不支持音频播放
-    </audio>
 
     <script src="script.js"></script>
 </body>

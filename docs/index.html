@@ -1,66 +1,40 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>考试倒计时</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoalCountdown - 首页</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <img src="images/logo.png" alt="logo" class="logo-img">
-            <h1 class="site-title">GoalCountdown</h1>
-        </div>
-        <div class="current-date" id="currentDate"></div>
-    </header>
+    <!-- Title Bar -->
+    <div id="title-bar">
+        <div>GoalCountdown</div>
+        <div id="date" class="date"></div>
+    </div>
 
-    <!-- 修改后的轮播结构 -->
+    <!-- Rotating Banner -->
     <div class="banner-container">
-        <div class="banner-wrapper">
-            <div class="banner-item">
-                <img src="images/banner/banner1.jpg" class="banner-img" alt="Banner1">
-            </div>
-            <div class="banner-item" data-link="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com">
-                <img src="images/banner/banner2.jpg" class="banner-img" alt="Banner2">
-            </div>
+        <div class="banner" id="banner">
+            <img src="images/banner1.jpg" alt="Banner 1">
+            <img src="images/banner2.jpg" alt="Banner 2">
         </div>
-        <div class="banner-indicator"></div>
     </div>
 
-    <!-- 考试入口 -->
-    <main class="main-content">
-        <div class="exam-grid" id="examContainer"></div>
-    </main>
-
-    <!-- 底部 -->
-    <footer class="footer">
-        <div class="footer-content">
-            <p class="icp-info">
-                <a href="http://beian.miit.gov.cn/" target="_blank" rel="noopener">京ICP备2024094021号</a>
-            </p>
-            <p class="contact-info">商务合作 goalcountdown@gmail.com</p>
+    <!-- Countdown Entries -->
+    <div class="countdown-list">
+        <div class="countdown-entry">
+            <h3><a href="countdown.html?examId=1">考试名称 1</a></h3>
+            <p>倒计时：<span id="countdown1">00:00:00</span></p>
         </div>
-    </footer>
-
-    <!-- 弹窗 -->
-    <div class="popup-overlay" id="popupOverlay">
-      <div class="popup-modal">
-        <div class="popup-header">
-          <button class="popup-close">
-            <svg class="close-icon" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" class="close-circle"/>
-              <path d="M8 8l8 8M16 8l-8 8" class="close-x"/>
-            </svg>
-          </button>
-        </div>
-        <img src="images/promo.jpg" class="popup-image">
-        <button class="popup-cta">立即领取</button>
-      </div>
+        <!-- Repeat for other countdown entries -->
     </div>
 
-    <!-- 外部脚本 -->
+    <!-- Footer -->
+    <div class="footer">
+        <p>京ICP备2024094021号 <a href="http://beian.miit.gov.cn/" target="_blank">点击查看</a></p>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

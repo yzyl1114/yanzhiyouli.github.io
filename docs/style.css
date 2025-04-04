@@ -1,4 +1,4 @@
-/* ===== 基础样式 ===== */
+/* ===== 基础重置 ===== */
 * {
     margin: 0;
     padding: 0;
@@ -16,52 +16,118 @@ body {
     color: #333;
 }
 
-/* ===== 标题栏 ===== */
-#title-bar {
-    background-color: #33738D;
-    padding: 10px 20px;
+/* ===== 通用组件 ===== */
+.button {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.primary-button {
+    background: #33738D;
+    color: white;
+    border: 1px solid #2b6177;
+}
+
+.primary-button:hover {
+    background: #2b6177;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+}
+
+/* ===== 首页专属样式 ===== */
+/* 头部导航 */
+.header {
+    background: #33738D;
+    padding: 12px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 50px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-#logo {
+.logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
-#logo img {
-    height: 30px;
+.logo-img {
+    background: none !important;
+    width: 32px;
+    height: 32px;
 }
 
-#currentDate {
-    font-size: 16px;
+.site-title {
+    font-size: 22px;
     color: white;
+    letter-spacing: 1px;
+    margin-left: 8px;
 }
 
-/* ===== Banner ===== */
+.current-date {
+    font-size: 16px;
+    color: rgba(255,255,255,0.9);
+}
+
+#current-date::after {
+    content: "";
+}
+
+/* 轮播图 */
+.banner-section {
+    margin: 20px 0;
+}
+
 .banner-container {
     position: relative;
     height: 240px;
     overflow: hidden;
+    border-radius: 0px;
+    margin: 0;
 }
 
 .banner-wrapper {
     display: flex;
+    height: 100%;
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .banner-item {
-    width: 100%;
+    position: relative;
+    min-width: 100%;
     height: 100%;
+    cursor: pointer;
 }
 
-.banner-item img {
+.banner-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.banner-cta {
+    position: absolute;
+    left: 30px;
+    bottom: 30px;
+    padding: 10px 30px;
+    background: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    box-shadow: 0 4px 15px rgba(255,71,87,0.3);
+    display: none !important;
 }
 
 .banner-indicator {
@@ -73,33 +139,36 @@ body {
     gap: 8px;
 }
 
-.banner-indicator .indicator {
+.banner-indicator > div {
     width: 35px;
     height: 3px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255,255,255,0.5);
     transition: 0.3s;
 }
 
-.banner-indicator .indicator.active {
+.banner-indicator > div.active {
     background: #33738D;
 }
 
-/* ===== 倒计时入口 ===== */
+/* 考试入口网格 */
+.main-content {
+    padding: 30px 15px;
+}
+
 .exam-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
     max-width: 1200px;
-    margin: 30px auto;
+    margin: 0 auto;
 }
 
 .exam-card {
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
     transition: transform 0.3s ease;
-    position: relative;
 }
 
 .exam-card:hover {
@@ -113,87 +182,172 @@ body {
 }
 
 .exam-title {
-    padding: 10px;
-    font-size: 14px;
+    padding: 6px;
+    font-size: 12px;
     text-align: center;
+    background: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.exam-ended .exam-cover-overlay {
+/* 已结束状态 */
+.exam-ended {
+    position: relative;
+}
+
+.exam-ended::after {
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    top: 0 !important;
+    left: 0 !important;
+    width: 50px;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.5);
 }
 
-.exam-ended .ended-badge {
+.ended-badge {
     position: absolute;
     top: 12px;
     left: 12px;
-    background-color: black;
-    color: white;
-    padding: 5px;
-    font-weight: bold;
+    width: 70px;
+    z-index: 2;
 }
 
-/* ===== 活动弹窗 ===== */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    z-index: 1000;
+/* 备案信息修正 */
+.footer {
+    text-align: center;
+    padding: 15px 0;
 }
 
-.popup-modal {
-    position: relative;
+/* ===== 倒计时页专属样式 ===== */
+.countdown-container {
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 400px;
-    height: 400px;
     text-align: center;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    width: 90%;
+    max-width: 800px;
 }
 
-.popup-image {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    margin: 20px 0;
+.exam-title {
+    font-size: 28px;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
 }
 
-.popup-close-btn {
+.exam-date {
+    font-size: 18px;
+    margin-bottom: 40px;
+    opacity: 0.9;
+}
+
+.time-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.time-box {
+    background: rgba(0,0,0,0.7);
+    padding: 25px;
+    border-radius: 12px;
+    width: 100px;
+    height: 120px;
+    position:relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.time-number {
+    font-size: 52px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.time-unit {
+    font-size: 16px;
+    color: #fff;
+    opacity: 0.9;
     position: absolute;
-    right: 15px;
-    top: 15px;
-    font-size: 22px;
-    cursor: pointer;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-/* ===== 设置面板 ===== */
+/* 设置面板 */
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-trigger {
+    position: fixed;
+    left: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none !important;;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.settings-trigger img {
+    width: 100%;
+    height: 100%;
+}
+
+.settings-trigger:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.bg-option {
+    margin: 15px 0;
+}
+
+.bg-option img {
+    height: 100px;
+    width: 100%;
+    object-fit: contain;
+}
+
 .settings-panel {
     position: fixed;
     left: -300px;
     top: 0;
-    width: 280px;
+    width: 250px;
     height: 100%;
     background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(10px);
     padding: 25px;
-    transition: transform 0.3s ease;
-    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: left 0.5s ease-in-out;
+    z-index: 2000;
 }
 
-.settings-panel.open {
+.settings-panel.show {
     left: 0;
-    transform: translateX(0);
+}
+
+.settings-header .close-btn {
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* 背景选择器样式 */
+.bg-option {
+    margin: 15px 0;
 }
 
 .bg-option img {
@@ -208,22 +362,113 @@ body {
     transform: scale(1.1);
 }
 
+/* 音乐控制 */
 .music-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 20px;
 }
 
-.music-control button {
-    padding: 10px;
+.music-control .music-label {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.music-control .volume-control {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.music-control input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 8px;
+    background: #ddd;
+    border-radius: 4px;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.music-control input[type="range"]:hover {
+    background: #33738D;
+}
+
+.music-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #33738D;
+    cursor: pointer;
+}
+
+.music-control input[type="range"]:active::-webkit-slider-thumb {
+    background: #2b6177;
+}
+
+.music-control input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #33738D;
+    cursor: pointer;
+}
+
+.music-control input[type="range"]:active::-moz-range-thumb {
+    background: #2b6177;
+}
+
+/* 背景切换按钮样式 */
+.bg-switch-btn {
+    margin-top: 25px;
+    padding: 10px 15px;
     background: #33738D;
     color: white;
     border: none;
     border-radius: 4px;
-    cursor: pointer;
+    font-size: 14px;
     width: 100%;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-/* ===== 底部备案信息 ===== */
-.footer {
+.bg-switch-btn:hover {
+    background: #2b6177;
+}
+
+/* ===== 广告位 ===== */
+.ad-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #f5f5f5;
+    padding: 10px;
     text-align: center;
-    padding: 15px 0;
+}
+
+.ad-placeholder {
+    height: 90px;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ad-close {
+    position: absolute;
+    right: -8px;
+    top: -8px;
+    width: 26px;
+    height: 26px;
+    background: #eee;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
 }

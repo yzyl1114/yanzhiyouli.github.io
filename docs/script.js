@@ -25,6 +25,69 @@ const utils = {
  *  首页功能模块
  ********************/
 const homeModule = {
+  exams: [
+    { 
+      name: '中小学教师资格考试（笔试）',
+      date: '2025-03-08T09:00+08:00',
+      cover: 'images/exams/teacher.jpg'
+    },
+    {
+      name: '全国计算机等级考试',
+      date: '2025-03-29T09:00+08:00',
+      cover: 'images/exams/computer.jpg'
+    },
+    {
+      name: '中小学教师资格考试（面试）',
+      date: '2025-05-17T09:00+08:00',
+      cover: 'images/exams/interview.jpg'
+    },
+    {
+      name: '同等学力全国统考',
+      date: '2025-05-18T09:00+08:00',
+      cover: 'images/exams/degree.jpg'
+    },
+    {
+      name: '英语四六级考试（口语）',
+      date: '2025-05-24T09:00+08:00',
+      cover: 'images/exams/speaking.jpg'
+    },
+    {
+      name: '高考',
+      date: '2025-06-07T09:00+08:00',
+      cover: 'images/exams/gaokao.jpg'
+    },
+    {
+      name: '英语四六级考试（笔试）',
+      date: '2025-06-14T09:00+08:00',
+      cover: 'images/exams/writing.jpg'
+    },
+    {
+      name: '注册会计师（CPA）考试',
+      date: '2025-08-23T09:00+08:00',
+      cover: 'images/exams/cpa.jpg'
+    },
+    {
+      name: '法律职业资格考试（客观题）',
+      date: '2025-09-13T09:00+08:00',
+      cover: 'images/exams/law1.jpg'
+    },
+    {
+      name: '法律职业资格考试（主观题）',
+      date: '2025-10-12T09:00+08:00',
+      cover: 'images/exams/law2.jpg'
+    },
+    {
+      name: '国家公务员考试（笔试）',
+      date: '2025-11-29T09:00+08:00',
+      cover: 'images/exams/civil.jpg'
+    },
+    {
+      name: '硕士研究生招生考试（初试）',
+      date: '2025-12-21T09:00+08:00',
+      cover: 'images/exams/master.jpg'
+    }
+  ],
+
   init() {
     this.initDate();
     this.initBanner();
@@ -51,8 +114,8 @@ const homeModule = {
     const indicators = document.querySelector('.banner-indicator');
     let currentIndex = 0;
 
-    indicators.innerHTML = [...document.querySelectorAll('.banner-item')].map((_, i) => `
-      <div class="indicator ${i === 0 ? 'active' : ''}"></div>
+    indicators.innerHTML = this.exams.slice(0, 2).map((_, i) => `
+      <div class="${i === 0 ? 'active' : ''} indicator"></div>
     `).join('');
 
     this.bannerInterval = setInterval(() => {
@@ -68,39 +131,27 @@ const homeModule = {
     });
   },
 
-  setupBannerEvents() {
-    const banner2 = document.querySelectorAll('.banner-item')[1];
-    banner2.addEventListener('click', () => {
-      window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com');
+  setupBannerEvents() {  
+    document.querySelectorAll('.banner-item').forEach((item, index) => {
+      if(index === 1) {
+        item.addEventListener('click', () => {
+          window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com');
+        });
+      }
     });
   },
 
   renderExams() {
-    const exams = [
-      { name: '中小学教师资格考试（笔试）', date: '2025-03-08T09:00+08:00', cover: 'images/exams/teacher.jpg' },
-      { name: '全国计算机等级考试', date: '2025-03-29T09:00+08:00', cover: 'images/exams/computer.jpg' },
-      { name: '中小学教师资格考试（面试）', date: '2025-05-17T09:00+08:00', cover: 'images/exams/interview.jpg' },
-      { name: '同等学力全国统考', date: '2025-05-18T09:00+08:00', cover: 'images/exams/degree.jpg' },
-      { name: '英语四六级考试（口语）', date: '2025-05-24T09:00+08:00', cover: 'images/exams/speaking.jpg' },
-      { name: '高考', date: '2025-06-07T09:00+08:00', cover: 'images/exams/gaokao.jpg' },
-      { name: '英语四六级考试（笔试）', date: '2025-06-14T09:00+08:00', cover: 'images/exams/writing.jpg' },
-      { name: '注册会计师（CPA）考试', date: '2025-08-23T09:00+08:00', cover: 'images/exams/cpa.jpg' },
-      { name: '法律职业资格考试（客观题）', date: '2025-09-13T09:00+08:00', cover: 'images/exams/law1.jpg' },
-      { name: '法律职业资格考试（主观题）', date: '2025-10-12T09:00+08:00', cover: 'images/exams/law2.jpg' },
-      { name: '国家公务员考试（笔试）', date: '2025-11-29T09:00+08:00', cover: 'images/exams/civil.jpg' },
-      { name: '硕士研究生招生考试（初试）', date: '2025-12-21T09:00+08:00', cover: 'images/exams/master.jpg' }
-    ];
-
-    const container = document.getElementById('examContainer');
     const now = new Date();
-
-    exams.sort((a, b) => {
+    const container = document.getElementById('examContainer');
+    
+    this.exams.sort((a, b) => {
       const aEnded = new Date(a.date) < now;
       const bEnded = new Date(b.date) < now;
       return aEnded - bEnded || new Date(a.date) - new Date(b.date);
     });
 
-    container.innerHTML = exams.map(exam => {
+    container.innerHTML = this.exams.map(exam => {
       const ended = new Date(exam.date) < now;
       return `
         <div class="exam-card ${ended ? 'exam-ended' : ''}" onclick="window.open('countdown.html?exam=${encodeURIComponent(exam.name)}', '_blank')">
@@ -115,11 +166,35 @@ const homeModule = {
   setupPopup() {
     const popup = document.getElementById('popupOverlay');
     popup.style.display = 'flex';
-    const closeBtn = document.querySelector('.popup-close-btn');
+    this.initPopupCloseAnimation();
 
-    closeBtn.addEventListener('click', () => {
-      popup.style.display = 'none';
+    popup.addEventListener('click', e => {
+      if (e.target === popup) popup.style.display = 'none';
     });
+  },
+
+  initPopupCloseAnimation() {
+    const closeBtn = document.querySelector('.popup-close-btn');
+    const circle = closeBtn.querySelector('.close-circle');
+    let count = 3;
+  
+    const animate = () => {
+      count--;
+      const dashOffset = 62.8 * (count / 3); // 圆形周长计算
+      circle.style.strokeDashoffset = dashOffset;
+    
+      if(count <= 0) {
+        document.getElementById('popupOverlay').style.display = 'none';
+      } else {
+        requestAnimationFrame(animate);
+      }
+    };
+  
+    closeBtn.addEventListener('click', () => {
+      document.getElementById('popupOverlay').style.display = 'none';
+    });
+  
+    animate();
   }
 };
 
@@ -130,14 +205,16 @@ const countdownModule = {
   init() {
     this.initParams();
     this.initAudio();
+    this.initSettings();
+    this.initAd();
     this.startTimer();
-    this.setupSettingsPanel();
   },
 
   initParams() {
     const params = new URLSearchParams(location.search);
     this.examName = decodeURIComponent(params.get('exam'));
-    this.endDate = new Date('2025-03-08T09:00+08:00'); // 默认时间
+    this.endDate = new Date(homeModule.exams.find(exam => exam.name === this.examName).date);
+
     document.getElementById('examTitle').textContent = this.examName;
     document.getElementById('examDate').textContent = 
       utils.formatTime(this.endDate, 'full');
@@ -145,9 +222,9 @@ const countdownModule = {
 
   initAudio() {
     this.audio = document.getElementById('bgMusic');
-    this.audio.src = 'audio/music1.mp3'; // 默认音频
+    this.audio.src = 'audio/music1.mp3';
     this.audio.muted = false;
-
+    
     document.body.addEventListener('click', () => {
       if (this.audio.paused){
         this.audio.preload = 'auto';
@@ -156,17 +233,79 @@ const countdownModule = {
     }, { once: true });
   },
 
+  initSettings() {
+    const panel = document.getElementById('settingsPanel');
+    document.querySelector('.bg-options').innerHTML = [
+      'images/backgrounds/bg1.jpg',
+      'images/backgrounds/bg2.jpg',
+      'images/backgrounds/bg3.jpg',
+      'images/backgrounds/bg4.jpg'
+    ]
+    .map((image, i) => `
+      <div class="bg-option ${i === 0 ? 'selected' : ''}" data-index="${i}">
+        <img src="${image}" alt="背景${i + 1}">
+      </div>
+    `).join('');
+
+    document.querySelector('.bg-options').addEventListener('click', (e) => {
+      const option = e.target.closest('.bg-option');
+      if (option) this.changeBackground(parseInt(option.dataset.index));
+    });
+
+    document.getElementById('soundToggle').addEventListener('click', () => {
+      this.audio.muted = !this.audio.muted;
+      utils.storage.set('isMuted', this.audio.muted);
+      this.updateSoundButton();
+    });
+    
+    this.updateSoundButton();
+  },
+
+  changeBackground(index) {
+    const bgImages = [
+      'images/backgrounds/bg1.jpg',
+      'images/backgrounds/bg2.jpg',
+      'images/backgrounds/bg3.jpg',
+      'images/backgrounds/bg4.jpg'
+    ];
+    
+    const bgMusic = [
+      'audio/music1.mp3',
+      'audio/music2.mp3',
+      'audio/music3.mp3',
+      'audio/music4.mp3'
+    ];
+
+    document.body.style.backgroundImage = `url('${bgImages[index]}')`;
+    this.audio.src = bgMusic[index];
+
+    // 改变缩略图边框
+    document.querySelectorAll('.bg-option').forEach((el, i) => {
+      el.classList.toggle('selected', i === index);
+    });
+
+    if (!this.audio.paused) {
+      this.audio.currentTime = 0;
+      this.audio.play();
+    }
+  },
+
+  updateSoundButton() {
+    const btn = document.getElementById('soundToggle');
+    btn.textContent = this.audio.muted ? '🔇 音效关闭' : '🔊 音效开启';
+  },
+
   startTimer() {
     const update = () => {
       const now = new Date();
       let diff = this.endDate - now;
       if (diff < 0) diff = 0;
-
+        
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
+        
       document.getElementById('timer').innerHTML = `
         <div class="time-box">
           <span class="time-number">${days.toString().padStart(2, '0')}</span>
@@ -191,32 +330,14 @@ const countdownModule = {
     this.timerInterval = setInterval(update, 1000);
   },
 
-  setupSettingsPanel() {
-    // 设置面板逻辑
-    const panel = document.getElementById('settingsPanel');
-    document.querySelector('.bg-options').innerHTML = `
-      <div class="bg-option">
-        <img src="images/backgrounds/bg1.jpg" alt="背景1">
-      </div>
-      <div class="bg-option">
-        <img src="images/backgrounds/bg2.jpg" alt="背景2">
-      </div>
-    `;
-
-    document.querySelector('.bg-options').addEventListener('click', e => {
-      if (e.target.closest('.bg-option')) {
-        const index = Array.from(e.target.closest('.bg-options').children).indexOf(e.target.closest('.bg-option'));
-        this.changeBackground(index);
-      }
-    });
-  },
-
-  changeBackground(index) {
-    const backgrounds = ['images/backgrounds/bg1.jpg', 'images/backgrounds/bg2.jpg'];
-    document.body.style.backgroundImage = `url('${backgrounds[index]}')`;
-    this.audio.src = `audio/music${index + 1}.mp3`;
-    this.audio.play();
+  initAd() {
+    if (utils.storage.get('adClosed')) {
+      document.querySelector('.ad-container').style.display = 'none';
+    }
   }
 };
 
-window.addEventListener('DOMContentLoaded', () => countdownModule.init());
+window.addEventListener('DOMContentLoaded', () => {
+  homeModule.init();
+  countdownModule.init();
+});

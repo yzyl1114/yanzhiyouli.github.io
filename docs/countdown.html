@@ -7,17 +7,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <!-- 标题栏 -->
     <div id="title-bar">
-        <div>
-            <img src="images/logo.png" alt="Logo" id="logo">
+        <div id="logo">
+            <img src="images/logo.png" alt="Logo">
             GoalCountdown
         </div>
         <div id="currentDate" class="date"></div>
     </div>
 
-    <!-- 页面主体 -->
+    <!-- 倒计时 -->
     <div class="countdown-container">
         <h1 id="examTitle">考试倒计时</h1>
         <p id="examDate">考试时间: 2025年3月8日09时00分</p>
@@ -42,35 +41,28 @@
         </div>
     </div>
 
-    <!-- 设置面板 -->
+    <!-- 设置弹窗入口 -->
     <div class="settings-trigger" onclick="toggleSettings()">
         <img src="images/settings-collapse.png" alt="设置" class="settings-icon">
     </div>
 
-    <!-- 设置弹窗 -->
-    <div class="settings-panel" id="settingsPanel">
+    <!-- 设置面板 -->
+    <div id="settingsPanel" class="settings-panel">
         <div class="settings-header">
             <h3>设置</h3>
-            <button id="soundToggle" class="sound-toggle"></button>
+            <img src="images/settings-expand.png" alt="展开" class="settings-expand">
         </div>
-        
-        <div class="background-selector">
-            <div class="bg-options">
-                <!-- 背景选项通过JS动态生成 -->
-            </div>
+        <div class="bg-options">
+            <!-- 背景图片选项将通过JS生成 -->
+        </div>
+        <div class="music-control">
+            <button id="musicToggle">🔊 音效开启</button>
         </div>
     </div>
 
-    <!-- 备案及联系方式 -->
+    <!-- 底部备案信息 -->
     <div class="footer">
-        <p>京ICP备2024094021号</p>
-    </div>
-
-    <!-- 广告位 -->
-    <div class="ad-container">
-        <div class="ad-placeholder">
-          <!-- 广告代码将在此处插入 -->
-        </div>
+        <p>京ICP备2024094021号 <a href="http://beian.miit.gov.cn/" target="_blank">点击查看</a></p>
     </div>
 
     <script src="script.js"></script>

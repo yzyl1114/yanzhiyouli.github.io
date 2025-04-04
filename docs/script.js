@@ -350,14 +350,18 @@ if (document.querySelector('.countdown-container')) {
             <span class="time-number">${days.toString().padStart(2, '0')}</span>
             <span class="time-unit">天</span>
           </div>
+          <div class="time-box">
             <span class="time-number">${hours.toString().padStart(2, '0')}</span>
             <span class="time-unit">时</span>
           </div>
+          <div class="time-box">
             <span class="time-number">${minutes.toString().padStart(2, '0')}</span>
             <span class="time-unit">分</span>
           </div>
+          <div class="time-box">
             <span class="time-number">${seconds.toString().padStart(2, '0')}</span>
             <span class="time-unit">秒</span>
+          </div>
         `;
       };
       

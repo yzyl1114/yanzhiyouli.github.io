@@ -14,9 +14,6 @@ body {
     background: #f5f7fa;
     line-height: 1.6;
     color: #333;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 }
 
 /* ===== 标题栏 ===== */
@@ -64,7 +61,7 @@ body {
     display: block;
 }
 
-.banner-indicators {
+.banner-indicator {
     position: absolute;
     bottom: 15px;
     left: 50%;
@@ -73,13 +70,13 @@ body {
     gap: 10px;
 }
 
-.banner-indicators .indicator {
+.banner-indicator .indicator {
     width: 30px;
     height: 3px;
     background: #fff;
 }
 
-.banner-indicators .indicator.active {
+.banner-indicator .indicator.active {
     background: #33738D;
 }
 

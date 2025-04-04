@@ -1,4 +1,4 @@
-/* ===== 基础重置 ===== */
+/* ===== 基础样式 ===== */
 * {
     margin: 0;
     padding: 0;
@@ -18,168 +18,155 @@ body {
 
 /* ===== 标题栏 ===== */
 #title-bar {
-    background: #33738D;
-    padding: 12px 30px;
+    background-color: #33738D;
+    padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    color: #fff;
-    font-size: 18px;
+    height: 50px;
 }
 
-#site-name {
-    display: flex;
-    align-items: center;
-    font-size: 22px;
+#logo {
+    height: 30px; /* 控制logo大小 */
 }
 
-#date {
+#currentDate {
     font-size: 16px;
+    color: white;
 }
 
-/* ===== 首页 Banner ===== */
+/* ===== 轮播图 ===== */
 .banner-container {
     position: relative;
-    overflow: hidden;
-    height: 240px;
-    margin: 20px auto;
+    width: 100%;
+    max-width: 100%;
+    height: 300px;
+    margin-top: 20px;
 }
 
-.banner {
+.banner-wrapper {
     display: flex;
     transition: transform 0.5s ease;
 }
 
-.banner img {
+.banner-item {
     width: 100%;
-    height: 240px;
-    object-fit: cover;
-    display: none;
+    height: 100%;
 }
 
-.banner img:first-child {
-    display: block;
+.banner-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .banner-indicator {
     position: absolute;
-    bottom: 15px;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 10px;
+    gap: 5px;
 }
 
 .banner-indicator .indicator {
     width: 30px;
-    height: 3px;
-    background: #fff;
+    height: 5px;
+    background-color: white;
+    opacity: 0.6;
+    border-radius: 5px;
 }
 
 .banner-indicator .indicator.active {
-    background: #33738D;
+    background-color: #33738D;
 }
 
-/* ===== 倒计时入口卡片 ===== */
+/* ===== 倒计时入口 ===== */
 .countdown-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
     padding: 20px;
 }
 
-.countdown-entry {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.exam-card {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
-    overflow: hidden;
-    transition: transform 0.3s;
+    cursor: pointer;
 }
 
-.countdown-entry:hover {
-    transform: translateY(-5px);
-}
-
-.entry-image {
+.exam-cover {
     width: 100%;
-    height: 140px;
+    height: 150px;
     object-fit: cover;
+    border-radius: 8px;
 }
 
-.countdown-entry h3 {
-    font-size: 16px;
-    margin: 10px 0;
+.exam-title {
+    font-size: 14px;
+    margin-top: 10px;
 }
 
-/* ===== 已结束状态 ===== */
-.exam-ended {
-    position: relative;
+/* ===== 备案及联系方式 ===== */
+.footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    background-color: #f5f5f5;
 }
 
-.exam-ended::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50px;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.ended-badge {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    width: 70px;
-    z-index: 2;
+.footer a {
+    color: #33738D;
 }
 
 /* ===== 弹窗 ===== */
 .popup {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
 }
 
 .popup-content {
-    background: #fff;
+    background: white;
     padding: 30px;
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
-    border-radius: 10px;
-    position: relative;
-}
-
-.popup-content img {
-    max-width: 100%;
-    margin: 15px 0;
-}
-
-.popup-btn {
-    display: inline-block;
-    padding: 10px 25px;
-    background: #ff4757;
-    color: #fff;
-    border-radius: 20px;
-    font-size: 16px;
-    text-decoration: none;
+    width: 400px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .popup-close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 18px;
-    border: none;
+    font-size: 20px;
+    color: #33738D;
     background: none;
+    border: none;
     cursor: pointer;
+    margin-top: 20px;
+}
+
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+    .countdown-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .popup-content {
+        width: 300px;
+        height: 400px;
+    }
 }
 
 /* ===== 倒计时页样式 ===== */

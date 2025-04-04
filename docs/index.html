@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoalCountdown - 首页</title>
     <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
 </head>
-
 <body>
     <!-- Title Bar -->
     <div id="title-bar" style="background-color: #33738D;">
@@ -22,49 +19,23 @@
     <!-- Rotating Banner -->
     <div class="banner-container">
         <div class="banner" id="banner">
-            <img src="images/banner1.jpg" alt="Banner 1">
-            <img src="images/banner2.jpg" alt="Banner 2">
+            <img src="images/banner-banner1.jpg" alt="Banner 1">
+            <img src="images/banner-banner2.jpg" alt="Banner 2" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com');">
         </div>
         <div class="banner-indicators">
-            <div class="indicator"></div>
+            <div class="indicator active"></div>
             <div class="indicator"></div>
         </div>
     </div>
 
     <!-- Countdown Entries -->
-    <div class="countdown-list">
-        <!-- Each entry -->
-        <div class="countdown-entry">
-            <a href="countdown.html?examId=1">
-                <img src="images/teacher.jpg" alt="教师资格考试" class="entry-image">
-                <h3>中小学教师资格考试（笔试）</h3>
-            </a>
-            <p>倒计时：<span id="countdown1">00:00:00</span></p>
-        </div>
-
-        <div class="countdown-entry">
-            <a href="countdown.html?examId=2">
-                <img src="images/computer.jpg" alt="计算机考试" class="entry-image">
-                <h3>全国计算机等级考试</h3>
-            </a>
-            <p>倒计时：<span id="countdown2">00:00:00</span></p>
-        </div>
-
-        <div class="countdown-entry">
-            <a href="countdown.html?examId=3">
-                <img src="images/interview.jpg" alt="面试考试" class="entry-image">
-                <h3>中小学教师资格考试（面试）</h3>
-            </a>
-            <p>倒计时：<span id="countdown3">00:00:00</span></p>
-        </div>
-
-        <!-- Repeat for other countdown entries, such as degree, speaking, gaokao, etc. -->
+    <div class="countdown-list" id="countdownEntries">
+        <!-- Entries will be dynamically rendered here -->
     </div>
 
     <!-- Footer -->
     <div class="footer">
-        <p>京ICP备2024094021号 <a href="http://beian.miit.gov.cn/" target="_blank">点击查看</a></p>
-        <p>商务合作: <a href="mailto:goalcountdown@gmail.com">goalcountdown@gmail.com</a></p>
+        <p><a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a></p>
     </div>
 
     <!-- Popup Modal -->
@@ -72,45 +43,12 @@
         <div class="popup-content">
             <h2>活动标题</h2>
             <p>活动副标题</p>
-            <img src="images/popup-image.jpg" alt="活动图片">
+            <img src="images/promo-popup.jpg" alt="活动图片">
             <a href="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com" class="popup-btn">立即抢</a>
             <button class="popup-close-btn" onclick="closePopup()">×</button>
         </div>
     </div>
 
-    <script>
-        // Date display in format: 20xx年x月x日 星期x
-        const dateElement = document.getElementById('date');
-        const today = new Date();
-        const weekDays = ['星期天', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        const dateString = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日 ${weekDays[today.getDay()]}`;
-        dateElement.textContent = dateString;
-
-        // Countdown logic
-        // Add your countdown logic here for each exam
-
-        // Banner rotation logic
-        let currentBannerIndex = 0;
-        const banners = document.querySelectorAll('.banner img');
-        const indicators = document.querySelectorAll('.banner-indicators .indicator');
-
-        setInterval(() => {
-            banners[currentBannerIndex].style.display = 'none';
-            indicators[currentBannerIndex].style.backgroundColor = '#fff'; // Reset indicator
-
-            currentBannerIndex = (currentBannerIndex + 1) % banners.length;
-
-            banners[currentBannerIndex].style.display = 'block';
-            indicators[currentBannerIndex].style.backgroundColor = '#33738D'; // Highlight indicator
-        }, 3000);
-
-        // Popup close logic (auto-close after 3s)
-        function closePopup() {
-            document.getElementById('popup').style.display = 'none';
-        }
-
-        setTimeout(closePopup, 3000); // Close popup after 3 seconds
-    </script>
+    <script src="script.js"></script>
 </body>
-
 </html>

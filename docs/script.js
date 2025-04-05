@@ -77,7 +77,6 @@ const homeModule = {
 
   renderExams() {
     const exams = [
-      // 考试数据（根据本地路径修改图片）
       { name: '中小学教师资格考试（笔试）', date: '2025-03-08T09:00+08:00', cover: 'images/exams/teacher.jpg' },
       { name: '全国计算机等级考试', date: '2025-03-29T09:00+08:00', cover: 'images/exams/computer.jpg' },
       { name: '中小学教师资格考试（面试）', date: '2025-05-17T09:00+08:00', cover: 'images/exams/interview.jpg' },
@@ -105,7 +104,7 @@ const homeModule = {
       const ended = new Date(exam.date) < now;
       return `
         <div class="exam-card ${ended ? 'exam-ended' : ''}" onclick="window.open('countdown.html?exam=${encodeURIComponent(exam.name)}', '_blank')">
-          ${ended ? '<img src="images/ended-badge.png" class="ended-badge">' : ''}
+          ${ended ? '<div class="overlay"></div><img src="images/ended-badge.png" class="ended-badge">' : ''}
           <img src="${exam.cover}" class="exam-cover">
           <div class="exam-title">${exam.name}</div>
         </div>

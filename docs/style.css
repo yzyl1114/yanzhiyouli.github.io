@@ -23,7 +23,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px; /* 调整标题栏高度 */
+    height: 50px;
 }
 
 #logo {
@@ -39,7 +39,6 @@ body {
 .banner-container {
     position: relative;
     width: 100%;
-    max-width: 100%;
     height: 300px;
     margin-top: 20px;
 }
@@ -57,7 +56,7 @@ body {
 .banner-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* 确保图片适应容器 */
+    object-fit: cover;
 }
 
 .banner-indicator {
@@ -96,7 +95,6 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     cursor: pointer;
-    position: relative; /* 添加相对定位以便添加遮罩 */
 }
 
 .exam-cover {
@@ -111,22 +109,6 @@ body {
     margin-top: 10px;
 }
 
-/* 已结束的考试处理 */
-.exam-card.ended .exam-cover {
-    opacity: 0.5;
-}
-
-.exam-card.ended::before {
-    content: "已结束";
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
 /* ===== 备案及联系方式 ===== */
 .footer {
     text-align: center;
@@ -137,7 +119,6 @@ body {
 
 .footer a {
     color: #33738D;
-    text-decoration: none;
 }
 
 /* ===== 弹窗 ===== */
@@ -155,9 +136,9 @@ body {
 
 .popup-content {
     background: white;
-    padding: 20px;
+    padding: 30px;
     width: 400px;
-    height: 400px;
+    height: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -167,30 +148,12 @@ body {
 }
 
 .popup-close-btn {
-    font-size: 18px;
+    font-size: 20px;
     color: #33738D;
     background: none;
     border: none;
     cursor: pointer;
     margin-top: 20px;
-    padding: 5px 15px;
-    border-radius: 20px;
-}
-
-/* “立即抢”按钮样式 */
-.popup .cta-btn {
-    background-color: #33738D;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 25px;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.popup .cta-btn:hover {
-    background-color: #2b6177;
 }
 
 /* ===== 响应式设计 ===== */
@@ -204,171 +167,116 @@ body {
         height: 400px;
     }
 }
-
-/* ===== 倒计时页样式 ===== */
+/* ===== 倒计时页面主体 ===== */
 .countdown-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    padding: 50px 20px;
     text-align: center;
-    color: white;
-    width: 90%;
-    max-width: 800px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    background: url('images/backgrounds/bg1.jpg') no-repeat center center/cover;
+    height: calc(100vh - 150px); /* Take full screen height minus title & footer */
 }
 
-.countdown-container h1 {
-    font-size: 36px;
+#examTitle {
+    font-size: 32px;
     margin-bottom: 10px;
 }
 
-.countdown-container p {
+#examDate {
     font-size: 18px;
+    opacity: 0.8;
     margin-bottom: 30px;
 }
 
 .time-container {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 10px;
+    margin-bottom: 25px;
 }
 
 .time-box {
-    width: 90px;
-    height: 110px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0,0,0,0.5);
+    padding: 20px;
     border-radius: 12px;
-    padding-top: 15px;
-    position: relative;
+    width: 100px;
+    height: 120px;
+    position:relative;
 }
 
 .time-number {
-    font-size: 44px;
-    font-weight: bold;
-    color: #fff;
+    font-size: 50px;
+    font-weight: 600;
+    letter-spacing: 2px;
     display: block;
+    margin-bottom: 5px;
 }
 
 .time-unit {
-    font-size: 14px;
+    font-size: 16px;
     color: #fff;
+    opacity: 0.9;
     position: absolute;
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* ===== 设置按钮 ===== */
-.settings-trigger {
-    position: fixed;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    z-index: 999;
+.footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    background-color: #f5f5f5;
 }
 
-.settings-trigger img {
-    width: 100%;
-    height: 100%;
+.footer a {
+    color: #33738D;
 }
 
-/* ===== 设置面板 ===== */
+/* ===== 设置弹窗 ===== */
 .settings-panel {
     position: fixed;
     top: 0;
-    left: -280px;
-    width: 250px;
+    left: 0;
+    width: 300px;
     height: 100%;
     background: #fff;
+    display: none;
+    flex-direction: column;
     padding: 20px;
-    overflow-y: auto;
-    transition: left 0.3s ease-in-out;
-    z-index: 998;
-}
-
-.settings-panel.open {
-    left: 0;
-}
-
-.settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.sound-toggle {
-    background: none;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
 }
 
 .bg-option {
-    border: 2px solid transparent;
-    margin-bottom: 15px;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
     cursor: pointer;
 }
 
 .bg-option.selected {
-    border-color: #33738D;
+    border: 2px solid #33738D;
 }
 
-.bg-option img {
-    width: 100%;
-    border-radius: 6px;
+.settings-panel .bg-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-/* ===== 广告位 ===== */
-.ad-container {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 90px;
-    background: #eee;
-    text-align: center;
-    line-height: 90px;
-    font-size: 16px;
-    color: #888;
+.settings-panel label {
+    margin-right: 10px;
 }
 
-.ad-close {
-    position: absolute;
-    right: 10px;
-    top: -10px;
-    width: 24px;
-    height: 24px;
-    background: #ccc;
-    color: #000;
-    border-radius: 50%;
-    text-align: center;
-    line-height: 24px;
-    cursor: pointer;
-}
-
-/* ===== 底部备案信息 ===== */
-.footer {
-    text-align: center;
-    font-size: 12px;
-    color: #999;
-    padding: 20px 0;
-}
-
-/* ===== 响应式调整 ===== */
-@media (max-width: 600px) {
-    .time-box {
-        width: 70px;
-        height: 90px;
+/* ===== 响应式设计 ===== */
+@media (max-width: 768px) {
+    .settings-panel {
+        width: 250px;
     }
 
-    .time-number {
-        font-size: 36px;
-    }
-
-    .countdown-entry h3 {
-        font-size: 14px;
+    .countdown-container {
+        padding: 30px 15px;
     }
 }

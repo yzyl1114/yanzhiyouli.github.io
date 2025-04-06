@@ -178,8 +178,12 @@ footer a {
     box-sizing: border-box;
 }
 
+/* 全局样式 */
 body {
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     background-color: #f4f4f4;
     color: #333;
     background-image: url('bg1.jpg'); /* 默认背景图 */
@@ -196,18 +200,22 @@ body {
     align-items: center;
 }
 
+/* 标题栏 */
+#title {
+    text-align: center;
+}
+
 #title h1 {
     font-size: 36px;
     font-weight: bold;
-    text-align: center;
 }
 
 .exam-time {
     font-size: 18px;
     color: #666;
-    text-align: center;
 }
 
+/* 倒计时显示 */
 #countdown {
     display: flex;
     justify-content: center;
@@ -224,6 +232,7 @@ body {
     color: white;
 }
 
+/* 设置弹窗按钮 */
 #settings-button {
     position: absolute;
     top: 50%;
@@ -281,4 +290,23 @@ footer {
     text-align: center;
     font-size: 14px;
     color: #666;
+}
+
+/* 底部备案信息 */
+footer a {
+    color: #33738D;
+    text-decoration: none;
+}
+
+/* 适配不同屏幕 */
+@media (max-width: 768px) {
+    .countdown-entries .entry {
+        width: 48%;
+    }
+}
+
+@media (max-width: 480px) {
+    .countdown-entries .entry {
+        width: 100%;
+    }
 }

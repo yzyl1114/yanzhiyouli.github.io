@@ -6,6 +6,9 @@ function updateDate() {
     document.getElementById('current-date').textContent = currentDate;
 }
 
+// 页面加载时更新当前日期
+updateDate();
+
 // 更新Banner轮播
 let currentBanner = 0;
 const banners = document.querySelectorAll('.banner .carousel img');
@@ -21,9 +24,6 @@ function changeBanner() {
     currentBanner = (currentBanner + 1) % banners.length;
 }
 
-setInterval(changeBanner, 3000);
-changeBanner();  // 初始化展示
-
 // 活动弹窗控制
 function closePopup() {
     document.getElementById('promo-popup').style.display = 'none';
@@ -34,42 +34,52 @@ window.onload = function() {
     document.getElementById('promo-popup').style.display = 'flex';
 };
 
-// 页面加载时更新当前日期
-updateDate();
+// 设置倒计时目标时间和标题
+function setCountdownData(examTitle, examTime) {
+    // 更新考试标题
+    document.getElementById('exam-title').textContent = examTitle;
+    // 更新考试时间
+    document.getElementById('exam-time').textContent = examTime;
 
-// 设置倒计时目标时间
-const targetDate = new Date("2025-03-08T09:00:00+08:00").getTime();
+    const targetDate = new Date(examTime).getTime();
+    
+    // 更新倒计时
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = targetDate - now;
 
-// 更新倒计时
-function updateCountdown() {
-    const now = new Date().getTime();
-    const timeLeft = targetDate - now;
+        if (timeLeft < 0) {
+            document.getElementById("days").innerHTML = "00";
+            document.getElementById("hours").innerHTML = "00";
+            document.getElementById("minutes").innerHTML = "00";
+            document.getElementById("seconds").innerHTML = "00";
+        } else {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
-    if (timeLeft < 0) {
-        document.getElementById("days").innerHTML = "00";
-        document.getElementById("hours").innerHTML = "00";
-        document.getElementById("minutes").innerHTML = "00";
-        document.getElementById("seconds").innerHTML = "00";
-    } else {
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-        document.getElementById("days").innerHTML = formatTime(days);
-        document.getElementById("hours").innerHTML = formatTime(hours);
-        document.getElementById("minutes").innerHTML = formatTime(minutes);
-        document.getElementById("seconds").innerHTML = formatTime(seconds);
+            document.getElementById("days").innerHTML = formatTime(days);
+            document.getElementById("hours").innerHTML = formatTime(hours);
+            document.getElementById("minutes").innerHTML = formatTime(minutes);
+            document.getElementById("seconds").innerHTML = formatTime(seconds);
+        }
     }
+
+    // 格式化时间为两位数
+    function formatTime(time) {
+        return time < 10 ? "0" + time : time;
+    }
+
+    // 每秒更新一次倒计时
+    setInterval(updateCountdown, 1000);
 }
 
-// 格式化时间为两位数
-function formatTime(time) {
-    return time < 10 ? "0" + time : time;
-}
-
-// 每秒更新一次倒计时
-setInterval(updateCountdown, 1000);
+// 从 URL 中获取考试信息并设置倒计时
+const urlParams = new URLSearchParams(window.location.search);
+const examTitle = urlParams.get('examTitle') || '中小学教师资格考试（笔试）';  // 默认考试标题
+const examTime = urlParams.get('examTime') || '2025-03-08T09:00:00+08:00';  // 默认考试时间
+setCountdownData(examTitle, examTime);
 
 // 设置弹窗的显示
 document.getElementById("settings-button").addEventListener("click", () => {

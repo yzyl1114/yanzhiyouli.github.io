@@ -171,3 +171,109 @@ footer a {
         width: 100%;
     }
 }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+#main {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#title h1 {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+#title p {
+    font-size: 18px;
+    color: #666;
+}
+
+#countdown {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.time-box {
+    margin: 0 10px;
+    text-align: center;
+    font-size: 48px;
+    background-color: #33738D;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+}
+
+#settings-button {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    cursor: pointer;
+}
+
+#settings-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: white;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    padding: 20px;
+}
+
+#settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#settings-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#music-toggle {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+#background-selection {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.background-item {
+    width: 60px;
+    height: 60px;
+    background-color: #ddd;
+    margin: 10px;
+    cursor: pointer;
+}
+
+footer {
+    position: fixed;
+    bottom: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}

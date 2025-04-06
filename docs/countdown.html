@@ -1,59 +1,68 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>倒计时</title>
+    <title>倒计时 - GoalCountdown</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="main">
+        <!-- 页面主体 -->
+        <div id="title">
+            <h1>中小学教师资格考试（笔试）</h1>
+            <p>2025年3月8日09时00分</p>
+        </div>
 
-<!-- 页面主体 -->
-<section class="countdown-page">
-    <h1>中小学教师资格考试（笔试）</h1>
-    <p>考试时间：2025年3月8日09时00分</p>
+        <div id="countdown">
+            <div class="time-box">
+                <p id="days">00</p>
+                <p>天</p>
+            </div>
+            <div class="time-box">
+                <p id="hours">00</p>
+                <p>时</p>
+            </div>
+            <div class="time-box">
+                <p id="minutes">00</p>
+                <p>分</p>
+            </div>
+            <div class="time-box">
+                <p id="seconds">00</p>
+                <p>秒</p>
+            </div>
+        </div>
 
-    <div class="countdown-timer">
-        <div class="time-block">
-            <p id="days">00</p>
-            <span>天</span>
+        <!-- 设置弹窗按钮 -->
+        <div id="settings-button">
+            <img src="settings-icon.png" alt="设置" id="settings-icon">
         </div>
-        <div class="time-block">
-            <p id="hours">00</p>
-            <span>时</span>
+
+        <!-- 设置弹窗 -->
+        <div id="settings-popup">
+            <div id="settings-header">
+                <h2>设置</h2>
+                <button id="settings-close">×</button>
+            </div>
+            <div id="music-toggle">
+                <img src="sound-icon.png" id="sound-icon" alt="声音">
+                <span>背景音乐</span>
+            </div>
+            <div id="background-selection">
+                <div class="background-item" id="bg1" data-bg="bg1.jpg"></div>
+                <div class="background-item" id="bg2" data-bg="bg2.jpg"></div>
+                <div class="background-item" id="bg3" data-bg="bg3.jpg"></div>
+                <div class="background-item" id="bg4" data-bg="bg4.jpg"></div>
+            </div>
         </div>
-        <div class="time-block">
-            <p id="minutes">00</p>
-            <span>分</span>
-        </div>
-        <div class="time-block">
-            <p id="seconds">00</p>
-            <span>秒</span>
-        </div>
+
+        <!-- 备案信息 -->
+        <footer>
+            <p><a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a></p>
+            <p>商务合作: <a href="mailto:goalcountdown@gmail.com">goalcountdown@gmail.com</a></p>
+        </footer>
     </div>
 
-    <footer>
-        <p><a href="http://beian.miit.gov.cn/">京ICP备2024094021号</a></p>
-    </footer>
-</section>
-
-<!-- 设置弹窗 -->
-<div class="settings-popup" id="settings-popup">
-    <h2>设置</h2>
-    <button onclick="toggleMusic()">音乐：静音</button>
-    <div class="bg-thumbnails">
-        <!-- 这里可以根据背景图动态生成缩略图 -->
-        <img src="docs-images-backgrounds-bg1.jpg" alt="背景1">
-        <img src="docs-images-backgrounds-bg2.jpg" alt="背景2">
-        <!-- 更多背景图 -->
-    </div>
-</div>
-
-<!-- 广告位 -->
-<section class="ad-space">
-    <!-- 预留广告位置 -->
-</section>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

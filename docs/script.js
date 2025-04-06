@@ -1,203 +1,171 @@
-/********************
- *  通用工具函数
- ********************/
-const utils = {
-  formatTime: (date, type = 'full') => {
-    const pad = n => n.toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
+// 首页功能
+document.addEventListener('DOMContentLoaded', function() {
+  // 更新当前日期
+  updateCurrentDate();
+  
+  // Banner 轮播
+  setupBanner();
+  
+  // 活动弹窗
+  setupPromoPopup();
+});
 
-    return type === 'date' 
-      ? `${year}年${month}月${day}日`
-      : `${year}年${month}月${day}日 ${hours}时${minutes}分`;
-  },
+// 更新当前日期
+function updateCurrentDate() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  const weekday = weekdays[now.getDay()];
+  
+  document.getElementById('current-date').textContent = 
+      `${year}年${month}月${day}日 星期${weekday}`;
+}
 
-  storage: {
-    get: key => JSON.parse(localStorage.getItem(key)),
-    set: (key, value) => localStorage.setItem(key, JSON.stringify(value))
-  }
-};
+// 设置 Banner 轮播
+function setupBanner() {
+  const slides = document.querySelectorAll('.banner-slide');
+  const indicators = document.querySelectorAll('.indicator');
+  let currentIndex = 0;
+  
+  // 自动轮播
+  setInterval(() => {
+      slides[currentIndex].classList.remove('active');
+      indicators[currentIndex].classList.remove('active');
+      
+      currentIndex = (currentIndex + 1) % slides.length;
+      
+      slides[currentIndex].classList.add('active');
+      indicators[currentIndex].classList.add('active');
+  }, 3000);
+  
+  // 点击指示器切换
+  indicators.forEach(indicator => {
+      indicator.addEventListener('click', () => {
+          const index = parseInt(indicator.dataset.index);
+          
+          slides[currentIndex].classList.remove('active');
+          indicators[currentIndex].classList.remove('active');
+          
+          currentIndex = index;
+          
+          slides[currentIndex].classList.add('active');
+          indicators[currentIndex].classList.add('active');
+      });
+  });
+}
 
-/********************
- *  首页功能模块
- ********************/
-const homeModule = {
-  init() {
-    this.initDate();
-    this.initBanner();
-    this.setupBannerEvents();
-    this.renderExams();
-    this.setupPopup();
-    setInterval(() => this.initDate(), 1000);
-  },
-
-  initDate() {
-    const dateStr = new Date().toLocaleString('zh-CN', { 
-      timeZone: 'Asia/Shanghai',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      weekday: 'long'
-    });
-    document.getElementById('currentDate').textContent = 
-      dateStr.replace(/\//g, '年').replace(/\//g, '月') + '日';
-  },
-
-  initBanner() {
-    const banner = document.querySelector('.banner-wrapper');
-    const indicators = document.querySelector('.banner-indicator');
-    let currentIndex = 0;
-
-    indicators.innerHTML = [...document.querySelectorAll('.banner-item')].map((_, i) => `
-      <div class="indicator ${i === 0 ? 'active' : ''}"></div>
-    `).join('');
-
-    this.bannerInterval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % 2;
-      banner.style.transform = `translateX(-${currentIndex * 100}%)`;
-      this.updateIndicators(currentIndex);
-    }, 3000);
-  },
-
-  updateIndicators(index) {
-    document.querySelectorAll('.banner-indicator .indicator').forEach((item, i) => {
-      item.classList.toggle('active', i === index);
-    });
-  },
-
-  setupBannerEvents() {
-    const banner2 = document.querySelectorAll('.banner-item')[1];
-    banner2.addEventListener('click', () => {
-      window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com');
-    });
-  },
-
-  renderExams() {
-    const exams = [
-      { name: '中小学教师资格考试（笔试）', date: '2025-03-08T09:00+08:00', cover: 'images/exams/teacher.jpg' },
-      { name: '全国计算机等级考试', date: '2025-03-29T09:00+08:00', cover: 'images/exams/computer.jpg' },
-      { name: '中小学教师资格考试（面试）', date: '2025-05-17T09:00+08:00', cover: 'images/exams/interview.jpg' },
-      { name: '同等学力全国统考', date: '2025-05-18T09:00+08:00', cover: 'images/exams/degree.jpg' },
-      { name: '英语四六级考试（口语）', date: '2025-05-24T09:00+08:00', cover: 'images/exams/speaking.jpg' },
-      { name: '高考', date: '2025-06-07T09:00+08:00', cover: 'images/exams/gaokao.jpg' },
-      { name: '英语四六级考试（笔试）', date: '2025-06-14T09:00+08:00', cover: 'images/exams/writing.jpg' },
-      { name: '注册会计师（CPA）考试', date: '2025-08-23T09:00+08:00', cover: 'images/exams/cpa.jpg' },
-      { name: '法律职业资格考试（客观题）', date: '2025-09-13T09:00+08:00', cover: 'images/exams/law1.jpg' },
-      { name: '法律职业资格考试（主观题）', date: '2025-10-12T09:00+08:00', cover: 'images/exams/law2.jpg' },
-      { name: '国家公务员考试（笔试）', date: '2025-11-29T09:00+08:00', cover: 'images/exams/civil.jpg' },
-      { name: '硕士研究生招生考试（初试）', date: '2025-12-21T09:00+08:00', cover: 'images/exams/master.jpg' }
-    ];
-
-    const container = document.getElementById('examContainer');
-    const now = new Date();
-
-    exams.sort((a, b) => {
-      const aEnded = new Date(a.date) < now;
-      const bEnded = new Date(b.date) < now;
-      return aEnded - bEnded || new Date(a.date) - new Date(b.date);
-    });
-
-    container.innerHTML = exams.map(exam => {
-      const ended = new Date(exam.date) < now;
-      return `
-        <div class="exam-card ${ended ? 'exam-ended' : ''}" onclick="window.open('countdown.html?exam=${encodeURIComponent(exam.name)}', '_blank')">
-          ${ended ? '<div class="overlay"></div><img src="images/ended-badge.png" class="ended-badge">' : ''}
-          <img src="${exam.cover}" class="exam-cover">
-          <div class="exam-title">${exam.name}</div>
-        </div>
-      `;
-    }).join('');
-  },
-
-  setupPopup() {
-    const popup = document.getElementById('popupOverlay');
-    popup.style.display = 'flex';
-    const closeBtn = document.querySelector('.popup-close-btn');
-
-    closeBtn.addEventListener('click', () => {
+// 设置活动弹窗
+function setupPromoPopup() {
+  const popup = document.getElementById('promo-popup');
+  const closeBtn = document.getElementById('popup-close');
+  const promoBtn = document.getElementById('promo-button');
+  
+  // 点击关闭按钮
+  closeBtn.addEventListener('click', () => {
       popup.style.display = 'none';
-    });
-  }
-};
+  });
+  
+  // 点击立即抢按钮
+  promoBtn.addEventListener('click', () => {
+      window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com', '_blank');
+  });
+}
 
-window.addEventListener('DOMContentLoaded', () => homeModule.init());
+// 倒计时页面功能
+document.addEventListener('DOMContentLoaded', function() {
+  // 设置倒计时
+  setupCountdown();
+  
+  // 设置背景和音乐
+  setupSettings();
+  
+  // 设置广告位
+  setupAdSpace();
+});
 
-/********************
- *  倒计时页面功能模块
- ********************/
-const countdownModule = {
-  init() {
-    this.initDate();
-    this.initCountdown();
-    this.setupSettingsPanel();
-    this.setupBackgroundMusic();
-  },
-
-  initDate() {
-    const dateStr = new Date().toLocaleString('zh-CN', { 
-      timeZone: 'Asia/Shanghai',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      weekday: 'long'
-    });
-    document.getElementById('currentDate').textContent = 
-      dateStr.replace(/\//g, '年').replace(/\//g, '月') + '日';
-  },
-
-  initCountdown() {
-    const examDate = new Date('2025-03-08T09:00:00+08:00');
-    const countdownInterval = setInterval(() => {
+// 设置倒计时
+function setupCountdown() {
+  const examTitle = document.getElementById('exam-title').textContent;
+  const examTimeStr = document.getElementById('exam-time').textContent;
+  
+  // 解析考试时间
+  const [datePart, timePart] = examTimeStr.split('日');
+  const [year, month] = datePart.match(/\d+/g);
+  const [hour, minute] = timePart.match(/\d+/g);
+  
+  const examDate = new Date(year, month - 1, day, hour, minute);
+  
+  // 更新倒计时
+  function updateCountdown() {
       const now = new Date();
-      const timeLeft = examDate - now;
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        document.getElementById('timer').textContent = '00:00:00:00';
-      } else {
-        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        document.getElementById('days').textContent = utils.formatTime(new Date(days), 'day');
-        document.getElementById('hours').textContent = utils.formatTime(new Date(hours), 'hour');
-        document.getElementById('minutes').textContent = utils.formatTime(new Date(minutes), 'minute');
-        document.getElementById('seconds').textContent = utils.formatTime(new Date(seconds), 'second');
+      const diff = examDate - now;
+      
+      if (diff <= 0) {
+          document.getElementById('days').textContent = '00';
+          document.getElementById('hours').textContent = '00';
+          document.getElementById('minutes').textContent = '00';
+          document.getElementById('seconds').textContent = '00';
+          return;
       }
-    }, 1000);
-  },
-
-  setupSettingsPanel() {
-    const settingsPanel = document.getElementById('settingsPanel');
-    document.getElementById('soundToggle').addEventListener('change', (e) => {
-      if (e.target.checked) {
-        this.playBackgroundMusic();
-      } else {
-        this.stopBackgroundMusic();
-      }
-    });
-    
-    document.querySelector('.bg-option').addEventListener('click', () => {
-      this.changeBackground('bg1');
-    });
-  },
-
-  playBackgroundMusic() {
-    const audio = new Audio('audio/music1.mp3');
-    audio.loop = true;
-    audio.play();
-  },
-
-  stopBackgroundMusic() {
-    const audio = new Audio();
-    audio.pause();
-  },
-
-  changeBackground(bgName) {
-    document.body.style.backgroundImage = `url('images/backgrounds/${bgName}.jpg')`;
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      document.getElementById('days').textContent = days.toString().padStart(2, '0');
+      document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
   }
-};
+  
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+}
 
-window.addEventListener('DOMContentLoaded', () => countdownModule.init());
+// 设置背景和音乐
+function setupSettings() {
+  const settingsPopup = document.getElementById('settings-popup');
+  const soundControl = document.getElementById('sound-control');
+  const settingsClose = document.getElementById('settings-close');
+  const backgroundOptions = document.querySelectorAll('.background-option');
+  
+  // 打开设置弹窗
+  document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+          settingsPopup.style.left = '-300px';
+      }
+  });
+  
+  // 声音控制
+  let isSoundOn = false;
+  soundControl.addEventListener('click', () => {
+      isSoundOn = !isSoundOn;
+      // 这里可以添加音乐播放/暂停逻辑
+  });
+  
+  // 关闭设置弹窗
+  settingsClose.addEventListener('click', () => {
+      settingsPopup.style.left = '-300px';
+  });
+  
+  // 切换背景
+  backgroundOptions.forEach(option => {
+      option.addEventListener('click', () => {
+          backgroundOptions.forEach(opt => opt.classList.remove('active'));
+          option.classList.add('active');
+          // 这里可以添加背景切换逻辑
+      });
+  });
+}
+
+// 设置广告位
+function setupAdSpace() {
+  const adClose = document.getElementById('ad-close');
+  
+  adClose.addEventListener('click', () => {
+      document.querySelector('.ad-space').style.display = 'none';
+  });
+}

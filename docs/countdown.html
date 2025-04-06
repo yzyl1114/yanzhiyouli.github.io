@@ -3,67 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown - 倒计时</title>
-    <link rel="stylesheet" href="style.css">
+    <title>倒计时 - GoalCountdown</title>
+    <link rel="stylesheet" href="docs-style.css">
 </head>
 <body>
-
-    <!-- 标题栏 -->
-    <div id="title-bar">
-        <div>
-            <img src="images/logo.png" alt="Logo" id="logo">
-            GoalCountdown
-        </div>
-        <div id="currentDate" class="date"></div>
-    </div>
-
-    <!-- 倒计时页面主体 -->
+    <!-- 页面主体 -->
     <div class="countdown-container">
-        <h1 id="examTitle">考试倒计时</h1>
-        <p id="examDate">考试时间: 2025年3月8日09时00分</p>
-
-        <div class="time-container" id="timer">
-            <div class="time-box">
-                <span class="time-number" id="days">00</span>
-                <span class="time-unit">天</span>
+        <h1 id="exam-title">中小学教师资格考试（笔试）</h1>
+        <p id="exam-time">2025年03月08日09时00分</p>
+        
+        <div class="countdown-display">
+            <div class="countdown-box days">
+                <div class="countdown-value" id="days">00</div>
+                <div class="countdown-label">天</div>
             </div>
-            <div class="time-box">
-                <span class="time-number" id="hours">00</span>
-                <span class="time-unit">时</span>
+            <div class="countdown-box hours">
+                <div class="countdown-value" id="hours">00</div>
+                <div class="countdown-label">时</div>
             </div>
-            <div class="time-box">
-                <span class="time-number" id="minutes">00</span>
-                <span class="time-unit">分</span>
+            <div class="countdown-box minutes">
+                <div class="countdown-value" id="minutes">00</div>
+                <div class="countdown-label">分</div>
             </div>
-            <div class="time-box">
-                <span class="time-number" id="seconds">00</span>
-                <span class="time-unit">秒</span>
+            <div class="countdown-box seconds">
+                <div class="countdown-value" id="seconds">00</div>
+                <div class="countdown-label">秒</div>
             </div>
         </div>
-
-        <p id="examInfo">当前考试时间剩余</p>
-    </div>
-
-    <!-- 备案信息 -->
-    <div class="footer">
-        <p>京ICP备2024094021号</p>
+        
+        <div class="beian-footer">
+            京ICP备2024094021号
+        </div>
     </div>
 
     <!-- 设置弹窗 -->
-    <div id="settingsPanel" class="settings-panel">
-        <h3>设置</h3>
-        <div>
-            <label for="soundToggle">背景音乐</label>
-            <input type="checkbox" id="soundToggle" checked>
+    <div class="settings-popup" id="settings-popup">
+        <div class="settings-header">
+            <h2>设置</h2>
+            <div class="sound-control" id="sound-control">
+                <img src="docs-images-settings-expand.png" alt="声音控制" class="sound-icon">
+            </div>
+            <button class="settings-close" id="settings-close">收起</button>
         </div>
-        <div class="bg-options">
-            <img src="images/backgrounds/bg1.jpg" class="bg-option selected" data-bg="bg1">
-            <img src="images/backgrounds/bg2.jpg" class="bg-option" data-bg="bg2">
-            <img src="images/backgrounds/bg3.jpg" class="bg-option" data-bg="bg3">
-            <img src="images/backgrounds/bg4.jpg" class="bg-option" data-bg="bg4">
+        
+        <div class="background-options">
+            <div class="background-option active" data-bg="bg1">
+                <img src="docs-images-backgrounds-bg1.jpg" alt="背景1">
+            </div>
+            <div class="background-option" data-bg="bg2">
+                <img src="docs-images-backgrounds-bg2.jpg" alt="背景2">
+            </div>
+            <div class="background-option" data-bg="bg3">
+                <img src="docs-images-backgrounds-bg3.jpg" alt="背景3">
+            </div>
+            <div class="background-option" data-bg="bg4">
+                <img src="docs-images-backgrounds-bg4.jpg" alt="背景4">
+            </div>
         </div>
+        
+        <div class="settings-slider"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- 广告位预留 -->
+    <div class="ad-space">
+        <div class="ad-close" id="ad-close">关闭广告</div>
+    </div>
+
+    <script src="docs-script.js"></script>
 </body>
 </html>

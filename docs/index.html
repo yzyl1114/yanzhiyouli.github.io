@@ -3,58 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown - 首页</title>
-    <link rel="stylesheet" href="style.css">
+    <title>GoalCountdown - 考试倒计时</title>
+    <link rel="stylesheet" href="docs-style.css">
 </head>
 <body>
-
     <!-- 标题栏 -->
-    <div id="title-bar">
-        <div>
-            <img src="images/logo.png" alt="Logo" id="logo">
-            GoalCountdown
+    <header class="header">
+        <div class="logo-container">
+            <img src="docs-images-logo.png" alt="GoalCountdown Logo" class="logo">
+            <h1>GoalCountdown</h1>
         </div>
-        <div id="currentDate" class="date"></div>
-    </div>
+        <div class="date-display" id="current-date">2025年1月1日 星期三</div>
+    </header>
 
-    <!-- 轮播Banner -->
-    <div class="banner-container">
+    <!-- Banner 轮播 -->
+    <section class="banner-container">
         <div class="banner-wrapper">
-            <div class="banner-item">
-                <img src="images/banner1.jpg" alt="Banner 1">
-            </div>
-            <div class="banner-item">
-                <img src="images/banner2.jpg" alt="Banner 2" onclick="window.open('https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com')">
-            </div>
+            <div class="banner-slide active" style="background-image: url('docs-images-banner-banner1.jpg')"></div>
+            <div class="banner-slide" style="background-image: url('docs-images-banner-banner2.jpg')"></div>
         </div>
-        <div class="banner-indicator">
-            <div class="indicator active"></div>
-            <div class="indicator"></div>
+        <div class="banner-indicators">
+            <div class="indicator active" data-index="0"></div>
+            <div class="indicator" data-index="1"></div>
         </div>
-    </div>
+        <a href="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com" class="banner-link" target="_blank"></a>
+    </section>
 
     <!-- 倒计时入口 -->
-    <div id="examContainer" class="countdown-list">
-        <!-- 动态生成考试入口 -->
-    </div>
+    <section class="countdown-entries">
+        <div class="entry-row">
+            <div class="entry" data-exam="teacher-pen">
+                <img src="docs-images-exams-teacher.jpg" alt="中小学教师资格考试（笔试）" class="entry-image">
+                <h3>中小学教师资格考试（笔试）</h3>
+            </div>
+            <div class="entry" data-exam="computer">
+                <img src="docs-images-exams-computer.jpg" alt="全国计算机等级考试" class="entry-image">
+                <h3>全国计算机等级考试</h3>
+            </div>
+            <div class="entry" data-exam="teacher-interview">
+                <img src="docs-images-exams-interview.jpg" alt="中小学教师资格考试（面试）" class="entry-image">
+                <h3>中小学教师资格考试（面试）</h3>
+            </div>
+        </div>
+        <!-- 其余入口按需添加 -->
+    </section>
 
     <!-- 备案及联系方式 -->
-    <div class="footer">
-        <p><a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a></p>
-        <p>商务合作 goalcountdown@gmail.com</p>
-    </div>
+    <footer class="footer">
+        <div class="beian">
+            <a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a>
+        </div>
+        <div class="contact">
+            商务合作 goalcountdown@gmail.com
+        </div>
+    </footer>
 
     <!-- 活动弹窗 -->
-    <div id="popupOverlay" class="popup" style="display:none;">
+    <div class="promo-popup" id="promo-popup">
         <div class="popup-content">
-            <h2>活动标题</h2>
-            <p>副标题</p>
-            <img src="images/promo-popup.jpg" alt="活动图">
-            <a href="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com" class="popup-btn">立即抢</a>
-            <button class="popup-close-btn" onclick="closePopup()">✖</button>
+            <h2 class="popup-title">限时活动</h2>
+            <p class="popup-subtitle">备考资料限时折扣中！</p>
+            <img src="docs-images-promo-popup-activity-image.png" alt="活动图片" class="popup-image">
+            <button class="popup-button" id="promo-button">立即抢</button>
         </div>
+        <button class="popup-close" id="popup-close">关闭</button>
     </div>
 
-    <script src="script.js"></script>
+    <script src="docs-script.js"></script>
 </body>
 </html>

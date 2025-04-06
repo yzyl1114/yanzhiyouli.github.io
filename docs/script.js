@@ -34,52 +34,89 @@ window.onload = function() {
     document.getElementById('promo-popup').style.display = 'flex';
 };
 
-// 设置倒计时目标时间和标题
-function setCountdownData(examTitle, examTime) {
-    // 更新考试标题
-    document.getElementById('exam-title').textContent = examTitle;
-    // 更新考试时间
-    document.getElementById('exam-time').textContent = examTime;
+// 各大考试倒计时数据
+const exams = [
+    { title: "中小学教师资格考试（笔试）", time: "2025-03-08T09:00:00+08:00" },
+    { title: "全国计算机等级考试", time: "2025-03-29T09:00:00+08:00" },
+    { title: "中小学教师资格考试（面试）", time: "2025-05-17T09:00:00+08:00" },
+    { title: "同等学力全国统考", time: "2025-05-18T09:00:00+08:00" },
+    { title: "英语四六级考试（口语）", time: "2025-05-24T09:00:00+08:00" },
+    { title: "高考", time: "2025-06-07T09:00:00+08:00" },
+    { title: "英语四六级考试（笔试）", time: "2025-06-14T09:00:00+08:00" },
+    { title: "注册会计师（CPA）考试", time: "2025-08-23T09:00:00+08:00" },
+    { title: "法律职业资格考试（客观题）", time: "2025-09-13T09:00:00+08:00" },
+    { title: "法律职业资格考试（主观题）", time: "2025-10-12T09:00:00+08:00" },
+    { title: "国家公务员考试（笔试）", time: "2025-11-29T09:00:00+08:00" },
+    { title: "硕士研究生招生考试（初试）", time: "2025-12-21T09:00:00+08:00" }
+];
 
-    const targetDate = new Date(examTime).getTime();
-    
-    // 更新倒计时
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const timeLeft = targetDate - now;
+// 动态生成每个考试的倒计时
+function generateCountdown() {
+    const countdownContainer = document.getElementById('countdown-container');
+    exams.forEach(exam => {
+        const countdownElement = document.createElement('div');
+        countdownElement.classList.add('countdown-item');
+        
+        countdownElement.innerHTML = `
+            <h2>${exam.title}</h2>
+            <p class="exam-time">${exam.time}</p>
+            <div class="countdown">
+                <div class="time-box">
+                    <p class="days">00</p>
+                    <p>天</p>
+                </div>
+                <div class="time-box">
+                    <p class="hours">00</p>
+                    <p>时</p>
+                </div>
+                <div class="time-box">
+                    <p class="minutes">00</p>
+                    <p>分</p>
+                </div>
+                <div class="time-box">
+                    <p class="seconds">00</p>
+                    <p>秒</p>
+                </div>
+            </div>
+        `;
+        countdownContainer.appendChild(countdownElement);
 
-        if (timeLeft < 0) {
-            document.getElementById("days").innerHTML = "00";
-            document.getElementById("hours").innerHTML = "00";
-            document.getElementById("minutes").innerHTML = "00";
-            document.getElementById("seconds").innerHTML = "00";
-        } else {
-            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-            document.getElementById("days").innerHTML = formatTime(days);
-            document.getElementById("hours").innerHTML = formatTime(hours);
-            document.getElementById("minutes").innerHTML = formatTime(minutes);
-            document.getElementById("seconds").innerHTML = formatTime(seconds);
-        }
-    }
-
-    // 格式化时间为两位数
-    function formatTime(time) {
-        return time < 10 ? "0" + time : time;
-    }
-
-    // 每秒更新一次倒计时
-    setInterval(updateCountdown, 1000);
+        // 设置倒计时
+        const targetDate = new Date(exam.time).getTime();
+        setInterval(() => updateCountdown(targetDate, countdownElement), 1000);
+    });
 }
 
-// 从 URL 中获取考试信息并设置倒计时
-const urlParams = new URLSearchParams(window.location.search);
-const examTitle = urlParams.get('examTitle') || '中小学教师资格考试（笔试）';  // 默认考试标题
-const examTime = urlParams.get('examTime') || '2025-03-08T09:00:00+08:00';  // 默认考试时间
-setCountdownData(examTitle, examTime);
+// 更新倒计时
+function updateCountdown(targetDate, element) {
+    const now = new Date().getTime();
+    const timeLeft = targetDate - now;
+
+    if (timeLeft < 0) {
+        element.querySelector(".days").textContent = "00";
+        element.querySelector(".hours").textContent = "00";
+        element.querySelector(".minutes").textContent = "00";
+        element.querySelector(".seconds").textContent = "00";
+    } else {
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        element.querySelector(".days").textContent = formatTime(days);
+        element.querySelector(".hours").textContent = formatTime(hours);
+        element.querySelector(".minutes").textContent = formatTime(minutes);
+        element.querySelector(".seconds").textContent = formatTime(seconds);
+    }
+}
+
+// 格式化时间为两位数
+function formatTime(time) {
+    return time < 10 ? "0" + time : time;
+}
+
+// 初始化页面
+generateCountdown();
 
 // 设置弹窗的显示
 document.getElementById("settings-button").addEventListener("click", () => {

@@ -1,114 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown - 考试倒计时</title>
-    <link rel="stylesheet" href="docs-style.css">
+    <title>GoalCountdown</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 标题栏 -->
-    <header class="header">
-        <div class="logo-container">
-            <img src="docs-images-logo.png" alt="GoalCountdown Logo" class="logo">
-            <h1>GoalCountdown</h1>
-        </div>
-        <div class="date-display" id="current-date">2025年4月1日 星期一</div>
-    </header>
 
-    <!-- Banner 轮播 -->
-    <section class="banner-container">
-        <div class="banner-wrapper">
-            <div class="banner-slide active" style="background-image: url('docs-images-banner-banner1.jpg')"></div>
-            <div class="banner-slide" style="background-image: url('docs-images-banner-banner2.jpg')"></div>
-        </div>
-        <div class="banner-indicators">
-            <div class="indicator active" data-index="0"></div>
-            <div class="indicator" data-index="1"></div>
-        </div>
-        <a href="https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com" class="banner-link" target="_blank"></a>
-    </section>
-
-    <!-- 倒计时入口 -->
-    <section class="countdown-entries">
-        <div class="entry-row">
-            <div class="entry" data-exam="computer">
-                <img src="docs-images-exams-computer.jpg" alt="2025年计算机等级考试" class="entry-image">
-                <h3>2025年计算机等级考试</h3>
-            </div>
-            <div class="entry" data-exam="teacher-interview">
-                <img src="docs-images-exams-interview.jpg" alt="2025年教师资格面试" class="entry-image">
-                <h3>2025年教师资格面试</h3>
-            </div>
-            <div class="entry" data-exam="degree">
-                <img src="docs-images-exams-degree.jpg" alt="2025年同等学力统考" class="entry-image">
-                <h3>2025年同等学力统考</h3>
-            </div>
-            <div class="entry" data-exam="speaking">
-                <img src="docs-images-exams-speaking.jpg" alt="2025年英语四六级口语" class="entry-image">
-                <h3>2025年英语四六级口语</h3>
-            </div>
-        </div>
-        <div class="entry-row">
-            <div class="entry" data-exam="gaokao">
-                <img src="docs-images-exams-gaokao.jpg" alt="2025年高考" class="entry-image">
-                <h3>2025年高考</h3>
-            </div>
-            <div class="entry" data-exam="writing">
-                <img src="docs-images-exams-writing.jpg" alt="2025年英语四六级笔试" class="entry-image">
-                <h3>2025年英语四六级笔试</h3>
-            </div>
-            <div class="entry" data-exam="cpa">
-                <img src="docs-images-exams-cpa.jpg" alt="2025年注册会计师考试" class="entry-image">
-                <h3>2025年注册会计师考试</h3>
-            </div>
-            <div class="entry" data-exam="law1">
-                <img src="docs-images-exams-law1.jpg" alt="2025年法考客观题" class="entry-image">
-                <h3>2025年法考客观题</h3>
-            </div>
-        </div>
-        <div class="entry-row">
-            <div class="entry" data-exam="law2">
-                <img src="docs-images-exams-law2.jpg" alt="2025年法考主观题" class="entry-image">
-                <h3>2025年法考主观题</h3>
-            </div>
-            <div class="entry" data-exam="civil">
-                <img src="docs-images-exams-civil.jpg" alt="2026年国考笔试" class="entry-image">
-                <h3>2026年国考笔试</h3>
-            </div>
-            <div class="entry" data-exam="master">
-                <img src="docs-images-exams-master.jpg" alt="2026年考研初试" class="entry-image">
-                <h3>2026年考研初试</h3>
-            </div>
-            <div class="entry ended" data-exam="teacher-pen">
-                <img src="docs-images-exams-teacher.jpg" alt="2025年教师资格笔试" class="entry-image">
-                <h3>2025年教师资格笔试</h3>
-                <div class="ended-badge">已结束</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 备案及联系方式 -->
-    <footer class="footer">
-        <div class="beian">
-            <a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a>
-        </div>
-        <div class="contact">
-            商务合作 goalcountdown@gmail.com
-        </div>
-    </footer>
-
-    <!-- 活动弹窗 -->
-    <div class="promo-popup" id="promo-popup">
-        <div class="popup-content">
-            <h2 class="popup-title">限时活动</h2>
-            <p class="popup-subtitle">备考资料限时折扣中！</p>
-            <img src="docs-images-promo-popup-activity-image.png" alt="活动图片" class="popup-image">
-            <button class="popup-button" id="promo-button">立即抢</button>
-        </div>
-        <button class="popup-close" id="popup-close">关闭</button>
+<!-- 标题栏 -->
+<header class="header">
+    <div class="logo">
+        <img src="docs-images-logo.png" alt="GoalCountdown Logo">
+        <span>GoalCountdown</span>
     </div>
+    <div id="current-date"></div>
+</header>
 
-    <script src="docs-script.js"></script>
+<!-- Banner -->
+<section class="banner">
+    <div class="carousel">
+        <img src="docs-images-banner-banner1.jpg" alt="Banner 1">
+        <img src="docs-images-banner-banner2.jpg" alt="Banner 2" onclick="window.location.href='https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com'">
+    </div>
+    <div class="carousel-indicators">
+        <span class="active"></span>
+        <span></span>
+    </div>
+</section>
+
+<!-- 倒计时入口 -->
+<section class="countdown-entries">
+    <div class="entry">
+        <img src="docs-images-exams-teacher.jpg" alt="中小学教师资格考试（笔试）">
+        <p>中小学教师资格考试（笔试）</p>
+    </div>
+    <!-- 更多倒计时入口，按需求填写 -->
+</section>
+
+<!-- 活动弹窗 -->
+<div class="popup" id="promo-popup">
+    <div class="popup-content">
+        <span class="close-btn" onclick="closePopup()">×</span>
+        <img src="docs-images-activity-image.png" alt="活动图片">
+        <h2>活动标题</h2>
+        <p>活动副标题</p>
+        <button onclick="window.location.href='https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com'">立即抢</button>
+    </div>
+</div>
+
+<!-- 备案信息 -->
+<footer>
+    <p><a href="http://beian.miit.gov.cn/">京ICP备2024094021号</a></p>
+    <p>商务合作 goalcountdown@gmail.com</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>

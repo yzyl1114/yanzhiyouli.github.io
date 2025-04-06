@@ -1,401 +1,133 @@
-/* 全局样式 */
-* {
+/* 基本样式 */
+body {
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
-body {
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-/* 标题栏样式 */
-.header {
+header {
+    background-color: #33738D;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
-    background-color: #33738D;
-    color: white;
+    padding: 10px 20px;
 }
 
-.logo-container {
-    display: flex;
-    align-items: center;
+header .logo img {
+    height: 30px;
 }
 
-.logo {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
+#current-date {
+    color: #fff;
 }
 
-.date-display {
-    font-size: 16px;
-}
-
-/* Banner 轮播样式 */
-.banner-container {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.banner-wrapper {
-    width: 100%;
-    height: 100%;
+.banner .carousel {
     position: relative;
 }
 
-.banner-slide {
-    position: absolute;
+.banner .carousel img {
     width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
+    height: auto;
 }
 
-.banner-slide.active {
-    opacity: 1;
+.carousel-indicators {
+    text-align: center;
+    margin-top: 10px;
 }
 
-.banner-indicators {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
+.carousel-indicators span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    border-radius: 50%;
+    background-color: #fff;
 }
 
-.indicator {
-    width: 30px;
-    height: 4px;
-    background-color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.indicator.active {
+.carousel-indicators .active {
     background-color: #33738D;
-}
-
-.banner-link {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
 }
 
 /* 倒计时入口样式 */
 .countdown-entries {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    padding: 0 30px;
-    margin-bottom: 40px;
-}
-
-.entry-row {
-    display: flex;
-    gap: 20px;
-    width: 100%;
-    justify-content: center;
-}
-
-.entry {
-    width: 200px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    position: relative;
-}
-
-.entry:hover {
-    transform: translateY(-5px);
-}
-
-.entry-image {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.entry h3 {
-    margin-top: 10px;
-    text-align: center;
-    font-size: 14px;
-}
-
-.ended-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(255, 0, 0, 0.7);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-/* 备案及联系方式样式 */
-.footer {
-    text-align: center;
+    justify-content: space-between;
     padding: 20px;
-    font-size: 12px;
-    color: #666;
 }
 
-.beian a {
-    color: #666;
-    text-decoration: none;
-}
-
-.beian a:hover {
-    text-decoration: underline;
-}
-
-.contact {
-    margin-top: 10px;
-}
-
-/* 活动弹窗样式 */
-.promo-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    z-index: 1000;
-    width: 300px;
-}
-
-.popup-title {
+.countdown-entries .entry {
+    width: 22%;
     text-align: center;
-    margin-bottom: 10px;
-    font-size: 18px;
+    margin-bottom: 20px;
 }
 
-.popup-subtitle {
+.countdown-entries .entry img {
+    width: 100%;
+}
+
+footer {
     text-align: center;
-    margin-bottom: 15px;
-    font-size: 14px;
-    color: #666;
-}
-
-.popup-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-.popup-button {
-    width: 100%;
     padding: 10px;
-    background-color: #33738D;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    background-color: #f1f1f1;
 }
 
-.popup-close {
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: none;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    color: #666;
+footer a {
+    color: #33738D;
 }
 
-/* 倒计时页面样式 */
-.countdown-container {
-    text-align: center;
-    padding: 40px 20px;
-    background-image: url('docs-images-backgrounds-bg1.jpg');
-    background-size: cover;
-    background-position: center;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-}
-
-#exam-title {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-#exam-time {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 30px;
-}
-
-.countdown-display {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 40px;
-}
-
-.countdown-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.countdown-value {
-    font-size: 60px;
-    font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #333;
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-}
-
-.countdown-label {
-    margin-top: 10px;
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.beian-footer {
+/* 弹窗样式 */
+.popup {
+    display: none;
     position: fixed;
-    bottom: 20px;
+    top: 0;
     left: 0;
     width: 100%;
-    text-align: center;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-/* 设置弹窗样式 */
-.settings-popup {
-    position: fixed;
-    top: 0;
-    left: -300px;
-    width: 300px;
     height: 100%;
-    background-color: #2c3e50;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    transition: left 0.3s ease;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.settings-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    color: white;
-}
-
-.sound-control {
-    display: flex;
-    align-items: center;
-}
-
-.sound-icon {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-}
-
-.settings-close {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
-    color: white;
-}
-
-.background-options {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.background-option {
-    border: 2px solid #34495e;
-    border-radius: 5px;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.background-option.active {
-    border-color: #33738D;
-}
-
-.background-option img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-}
-
-.settings-slider {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 5px;
-    background-color: #34495e;
-}
-
-/* 广告位样式 */
-.ad-space {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 300px;
-    height: 250px;
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 900;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
+    align-items: center;
 }
 
-.ad-content {
-    font-size: 14px;
-    color: #666;
+.popup-content {
+    background-color: #fff;
+    padding: 20px;
     text-align: center;
+    width: 60%;
+    max-width: 500px;
 }
 
-.ad-close {
+.popup .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: none;
-    border: none;
+    font-size: 20px;
     cursor: pointer;
-    font-size: 14px;
+}
+
+/* 设置弹窗 */
+.settings-popup {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #fff;
+    width: 200px;
+    height: 80%;
+    padding: 20px;
+    display: none;
+}
+
+.bg-thumbnails img {
+    width: 100%;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+/* 广告位 */
+.ad-space {
+    height: 100px;
+    background-color: #f1f1f1;
+    text-align: center;
+    line-height: 100px;
 }

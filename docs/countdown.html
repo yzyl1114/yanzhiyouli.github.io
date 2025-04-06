@@ -1,75 +1,59 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>倒计时 - GoalCountdown</title>
-    <link rel="stylesheet" href="docs-style.css">
+    <title>倒计时</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 页面主体 -->
-    <div class="countdown-container">
-        <h1 id="exam-title">2025年计算机等级考试</h1>
-        <p id="exam-time">2025年12月23日09时00分</p>
-        
-        <div class="countdown-display">
-            <div class="countdown-box days">
-                <div class="countdown-value" id="days">88</div>
-                <div class="countdown-label">天</div>
-            </div>
-            <div class="countdown-box hours">
-                <div class="countdown-value" id="hours">12</div>
-                <div class="countdown-label">时</div>
-            </div>
-            <div class="countdown-box minutes">
-                <div class="countdown-value" id="minutes">30</div>
-                <div class="countdown-label">分</div>
-            </div>
-            <div class="countdown-box seconds">
-                <div class="countdown-value" id="seconds">00</div>
-                <div class="countdown-label">秒</div>
-            </div>
+
+<!-- 页面主体 -->
+<section class="countdown-page">
+    <h1>中小学教师资格考试（笔试）</h1>
+    <p>考试时间：2025年3月8日09时00分</p>
+
+    <div class="countdown-timer">
+        <div class="time-block">
+            <p id="days">00</p>
+            <span>天</span>
         </div>
-        
-        <div class="beian-footer">
-            京ICP备2024094021号
+        <div class="time-block">
+            <p id="hours">00</p>
+            <span>时</span>
+        </div>
+        <div class="time-block">
+            <p id="minutes">00</p>
+            <span>分</span>
+        </div>
+        <div class="time-block">
+            <p id="seconds">00</p>
+            <span>秒</span>
         </div>
     </div>
 
-    <!-- 设置弹窗 -->
-    <div class="settings-popup" id="settings-popup">
-        <div class="settings-header">
-            <h2>设置</h2>
-            <div class="sound-control" id="sound-control">
-                <img src="docs-images-settings-expand.png" alt="声音控制" class="sound-icon">
-            </div>
-            <button class="settings-close" id="settings-close">收起</button>
-        </div>
-        
-        <div class="background-options">
-            <div class="background-option active" data-bg="bg1">
-                <img src="docs-images-backgrounds-bg1.jpg" alt="背景1">
-            </div>
-            <div class="background-option" data-bg="bg2">
-                <img src="docs-images-backgrounds-bg2.jpg" alt="背景2">
-            </div>
-            <div class="background-option" data-bg="bg3">
-                <img src="docs-images-backgrounds-bg3.jpg" alt="背景3">
-            </div>
-            <div class="background-option" data-bg="bg4">
-                <img src="docs-images-backgrounds-bg4.jpg" alt="背景4">
-            </div>
-        </div>
-        
-        <div class="settings-slider"></div>
-    </div>
+    <footer>
+        <p><a href="http://beian.miit.gov.cn/">京ICP备2024094021号</a></p>
+    </footer>
+</section>
 
-    <!-- 广告位预留 -->
-    <div class="ad-space">
-        <div class="ad-content">广告位广告位广告位广告位</div>
-        <button class="ad-close" id="ad-close">关闭广告</button>
+<!-- 设置弹窗 -->
+<div class="settings-popup" id="settings-popup">
+    <h2>设置</h2>
+    <button onclick="toggleMusic()">音乐：静音</button>
+    <div class="bg-thumbnails">
+        <!-- 这里可以根据背景图动态生成缩略图 -->
+        <img src="docs-images-backgrounds-bg1.jpg" alt="背景1">
+        <img src="docs-images-backgrounds-bg2.jpg" alt="背景2">
+        <!-- 更多背景图 -->
     </div>
+</div>
 
-    <script src="docs-script.js"></script>
+<!-- 广告位 -->
+<section class="ad-space">
+    <!-- 预留广告位置 -->
+</section>
+
+<script src="script.js"></script>
 </body>
 </html>

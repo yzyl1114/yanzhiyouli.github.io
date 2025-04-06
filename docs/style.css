@@ -29,7 +29,7 @@ header .current-date {
 .banner {
     position: relative;
     width: 100%;
-    height: 200px; /* 修改为合适的高度 */
+    height: 200px; /* 更适合的高度 */
 }
 
 .banner .carousel img {

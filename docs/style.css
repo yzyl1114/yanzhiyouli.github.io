@@ -147,6 +147,15 @@ header .current-date {
     height: auto;
 }
 
+/* 广告位 */
+.ad-space {
+    height: 100px;
+    background-color: #f1f1f1;
+    text-align: center;
+    line-height: 100px;
+    font-size: 18px;
+}
+
 /* 底部备案信息 */
 footer {
     text-align: center;

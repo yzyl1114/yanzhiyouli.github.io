@@ -1,128 +1,59 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown</title>
-    <link rel="stylesheet" href="style.css">
+    <title>GoalCountdown - 考试倒计时</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment-timezone@0.5.36/moment-timezone-with-data.min.js"></script>
 </head>
 <body>
+    <!-- 标题栏 -->
+    <header class="header">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="GoalCountdown Logo" class="logo">
+            <h1>GoalCountdown</h1>
+        </div>
+        <div class="date-container">
+            <span id="current-date">2025年01月01日，星期三</span>
+        </div>
+    </header>
 
-<!-- 标题栏 -->
-<header class="header">
-    <div class="logo">
-        <img src="docs-images-logo.png" alt="GoalCountdown Logo">
-        <span>GoalCountdown</span>
-    </div>
-    <div id="current-date" class="current-date"></div>
-</header>
+    <!-- Banner -->
+    <section class="banner">
+        <img src="images/banner.jpg" alt="考试倒计时网站宣传" class="banner-image">
+    </section>
 
-<!-- Banner -->
-<section class="banner">
-    <div class="carousel">
-        <img src="docs-images-banner-banner1.jpg" alt="Banner 1">
-        <img src="docs-images-banner-banner2.jpg" alt="Banner 2" onclick="window.location.href='https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com'">
-    </div>
-    <div class="carousel-indicators">
-        <span class="active"></span>
-        <span></span>
-    </div>
-</section>
+    <!-- 倒计时入口 -->
+    <section class="countdown-entries">
+        <div class="entry-grid">
+            <!-- 动态生成的倒计时入口将通过JS插入 -->
+        </div>
+    </section>
 
-<!-- 倒计时入口 -->
-<section class="countdown-entries">
-    <!-- 填充12个入口，按考试时间排序 -->
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=中小学教师资格考试（笔试）&examTime=2025-03-08T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-teacher.jpg');"></div>
-            <p>中小学教师资格考试（笔试）</p>
+    <!-- 备案及联系方式 -->
+    <footer class="footer">
+        <div class="beian">
+            <a href="http://beian.miit.gov.cn/" target="_blank">京ICP备2024094021号</a>
         </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=全国计算机等级考试&examTime=2025-03-29T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-computer.jpg');"></div>
-            <p>全国计算机等级考试</p>
+        <div class="contact">
+            <span>商务合作 goalcountdown@gmail.com</span>
         </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=中小学教师资格考试（面试）&examTime=2025-05-17T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-interview.jpg');"></div>
-            <p>中小学教师资格考试（面试）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=同等学力全国统考&examTime=2025-05-18T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-degree.jpg');"></div>
-            <p>同等学力全国统考</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=英语四六级考试（口语）&examTime=2025-05-24T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-speaking.jpg');"></div>
-            <p>英语四六级考试（口语）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=高考&examTime=2025-06-07T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-gaokao.jpg');"></div>
-            <p>高考</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=英语四六级考试（笔试）&examTime=2025-06-14T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-writing.jpg');"></div>
-            <p>英语四六级考试（笔试）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=注册会计师（CPA）考试&examTime=2025-08-23T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-cpa.jpg');"></div>
-            <p>注册会计师（CPA）考试</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=法律职业资格考试（客观题）&examTime=2025-09-13T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-law1.jpg');"></div>
-            <p>法律职业资格考试（客观题）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=法律职业资格考试（主观题）&examTime=2025-10-12T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-law2.jpg');"></div>
-            <p>法律职业资格考试（主观题）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=国家公务员考试（笔试）&examTime=2025-11-29T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-civil.jpg');"></div>
-            <p>国家公务员考试（笔试）</p>
-        </div>
-    </div>
-    <div class="entry" onclick="window.location.href='countdown.html?examTitle=硕士研究生招生考试（初试）&examTime=2025-12-21T09:00:00+08:00'">
-        <div class="entry-card">
-            <div class="entry-image" style="background-image: url('docs-images-exams-master.jpg');"></div>
-            <p>硕士研究生招生考试（初试）</p>
-        </div>
-    </div>
-</section>
+    </footer>
 
-<!-- 活动弹窗 -->
-<div class="popup" id="promo-popup">
-    <div class="popup-content">
-        <span class="close-btn" onclick="closePopup()">×</span>
-        <img src="docs-images-activity-image.png" alt="活动图片">
-        <h2>限时活动</h2>
-        <p>抢购好礼，快来参与！</p>
-        <button onclick="window.location.href='https://782d7rcbwv2kbxvn6epd9f64d1c6vpu.taobao.com'">立即抢购</button>
+    <!-- 活动弹窗 -->
+    <div class="modal activity-modal" id="activity-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 class="modal-title">新用户专享活动</h2>
+            <div class="modal-body">
+                <p>注册即送3次自定义倒计时机会！</p>
+                <button class="btn-primary">立即参与</button>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- 备案信息 -->
-<footer class="footer">
-    <p><a href="http://beian.miit.gov.cn/">京ICP备2024094021号</a></p>
-    <p>商务合作 goalcountdown@gmail.com</p>
-</footer>
-
-<script src="script.js"></script>
+    <script src="js/index.js"></script>
 </body>
 </html>

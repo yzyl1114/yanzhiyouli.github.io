@@ -73,3 +73,5 @@ const exams = [
         image: "images/graduate_exam.jpg"
     }
 ];
+
+export { exams };

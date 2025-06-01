@@ -1,6 +1,9 @@
 // 引入考试数据
 import { exams } from './exams.js';
 
+// 确保 moment 和 moment-timezone 在全局范围内可用
+const moment = window.moment;
+
 // 更新当前日期
 function updateCurrentDate() {
     const now = moment().tz("Asia/Shanghai");
@@ -72,6 +75,11 @@ function showActivityModal() {
 
 // 初始化首页
 function initHomePage() {
+    if (typeof moment === 'undefined' || typeof moment.tz === 'undefined') {
+        console.error('Moment.js 或 Moment-Timezone 未正确加载');
+        return;
+    }
+    
     updateCurrentDate();
     renderCountdownEntries();
     showActivityModal();

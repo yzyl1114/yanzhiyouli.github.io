@@ -126,7 +126,7 @@ body {
     padding: 20px;
     font-size: 12px;
     color: #777;
-    position: fixed;
+    position: static;
     bottom: 0; /* 固定在页面底部 */
     left: 0;
     width: 100%;

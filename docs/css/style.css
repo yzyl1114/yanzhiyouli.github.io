@@ -131,8 +131,7 @@ body {
     bottom: 0; /* 固定在页面底部 */
     left: 0;
     width: 100%;
-    background-color: transparent; /* 无背景框 */
-    z-index: 100;
+    z-index: 50; /* 确保备案信息在广告弹窗下方 */
 }
 
 .beian a {

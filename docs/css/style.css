@@ -128,7 +128,7 @@ body {
     font-size: 12px;
     color: #777;
     position: fixed;
-    bottom: 120px; /* 位于广告位上方 */
+    bottom: 0; /* 固定在页面底部 */
     left: 0;
     width: 100%;
     background-color: transparent; /* 无背景框 */
@@ -160,6 +160,11 @@ body {
     z-index: 1000;
     justify-content: center;
     align-items: center;
+}
+
+/* 首页广告弹窗隐藏 */
+.activity-modal {
+    display: none !important;
 }
 
 .modal-content {
@@ -318,8 +323,10 @@ body {
     border-bottom: 1px solid #eee;
 }
 
+/* 设置弹窗标题居中 */
 .settings-body {
     padding: 20px;
+    text-align: center;
 }
 
 .background-options {

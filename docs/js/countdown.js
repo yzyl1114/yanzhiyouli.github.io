@@ -75,7 +75,16 @@ function initCountdownPage() {
     // 设置默认背景图
     const bgSetting = localStorage.getItem("countdownBg") || "bg1";
     document.getElementById("countdown-bg").style.backgroundImage = `url(${getBackgroundUrl(bgSetting)})`;
-    
+   
+    // 确保设置弹窗中选中的缩略图与实际背景图一致
+    document.querySelectorAll(".bg-option").forEach(option => {
+        if (option.dataset.bg === bgSetting) {
+            option.classList.add("active");
+        } else {
+            option.classList.remove("active");
+        }
+    });
+
     // 初始化设置弹窗
     initSettingsModal();
     

@@ -99,7 +99,12 @@ function initCountdownPage() {
 
 // 获取背景图片URL
 function getBackgroundUrl(bgId) {
-    return backgroundImages.find(bg => bg.id === bgId).url;
+    const bg = backgroundImages.find(bg => bg.id === bgId);
+    if (!bg) {
+        console.error(`Background image with id ${bgId} not found.`);
+        return "images/default-bg.jpg"; // 提供一个默认背景图
+    }
+    return bg.url;
 }
 
 // 初始化设置弹窗

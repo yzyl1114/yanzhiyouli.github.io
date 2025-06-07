@@ -9,7 +9,9 @@ const backgroundImages = [
     { id: "bg1", url: "images/bg1.jpg" },
     { id: "bg2", url: "images/bg2.jpg" },
     { id: "bg3", url: "images/bg3.jpg" },
-    { id: "bg4", url: "images/bg4.jpg" }
+    { id: "bg4", url: "images/bg4.jpg" },
+    { id: "bg5", url: "images/bg5.jpg" },
+    { id: "bg6", url: "images/bg6.jpg" }  
 ];
 
 // 获取考试数据

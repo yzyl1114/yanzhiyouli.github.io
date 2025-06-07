@@ -46,7 +46,7 @@ body {
 /* Banner样式 */
 .banner {
     width: 100%;
-    height: 300px;
+    height: 200px;
     overflow: hidden;
     margin-bottom: 30px;
 }
@@ -128,7 +128,7 @@ body {
     font-size: 12px;
     color: #777;
     position: static;
-    bottom: -50px; /* 固定在页面底部 */
+    bottom: -200px; /* 固定在页面底部 */
     left: 0;
     width: 100%;
     z-index: 50; /* 确保备案信息在广告弹窗下方 */

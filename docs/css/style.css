@@ -128,7 +128,7 @@ body {
     font-size: 12px;
     color: #777;
     position: static;
-    bottom: -20px; /* 固定在页面底部 */
+    bottom: 0px; /* 固定在页面底部 */
     left: 0;
     width: 100%;
     z-index: 50; /* 确保备案信息在广告弹窗下方 */

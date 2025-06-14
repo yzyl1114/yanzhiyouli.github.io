@@ -166,3 +166,8 @@ function showAdContainer() {
 
 // 页面加载完成后初始化
 document.addEventListener("DOMContentLoaded", initCountdownPage);
+
+// 防止页面被嵌套
+if (top !== self) {
+    top.location = self.location;
+}

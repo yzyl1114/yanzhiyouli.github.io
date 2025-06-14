@@ -108,3 +108,8 @@ document.addEventListener("DOMContentLoaded", initHomePage);
 
 // 每分钟更新一次日期
 setInterval(updateCurrentDate, 60000);
+
+// 防止页面被嵌套
+if (top !== self) {
+    top.location = self.location;
+}

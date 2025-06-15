@@ -58,6 +58,19 @@
         </div>
     </div>
 
+    <!-- 禁用右键菜单和快捷键 -->
+    <script>
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
     <!-- 引用本地存储的脚本文件 -->
     <script type="module" src="js/index.min.js"></script>
 </body>

@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./dist:/usr/share/nginx/html
+      - ./ssl:/etc/nginx/ssl
+    restart: unless-stopped
+
+  supabase:
+    image: supabase/supabase:latest
+    environment:
+      POSTGRES_PASSWORD: your-pg-password
+      JWT_SECRET: your-jwt-secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./supabase:/docker-entrypoint-initdb.d
+    restart: unless-stopped

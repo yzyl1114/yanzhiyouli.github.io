@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>自定义目标</title>
+  <style>
+    body{font-family:PingFang SC,Helvetica;margin:0;padding:40px;background:#f5f5f5}
+    input,select{width:100%;height:40px;margin:10px 0;padding:0 10px;border:1px solid #ddd;border-radius:8px}
+    button{width:100%;height:44px;border:none;border-radius:8px;background:#4a6bff;color:#fff;font-size:16px;cursor:pointer;position:relative}
+    .badge{position:absolute;top:-4px;right:-4px;background:#ff4d4f;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px}
+  </style>
+</head>
+<body>
+  <h2 id="title">新建自定义目标</h2>
+  <input id="name" placeholder="请输入目标名称" maxlength="20">
+  <input id="datetime" type="datetime-local">
+  <select id="category">
+    <option value="exam">考试</option>
+    <option value="work">工作</option>
+    <option value="life">生活</option>
+    <option value="other">其他</option>
+  </select>
+  <button id="confirm">确定</button>
+
+  <script type="module">
+    import { getUser } from './js/auth.js'
+    import { createCustomGoal, updateCustomGoal, getMyCustomGoals } from './js/custom.js'
+    import { openMemberBuyDialog } from './js/member.js'
+    const url = new URLSearchParams(location.search)
+    const editId = url.get('edit')          // 存在即编辑
+    const user = await getUser()
+    if (!user) { alert('请先登录'); window.close() }
+    const goals = await getMyCustomGoals()
+    const goal = editId ? goals.find(g => g.id === editId) : null
+    if (goal) {
+      title.textContent = '编辑自定义目标'
+      name.value = goal.name
+      datetime.value = dayjs(goal.date).format('YYYY-MM-DDTHH:mm')
+      category.value = goal.category
+    } else {
+      datetime.value = dayjs().add(1, 'day').hour(9).minute(0).format('YYYY-MM-DDTHH:mm')
+    }
+    const max = user.member_plan === 'month' ? 3 : 5
+    const used = goals.length
+    const can = used < max
+    if (!can) {
+      confirm.innerHTML = '确定<span class="badge">升级会员</span>'
+      confirm.style.background = '#ff4d4f'
+    }
+    if (!user.is_member) {
+      confirm.innerHTML = '确定<span class="badge">开通会员</span>'
+      confirm.style.background = '#ff4d4f'
+    }
+    confirm.onclick = async () => {
+      if (!user.is_member) { openMemberBuyDialog(); return }
+      if (!can) { alert('升级半年会员可再创建 2 个目标'); return }
+      const data = { name: name.value, date: datetime.value, category: category.value }
+      if (goal) await updateCustomGoal(goal.id, data)
+      else await createCustomGoal(data)
+      window.opener.location.reload()
+      window.close()
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+</body>
+</html>

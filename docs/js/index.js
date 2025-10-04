@@ -1,3 +1,6 @@
+import { getUser, logout } from './auth.js'
+import { getMyCustomGoals, createCustomGoal, deleteCustomGoal } from './custom.js'
+import { openMemberBuyDialog } from './member.js'
 // 引入考试数据
 import { exams } from './exams.js';
 
@@ -74,17 +77,28 @@ function showActivityModal() {
 }
 
 // 初始化首页
-function initHomePage() {
+async function initHomePage() {
     if (typeof moment === 'undefined' || typeof moment.tz === 'undefined') {
         console.error('Moment.js 或 Moment-Timezone 未正确加载');
         return;
     }
-    
+
+    /******************** 新增开始 ********************/
+    // 1. 拉取用户信息（含会员状态）
+    const user = await getUser();   // 从 auth.js 来
+
+    // 2. 渲染导航栏右侧头像/登录入口
+    renderUserBar(user);
+
+    // 3. 渲染自定义目标卡片（会员且额度内才显示“+”卡片）
+    await renderCustomCards(user);
+    /******************** 新增结束 ********************/
+
+    // 以下是你原有逻辑，一点不动
     updateCurrentDate();
     renderCountdownEntries();
     showActivityModal();
-    
-    // 关闭弹窗事件
+
     document.querySelectorAll(".close-modal").forEach(closeBtn => {
         closeBtn.addEventListener("click", () => {
             document.querySelectorAll(".modal").forEach(modal => {
@@ -92,8 +106,7 @@ function initHomePage() {
             });
         });
     });
-    
-    // 点击弹窗外部关闭弹窗
+
     window.addEventListener("click", (e) => {
         document.querySelectorAll(".modal").forEach(modal => {
             if (e.target === modal) {
@@ -112,4 +125,67 @@ setInterval(updateCurrentDate, 60000);
 // 防止页面被嵌套
 if (top !== self) {
     top.location = self.location;
+}
+
+// 渲染导航栏右侧头像/登录入口
+function renderUserBar(user) {
+    const dateContainer = document.querySelector('.date-container');
+    const wrap = document.createElement('div');
+    wrap.className = 'user-bar';
+    wrap.style.marginLeft = 'auto';
+    wrap.style.marginRight = '20px';
+    wrap.style.cursor = 'pointer';
+
+    if (user) {
+        // 已登录
+        wrap.innerHTML = `<img src="${user.avatar_url}" style="width:30px;height:30px;border-radius:50%">`;
+        wrap.onclick = () => toggleUserPopup(user); // 你后面实现
+    } else {
+        // 未登录
+        wrap.innerHTML = `<img src="images/default-avatar.png" style="width:30px;height:30px;border-radius:50%">`;
+        wrap.onclick = () => loginWechat();        // 从 auth.js 来
+    }
+    dateContainer.after(wrap);
+}
+
+// 渲染自定义目标卡片
+async function renderCustomCards(user) {
+    const grid = document.querySelector('.entry-grid');
+    const canCreate = user && user.is_member &&
+        (await getMyCustomGoals()).length < (user.member_plan === 'month' ? 3 : 5);
+
+    // 1. 已创建的目标
+    const list = await getMyCustomGoals();
+    list.forEach(g => {
+        const item = document.createElement('div');
+        item.className = 'entry-item custom-goal';
+        item.innerHTML = `
+            <img src="images/custom-plus.jpg" class="entry-image">
+            <h3 class="entry-title">${g.name}</h3>
+            <i class="edit-icon" style="display:none">✏️</i>
+            <i class="del-icon"  style="display:none">🗑️</i>
+        `;
+        item.onclick = () => location.href = `countdown.html?custom=${g.id}`;
+        item.onmouseenter = () => {
+            item.querySelector('.edit-icon').style.display = 'block';
+            item.querySelector('.del-icon').style.display = 'block';
+        };
+        item.onmouseleave = () => {
+            item.querySelector('.edit-icon').style.display = 'none';
+            item.querySelector('.del-icon').style.display = 'none';
+        };
+        grid.prepend(item);
+    });
+
+    // 2. “+” 新建卡片（只有会员且额度内才显示）
+    if (canCreate) {
+        const plus = document.createElement('div');
+        plus.className = 'entry-item custom-plus';
+        plus.innerHTML = `
+            <img src="images/plus.svg" class="entry-image">
+            <h3 class="entry-title">自定义目标</h3>
+        `;
+        plus.onclick = () => openCustomGoalDialog(); // 你后面实现
+        grid.prepend(plus);
+    }
 }

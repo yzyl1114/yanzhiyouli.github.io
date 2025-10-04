@@ -8,6 +8,7 @@
     <!-- 引用本地存储的脚本文件 -->
     <script src="js/moment.min.js"></script>
     <script src="js/moment-timezone-with-data-10-year-range.min.js"></script>
+    <script type="module" src="js/auth.js"></script>
     <!-- 谷歌广告审核代码 -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7268374810307592"crossorigin="anonymous"></script>
 </head>
@@ -21,6 +22,9 @@
         <div class="date-container">
             <span id="current-date">2025年01月01日，星期三</span>
         </div>
+
+        <!-- 新增登录按钮 -->
+        <button id="btn-login" style="margin-left:auto;margin-right:20px;">登录</button>
     </header>
 
     <!-- Banner -->
@@ -60,12 +64,85 @@
         </div>
     </div>
 
+    <!-- 登录逻辑（模块脚本） -->
+    <script type="module">
+      import { supabase } from './js/supabase.js';
+      document.getElementById('btn-login').onclick = () =>
+        supabase.auth.signInWithOAuth({ provider: 'github' });
+      import { getUser } from './js/auth.js';
+      import { getMyCustomGoals, createCustomGoal } from './js/custom.js';
+
+      (async () => {
+        const user = await getUser();
+        const grid = document.querySelector('.entry-grid');
+
+        /* 1. 渲染已有自定义目标 */
+        const list = await getMyCustomGoals();
+        list.forEach(g => {
+          const item = document.createElement('div');
+          item.className = 'entry-item custom-goal';
+          item.innerHTML = `
+            <img src="images/custom-plus.jpg" class="entry-image">
+            <h3 class="entry-title">${g.name}</h3>
+            <i class="edit-icon" style="display:none;position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
+            <i class="del-icon"  style="display:none;position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>
+          `;
+          item.style.position = 'relative';
+          item.onclick = () => location.href = `countdown1004.html?custom=${g.id}`;
+          item.onmouseenter = () => {
+            item.querySelector('.edit-icon').style.display = 'inline-block';
+            item.querySelector('.del-icon').style.display = 'inline-block';
+          };
+          item.onmouseleave = () => {
+            item.querySelector('.edit-icon').style.display = 'none';
+            item.querySelector('.del-icon').style.display = 'none';
+          };
+          item.querySelector('.edit-icon').onclick = e => {
+            e.stopPropagation();
+            const btn = document.getElementById('btn-open-edit');
+            btn.dataset.gid = g.id;
+            btn.click();
+          };
+          item.querySelector('.del-icon').onclick = async e => {
+            e.stopPropagation();
+            if (!confirm('确定删除？')) return;
+            await supabase.from('custom_goals').delete().eq('id', g.id);
+            location.reload();
+          };
+          grid.prepend(item);
+        });
+
+        /* 2. 显示“+ 新建”卡片（会员且额度内） */
+        const can = user && user.is_member &&
+                    list.length < (user.member_plan === 'month' ? 3 : 5);
+        if (can) {
+          const plus = document.createElement('div');
+          plus.className = 'entry-item custom-plus';
+          plus.innerHTML = `
+            <img src="images/plus.svg" class="entry-image">
+            <h3 class="entry-title">自定义目标</h3>
+          `;
+          plus.onclick = () => document.getElementById('btn-open-new').click();
+          grid.prepend(plus);
+        } else if (user && !user.is_member) {
+          /* 非会员点“+”直接弹出支付 */
+          const plus = document.createElement('div');
+          plus.className = 'entry-item custom-plus';
+          plus.innerHTML = `
+            <img src="images/plus.svg" class="entry-image">
+            <h3 class="entry-title">自定义目标</h3>
+          `;
+          plus.onclick = () => document.getElementById('btn-open-pay').click();
+          grid.prepend(plus);
+        }
+      })();
+    </script>
+    
     <!-- 禁用右键菜单和快捷键 -->
     <script>
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
-
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
@@ -75,5 +152,45 @@
 
     <!-- 引用本地存储的脚本文件 -->
     <script type="module" src="js/index.min.js"></script>
+
+    <!-- ===== 1. 支付弹窗触发按钮（隐藏，仅代码调用） ===== -->
+    <button id="btn-open-pay" style="display:none"
+            onclick="window.open('member-buy.html','_blank','width=400,height=500,left=200,top=100')"></button>
+
+    <!-- ===== 2. 新建目标触发按钮（隐藏） ===== -->
+    <button id="btn-open-new" style="display:none"
+            onclick="window.open('custom-goal.html','_blank','width=400,height=420,left=200,top=100')"></button>
+
+    <!-- ===== 3. 编辑目标触发按钮（隐藏） ===== -->
+    <button id="btn-open-edit" style="display:none"
+            onclick="window.open('custom-goal.html?edit='+this.dataset.gid,'_blank','width=400,height=420,left=200,top=100')"></button>
+
+    <!-- ===== 4. 用户小弹窗（开通/续费） ===== -->
+    <script type="module">
+      import { getUser, logout } from './js/auth.js';
+      let user = await getUser();
+
+      /* ---- 导航栏头像区域点击 ---- */
+      document.addEventListener('click', e => {
+        const ava = e.target.closest('.user-bar img');
+        if (!ava) return;
+        if (!user) return;                       // 未登录不弹
+        const popup = document.createElement('div');
+        popup.id = 'user-popup';
+        popup.innerHTML = `
+          <div style="position:absolute;right:20px;top:60px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:12px;font-size:14px;line-height:1.8;z-index:999">
+            <div>${user.username || '用户'}</div>
+            <div style="color:#666">${user.is_member ? (user.member_plan==='month'?'基础版':'尊享版')+'会员' : '普通用户'}</div>
+            <div style="color:#666">${user.is_member ? '将于 '+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+' 天后到期' : '开通会员立享权益'}</div>
+            <button id="popup-buy" style="float:right;margin-top:-40px;height:24px;border:none;border-radius:4px;background:#4a6bff;color:#fff;font-size:12px;cursor:pointer">${user.is_member?'续费':'开通'}</button>
+            <button id="popup-out" style="width:100%;margin-top:10px;border:none;background:none;color:#ff4d4f;cursor:pointer">退出登录</button>
+          </div>`;
+        document.body.appendChild(popup);
+        popup.querySelector('#popup-buy').onclick = () => document.getElementById('btn-open-pay').click();
+        popup.querySelector('#popup-out').onclick = async () => { await logout(); location.reload(); };
+        const close = e => { if (!e.target.closest('#user-popup')) { popup.remove(); document.removeEventListener('click', close); } };
+        setTimeout(() => document.addEventListener('click', close), 0);
+      });
+    </script>
 </body>
 </html>

@@ -123,22 +123,23 @@ function initSettingsModal() {
     
     // 背景选项点击事件
     document.querySelectorAll(".bg-option").forEach(option => {
-        option.addEventListener("click", () => {
-            const bgId = option.dataset.bg;
-            const bgUrl = getBackgroundUrl(bgId);
-            
-            // 更新当前页面背景
-            document.getElementById("countdown-bg").style.backgroundImage = `url(${bgUrl})`;
-            
-            // 保存用户选择
-            localStorage.setItem("countdownBg", bgId);
-            
-            // 更新选中状态
-            document.querySelectorAll(".bg-option").forEach(opt => {
-                opt.classList.remove("active");
-            });
-            option.classList.add("active");
-        });
+      option.addEventListener("click", async () => {
+        const bgId = option.dataset.bg;
+        // 会员图判断（bg5/bg6 为会员图，按你实际命名改）
+        if (['bg5', 'bg6'].includes(bgId)) {
+          const user = await getUser(); // 先引入 auth.js
+          if (!user || !user.is_member) {
+            // 非会员 → 弹出支付
+            window.open('member-buy.html', '_blank', 'width=400,height=500,left=200,top=100');
+            return;
+          }
+        }
+        const bgUrl = getBackgroundUrl(bgId);
+        document.getElementById("countdown-bg").style.backgroundImage = `url(${bgUrl})`;
+        localStorage.setItem("countdownBg", bgId);
+        document.querySelectorAll(".bg-option").forEach(opt => opt.classList.remove("active"));
+        option.classList.add("active");
+      });
     });
     
     // 点击弹窗外部关闭弹窗

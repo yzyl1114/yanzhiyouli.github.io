@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>开通会员</title>
+  <style>
+    body{font-family:PingFang SC,Helvetica;margin:0;padding:40px;background:#f5f5f5}
+    .card{display:inline-block;width:46%;margin:2%;padding:20px;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);cursor:pointer;transition:.2s}
+    .card:hover{transform:translateY(-2px)}
+    .card.active{border:2px solid #4a6bff}
+    h3{margin:0 0 6px} small{color:#666}
+    .row{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
+    #pay-btn{width:96%;margin:10px 2%;height:44px;border:none;border-radius:8px;background:#07c160;color:#fff;font-size:16px;cursor:pointer}
+    #qrcode{width:80px;height:80px;margin:10px auto;display:block}
+    #tip{text-align:center;font-size:12px;color:#4a6bff;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center">开通会员</h2>
+  <div id="cards">
+    <div class="card" data-plan="month">
+      <h3>基础版</h3><small>30 天会员</small>
+      <div class="row"><span>会员专属背景图</span><span>✅</span></div>
+      <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
+      <div class="row"><span>保存数量</span><span>3 个</span></div>
+    </div>
+    <div class="card" data-plan="halfyear">
+      <h3>尊享版</h3><small>180 天会员</small>
+      <div class="row"><span>会员专属背景图</span><span>✅</span></div>
+      <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
+      <div class="row"><span>保存数量</span><span>5 个</span></div>
+    </div>
+  </div>
+  <button id="pay-btn">微信支付</button>
+  <img id="qrcode" style="display:none"/>
+  <div id="tip" style="display:none">我已支付</div>
+
+  <script type="module">
+    import { createOrder, pollOrder } from './js/member.js'
+    let plan = 'month', orderId
+    cards.onclick = e => {
+      const c = e.target.closest('.card')
+      if (!c) return
+      document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+      c.classList.add('active')
+      plan = c.dataset.plan
+    }
+    payBtn.onclick = async () => {
+      const { qr_url, id } = await createOrder(plan)
+      orderId = id
+      qrcode.src = qr_url
+      qrcode.style.display = 'block'
+      tip.style.display = 'block'
+      payBtn.style.display = 'none'
+      // 轮询
+      const t = setInterval(async () => {
+        if (await pollOrder(orderId)) {
+          clearInterval(t)
+          alert('支付成功！')
+          location.reload()
+        }
+      }, 2000)
+    }
+    tip.onclick = async () => {
+      if (await pollOrder(orderId)) location.reload()
+      else alert('暂未检测到支付，请稍候')
+    }
+  </script>
+</body>
+</html>

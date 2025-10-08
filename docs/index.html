@@ -71,7 +71,7 @@
       document.getElementById('btn-login').onclick = () =>
         supabase.auth.signInWithOAuth({ 
           provider: 'github',
-          options: { redirectTo: 'https://yzyl1114.github.io/yanzhiyouli.github.io/index.html' } 
+          options: { redirectTo:'https://yzyl1114.github.io/yanzhiyouli.github.io/index.html' } 
         });
       import { getUser } from './js/auth.js';
       import { getMyCustomGoals, createCustomGoal, deleteCustomGoal } from './js/custom.js';

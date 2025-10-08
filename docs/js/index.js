@@ -1,6 +1,5 @@
 import { getUser, logout } from './auth.js'
 import { getMyCustomGoals, createCustomGoal, deleteCustomGoal } from './custom.js'
-import { openMemberBuyDialog } from './member.js'
 // 引入考试数据
 import { exams } from './exams.js';
 

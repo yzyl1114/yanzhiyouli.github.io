@@ -1,5 +1,7 @@
 // 引入考试数据
 import { exams } from './exams.js';
+import { supabase } from './js/supabase.js';
+import { getUser } from './js/auth.js';
 
 // 当前考试ID
 let currentExamId = parseInt(new URLSearchParams(window.location.search).get("id")) || 1;
@@ -52,49 +54,51 @@ function formatExamTime(exam) {
     return `${examTime.format("YYYY年MM月DD日")} ${examTime.format("HH:mm")}`;
 }
 
-// 初始化倒计时页面
-function initCountdownPage() {
-    // 获取考试数据
-    const exam = getExamDataById(currentExamId);
-    
-    if (!exam) {
-        window.location.href = "index.html";
-        return;
-    }
-    
-    // 设置标题和考试时间
-    document.getElementById("exam-title").textContent = exam.name;
-    document.getElementById("exam-time").textContent = formatExamTime(exam);
-    
-    // 更新倒计时显示
-    updateCountdownDisplay(exam);
-    
-    // 每秒更新一次倒计时
-    setInterval(() => {
-        updateCountdownDisplay(exam);
-    }, 1000);
-    
-    // 设置默认背景图
-    const bgSetting = localStorage.getItem("countdownBg") || "bg1";
-    document.getElementById("countdown-bg").style.backgroundImage = `url(${getBackgroundUrl(bgSetting)})`;
-   
-    // 确保设置弹窗中选中的缩略图与实际背景图一致
-    document.querySelectorAll(".bg-option").forEach(option => {
-        if (option.dataset.bg === bgSetting) {
-            option.classList.add("active");
-        } else {
-            option.classList.remove("active");
-        }
-    });
+// 把函数改成 async
+async function initCountdownPage() {
+    const urlParams = new URLSearchParams(location.search);
+    const customId = urlParams.get('custom');
+    let exam; // 统一 exam 变量
 
-    // 初始化设置弹窗
+    // 自定义目标
+    if (customId) {
+        const { data, error } = await supabase
+            .from('custom_goals')
+            .select('*')
+            .eq('id', customId)
+            .single();
+        if (error || !data) {
+            location.href = 'index.html';
+            return;
+        }
+        exam = { name: data.name, date: data.date }; // 统一格式
+    } else {
+        // 内置考试
+        exam = getExamDataById(currentExamId);
+        if (!exam) {
+            location.href = 'index.html';
+            return;
+        }
+    }
+
+    // 统一渲染
+    document.getElementById('exam-title').textContent = exam.name;
+    document.getElementById('exam-time').textContent =
+        window.dayjs(exam.date).format('YYYY年MM月DD日 HH:mm');
+
+    // 倒计时
+    updateCountdownDisplay(exam);
+    setInterval(() => updateCountdownDisplay(exam), 1000);
+
+    // 背景图
+    const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
+    document.getElementById('countdown-bg').style.backgroundImage =
+        `url(${getBackgroundUrl(bgSetting)})`;
+
+    // 弹窗/广告/设置
     initSettingsModal();
-    
-    // 显示广告位
     showAdContainer();
-    
-    // 显示设置入口
-    document.querySelector(".settings-entry").style.display = "block";
+    document.querySelector('.settings-entry').style.display = 'block';
 }
 
 // 获取背景图片URL

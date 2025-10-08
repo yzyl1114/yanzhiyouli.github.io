@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>开通会员</title>
+  <script type="module" src="js/member.js"></script>
   <style>
     body{font-family:PingFang SC,Helvetica;margin:0;padding:40px;background:#f5f5f5}
     .card{display:inline-block;width:46%;margin:2%;padding:20px;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);cursor:pointer;transition:.2s}
@@ -46,25 +47,31 @@
       plan = c.dataset.plan
     }
     payBtn.onclick = async () => {
-      const { qr_url, id } = await createOrder(plan)
-      orderId = id
-      qrcode.src = qr_url
-      qrcode.style.display = 'block'
-      tip.style.display = 'block'
-      payBtn.style.display = 'none'
-      // 轮询
+      const { qr_url, id } = await createOrder(plan);
+      orderId = id;
+      qrcode.src = qr_url;
+      qrcode.style.display = 'block';
+      tip.style.display = 'block';
+      payBtn.style.display = 'none';
+
+      // 新版轮询：最多 5 分钟
+      let tryTimes = 0;
       const t = setInterval(async () => {
         if (await pollOrder(orderId)) {
-          clearInterval(t)
-          alert('支付成功！')
-          location.reload()
+          clearInterval(t);
+          alert('支付成功！');
+          location.reload();
+        } else if (++tryTimes >= 150) { // 150*2s = 5 分钟
+          clearInterval(t);
+          alert('支付超时，请重试');
         }
-      }, 2000)
-    }
+      }, 2000);
+    };
+
     tip.onclick = async () => {
-      if (await pollOrder(orderId)) location.reload()
-      else alert('暂未检测到支付，请稍候')
-    }
+      if (await pollOrder(orderId)) location.reload();
+      else alert('暂未检测到支付，请稍候');
+    };   
   </script>
 </body>
 </html>

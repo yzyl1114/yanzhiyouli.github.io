@@ -3,7 +3,7 @@ import { supabase } from './supabase.js'
 // 微信登录
 export async function loginWechat() {
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'wechat',
+    provider: 'github',
     options: { redirectTo: `${location.origin}/index.html` }
   })
   if (error) {

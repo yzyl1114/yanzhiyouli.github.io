@@ -22,6 +22,7 @@
         <div class="date-container">
             <span id="current-date">2025年01月01日，星期三</span>
         </div>
+        <div class="user-bar"></div>
 
         <!-- 新增登录按钮 -->
         <button id="btn-login" style="margin-left:auto;margin-right:20px;">登录</button>
@@ -70,7 +71,7 @@
       document.getElementById('btn-login').onclick = () =>
         supabase.auth.signInWithOAuth({ provider: 'github' });
       import { getUser } from './js/auth.js';
-      import { getMyCustomGoals, createCustomGoal } from './js/custom.js';
+      import { getMyCustomGoals, createCustomGoal, deleteCustomGoal } from './js/custom.js';
 
       (async () => {
         const user = await getUser();
@@ -106,7 +107,7 @@
           item.querySelector('.del-icon').onclick = async e => {
             e.stopPropagation();
             if (!confirm('确定删除？')) return;
-            await supabase.from('custom_goals').delete().eq('id', g.id);
+            await deleteCustomGoal(g.id);   // ✅ 用封装函数
             location.reload();
           };
           grid.prepend(item);
@@ -178,7 +179,7 @@
         const popup = document.createElement('div');
         popup.id = 'user-popup';
         popup.innerHTML = `
-          <div style="position:absolute;right:20px;top:60px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:12px;font-size:14px;line-height:1.8;z-index:999">
+          <div style="position:absolute;right:20px;top:60px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:12px;font-size:14px;line-height:1.8;z-index:999";white-space: nowrap>
             <div>${user.username || '用户'}</div>
             <div style="color:#666">${user.is_member ? (user.member_plan==='month'?'基础版':'尊享版')+'会员' : '普通用户'}</div>
             <div style="color:#666">${user.is_member ? '将于 '+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+' 天后到期' : '开通会员立享权益'}</div>

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>自定义目标</title>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
   <style>
     body{font-family:PingFang SC,Helvetica;margin:0;padding:40px;background:#f5f5f5}
     input,select{width:100%;height:40px;margin:10px 0;padding:0 10px;border:1px solid #ddd;border-radius:8px}
@@ -54,6 +55,11 @@
     confirm.onclick = async () => {
       if (!user.is_member) { openMemberBuyDialog(); return }
       if (!can) { alert('升级半年会员可再创建 2 个目标'); return }
+      // ✅ 新增：过去时间拦截
+      if (dayjs(datetime.value).isBefore(dayjs())) {
+        alert('请选择未来的时间');
+        return;
+      }
       const data = { name: name.value, date: datetime.value, category: category.value }
       if (goal) await updateCustomGoal(goal.id, data)
       else await createCustomGoal(data)

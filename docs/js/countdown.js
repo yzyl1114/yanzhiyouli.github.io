@@ -1,12 +1,14 @@
-// 引入考试数据
+// 1. 引入依赖（dayjs 用 CDN 模块化，避免 window.dayjs 报错）
 import { exams } from './exams.js';
 import { supabase } from './supabase.js';
 import { getUser } from './auth.js';
-import dayjs from 'https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js';   // ① 直接引入 dayjs
-import dayjsPluginUTC from 'https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js'; // 可选：UTC 插件
-dayjs.extend(dayjsPluginUTC);
+import dayjs from 'https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js';
+import utc from 'https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js';
+import tz from 'https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js';
+dayjs.extend(utc);
+dayjs.extend(tz);
 
-// 背景图片选项
+// 2. 背景表
 const backgroundImages = [
   { id: 'bg1', url: 'images/bg1.jpg' },
   { id: 'bg2', url: 'images/bg2.jpg' },
@@ -16,17 +18,16 @@ const backgroundImages = [
   { id: 'bg6', url: 'images/bg6.jpg' }
 ];
 
-// 获取考试数据
+// 3. 取考试数据
 function getExamDataById(id) {
-  return exams.find(exam => exam.id === id);
+  return exams.find(e => e.id === id);
 }
 
-// 更新倒计时
+// 4. 倒计时核心
 function updateCountdownDisplay(exam) {
   const now = dayjs().tz('Asia/Shanghai');
   const examTime = dayjs(exam.date);
   const diff = examTime.diff(now);
-
   if (diff <= 0) {
     ['days', 'hours', 'minutes', 'seconds'].forEach(k => document.getElementById(k).textContent = '00');
     return;
@@ -38,13 +39,13 @@ function updateCountdownDisplay(exam) {
   document.getElementById('seconds').textContent = String(dur.seconds()).padStart(2, '0');
 }
 
-// 主初始化
+// 5. 主初始化
 async function initCountdownPage() {
   const urlParams = new URLSearchParams(location.search);
   const customId = urlParams.get('custom');
   let exam;
 
-  // 1. 自定义目标
+  // 5.1 自定义目标
   if (customId) {
     const { data, error } = await supabase
       .from('custom_goals')
@@ -54,52 +55,41 @@ async function initCountdownPage() {
     if (error || !data) return location.href = 'index.html';
     exam = { name: data.name, date: data.date };
   } else {
-    // 2. 系统考试
+    // 5.2 系统考试
     const id = parseInt(urlParams.get('id')) || 1;
     exam = getExamDataById(id);
     if (!exam) return location.href = 'index.html';
   }
 
-  // ③ 统一用 dayjs 格式化「考试时间」
+  // 5.3 渲染标题 & 时间（用 dayjs 格式化）
   document.getElementById('exam-title').textContent = exam.name;
-  document.getElementById('exam-time').textContent = dayjs(exam.date).tz('Asia/Shanghai').format('YYYY年MM月DD日 HH:mm');
+  document.getElementById('exam-time').textContent =
+    dayjs(exam.date).tz('Asia/Shanghai').format('YYYY年MM月DD日 HH:mm');
 
-  // 倒计时
+  // 5.4 倒计时 & 背景
   updateCountdownDisplay(exam);
   setInterval(() => updateCountdownDisplay(exam), 1000);
-
-  // 背景图
   const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
-  document.getElementById('countdown-bg').style.backgroundImage = `url(${getBackgroundUrl(bgSetting)})`;
+  document.getElementById('countdown-bg').style.backgroundImage = `url(${
+    backgroundImages.find(b => b.id === bgSetting)?.url || 'images/bg1.jpg'
+  })`;
 
-  // 弹窗/广告/设置
+  // 5.5 弹窗 & 广告
   initSettingsModal();
   showAdContainer();
   document.querySelector('.settings-entry').style.display = 'block';
 }
 
-function getBackgroundUrl(bgId) {
-  const bg = backgroundImages.find(b => b.id === bgId);
-  return bg ? bg.url : 'images/default-bg.jpg';
-}
-
+// 6. 背景图切换 + VIP 拦截
 function initSettingsModal() {
   const modal = document.getElementById('settings-modal');
-
-  // 打开
   document.querySelector('.settings-entry').addEventListener('click', () => modal.style.display = 'flex');
-
-  // 关闭
   document.querySelector('.settings-modal .close-modal').addEventListener('click', () => modal.style.display = 'none');
-  window.addEventListener('click', e => {
-    if (e.target === modal) modal.style.display = 'none';
-  });
+  window.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
 
-  // 背景图点击
   document.querySelectorAll('.bg-option').forEach(img => {
     img.addEventListener('click', async () => {
       const bgId = img.dataset.bg;
-      // VIP 图拦截
       if (['bg5', 'bg6'].includes(bgId)) {
         const user = await getUser();
         if (!user || !user.is_member) {
@@ -107,8 +97,7 @@ function initSettingsModal() {
           return;
         }
       }
-      // 正常切换
-      const bgUrl = getBackgroundUrl(bgId);
+      const bgUrl = backgroundImages.find(b => b.id === bgId)?.url || 'images/bg1.jpg';
       document.getElementById('countdown-bg').style.backgroundImage = `url(${bgUrl})`;
       localStorage.setItem('countdownBg', bgId);
       document.querySelectorAll('.bg-option').forEach(i => i.classList.remove('active'));
@@ -117,6 +106,7 @@ function initSettingsModal() {
   });
 }
 
+// 7. 广告
 function showAdContainer() {
   const ad = document.querySelector('.ad-container');
   ad.style.display = 'block';

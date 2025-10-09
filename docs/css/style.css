@@ -470,3 +470,12 @@ body {
     width: 100%;
     z-index: 50; /* 确保备案信息在广告弹窗下方 */
 }
+
+/* 1. 标题栏日期与头像间距再收紧 */
+.header .date-container{margin-right:8px}
+
+/* 2. 用户小弹窗统一圆角阴影 */
+#user-popup{border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);overflow:hidden;background:#fff}
+
+/* 3. 会员页/自定义页统一圆角按钮 */
+button{border-radius:6px;transition:.2s}button:hover{transform:translateY(-1px)}

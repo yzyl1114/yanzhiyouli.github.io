@@ -19,13 +19,14 @@
             <img src="images/logo.png" alt="GoalCountdown Logo" class="logo">
             <h1>GoalCountdown</h1>
         </div>
-        <div class="date-container">
+        <div class="date-container" style="margin-left:auto;margin-right:20px;">
             <span id="current-date">2025年01月01日，星期三</span>
         </div>
         <div class="user-bar"></div>
 
         <!-- 新增登录按钮 -->
-        <button id="btn-login" style="margin-left:auto;margin-right:20px;">登录</button>
+        <!-- 替换原来的 <button id="btn-login"...> -->
+        <img id="user-avatar" src="images/default-avatar.png" style="width:30px;height:30px;border-radius:50%;margin-left:auto;margin-right:20px;cursor:pointer;display:none;">
     </header>
 
     <!-- Banner -->
@@ -116,30 +117,23 @@
           grid.prepend(item);
         });
 
-        /* 2. 显示“+ 新建”卡片（会员且额度内） */
-        const can = user && user.is_member &&
-                    list.length < (user.member_plan === 'month' ? 3 : 5);
-        if (can) {
-          const plus = document.createElement('div');
-          plus.className = 'entry-item custom-plus';
-          plus.innerHTML = `
-            <img src="images/plus.svg" class="entry-image">
-            <h3 class="entry-title">自定义目标</h3>
-          `;
-          plus.onclick = () => document.getElementById('btn-open-new').click();
-          grid.prepend(plus);
-        } else if (user && !user.is_member) {
-          /* 非会员点“+”直接弹出支付 */
-          const plus = document.createElement('div');
-          plus.className = 'entry-item custom-plus';
-          plus.innerHTML = `
-            <img src="images/plus.svg" class="entry-image">
-            <h3 class="entry-title">自定义目标</h3>
-          `;
-          plus.onclick = () => document.getElementById('btn-open-pay').click();
-          grid.prepend(plus);
-        }
-      })();
+        /* 2. 始终显示“+”卡片，未登录=登录，非会员=支付 */
+        const plus = document.createElement('div');
+        plus.className = 'entry-item custom-plus';
+        plus.innerHTML = `
+          <img src="images/plus.svg" class="entry-image">
+          <h3 class="entry-title">自定义目标</h3>`;
+        plus.onclick = () => {
+          if (!user) { avatar.click(); return; }          // 未登录→登录
+          if (!user.is_member) {                          // 非会员→支付
+            document.getElementById('btn-open-pay').click();
+            return;
+          }
+          // 会员→新建
+          document.getElementById('btn-open-new').click();
+        };
+        grid.appendChild(plus);   // 注意：用 appendChild 放最后
+        })();
     </script>
     
     <!-- 禁用右键菜单和快捷键 -->
@@ -171,8 +165,25 @@
 
     <!-- ===== 4. 用户小弹窗（开通/续费） ===== -->
     <script type="module">
+      import { supabase } from './js/supabase.js';
       import { getUser, logout } from './js/auth.js';
       let user = await getUser();
+
+      /* 一键渲染头像/登录 */
+      async function renderAuthEntry(){
+        const user = await getUser();
+        const avatar = document.getElementById('user-avatar');
+        if(user){
+          avatar.src = user.avatar_url || 'images/default-avatar.png';
+          avatar.style.display = 'block';
+          avatar.onclick = () => toggleUserPopup(user); // 复用你已有的弹窗逻辑
+        }else{
+          avatar.style.display = 'block';  // 未登录也显示，点击即登录
+          avatar.src = 'images/default-avatar.png';
+          avatar.onclick = () => supabase.auth.signInWithOAuth({provider:'github'});
+        }
+      }
+      renderAuthEntry();
 
       /* ---- 导航栏头像区域点击 ---- */
       document.addEventListener('click', e => {

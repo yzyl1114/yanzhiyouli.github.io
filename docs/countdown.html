@@ -98,5 +98,16 @@
     </script>
 
     <script type="module" src="js/countdown.min.js"></script>
+
+    <script>
+    // 绑定关闭按钮
+    document.querySelector('.settings-modal .close-modal').onclick = () => {
+        document.getElementById('settings-modal').style.display = 'none';
+    };
+    // 点背景也能关
+    document.getElementById('settings-modal').onclick = e => {
+        if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
+    };
+    </script>
 </body>
 </html>

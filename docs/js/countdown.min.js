@@ -1,10 +1,9 @@
-// 1. 引入依赖（dayjs 用 CDN 模块化，避免 window.dayjs 报错）
 import { exams } from './exams.js';
 import { supabase } from './supabase.js';
 import { getUser } from './auth.js';
-import dayjs from 'https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js';
-import utc from 'https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js';
-import tz from 'https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js';
+import dayjs from 'https://cdn.jsdelivr.net/npm/dayjs@1/esm/index.js';
+import utc from 'https://cdn.jsdelivr.net/npm/dayjs@1/esm/plugin/utc.js';
+import tz from 'https://cdn.jsdelivr.net/npm/dayjs@1/esm/plugin/timezone.js';
 dayjs.extend(utc);
 dayjs.extend(tz);
 

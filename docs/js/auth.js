@@ -23,7 +23,7 @@ export async function getUser() {
   if (!user) return null
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, username, avatar_url, is_member')
+    .select('id, username, avatar_url, is_member, member_plan, member_expires_at')
     .eq('id', user.id)
     .single()
   return profile

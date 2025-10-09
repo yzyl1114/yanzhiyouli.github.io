@@ -337,31 +337,37 @@ body {
 .background-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
+  padding: 20px;
 }
 
 .bg-option {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
   border-radius: 8px;
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   transition: all 0.3s ease;
 }
 
 .bg-option:hover {
   transform: scale(1.05);
+  border-color: #4a6bff;
 }
 
 .bg-option.active {
     border-color: #4a6bff;
-    box-shadow: 0 0 0 2px #4a6bff;
+    box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
 }
 
 /* VIP 角标 */
-.bg-option.vip{position:relative}
+.bg-option.vip{
+    position:relative;
+    border: 2px solid #ff6a00;
+}
+
 .bg-option.vip::after {
   content: 'VIP';
   position: absolute;
@@ -370,10 +376,11 @@ body {
   background: #ff6a00;
   color: #fff;
   font-size: 10px;
-  padding: 2px 4px;
-  border-radius: 3px;
+  padding: 2px 6px;
+  border-radius: 10px;
   line-height: 1;
   font-weight: bold;
+  z-index: 10;
 }
 
 /* 让缩略图相对定位 */

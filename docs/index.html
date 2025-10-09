@@ -89,8 +89,9 @@
     import { supabase } from './js/supabase.js';
     import { getUser, logout } from './js/auth.js';
     import { getMyCustomGoals, deleteCustomGoal } from './js/custom.js';
+    import { exams } from './js/exams.js';
 
-    /* -------- 统一渲染头像 -------- */
+    /* ---- 统一头像 ---- */
     const avatar = document.getElementById('user-avatar');
     async function renderAuth(){
       const user = await getUser();
@@ -107,22 +108,20 @@
         };
       }
       avatar.style.display = 'block';
+      return user;
     }
     // 如果是刚回调回来，立即换取会话并刷新
     if(location.hash.includes('access_token') || location.search.includes('code')){
       await supabase.auth.getSession();
       location.replace(location.pathname);
     }
-    await renderAuth();
+    const user = await renderAuth();
 
-    /* -------- 渲染卡片（系统考试 + 自定义） -------- */
+    /* ---- 渲染卡片 ---- */
     const grid = document.querySelector('.entry-grid');
 
-    // 1. 系统考试（保证 moment 就绪）
-    await import('./js/moment.min.js');
-    await import('./js/moment-timezone-with-data-10-year-range.min.js');
-    const { exams } = await import('./js/exams.js');
-    function renderCountdownEntries() {
+    // 1. 系统考试（必现）
+    function renderCountdownEntries(){
       const now = moment.tz('Asia/Shanghai');
       const sorted = [...exams].sort((a,b)=> moment(a.date).diff(now) - moment(b.date).diff(now));
       sorted.forEach(exam=>{
@@ -140,11 +139,10 @@
     renderCountdownEntries();
 
     // 2. 已创建的自定义目标
-    const user = await getUser();
     const list = await getMyCustomGoals();
     list.forEach(g => renderCustomGoalCard(g));
 
-    // 3. “+”卡片（始终显示）
+    // 3. 「+」卡片（始终显示）
     const plus = document.createElement('div');
     plus.className='entry-item custom-plus';
     plus.innerHTML=`<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
@@ -155,7 +153,7 @@
     };
     grid.appendChild(plus);
 
-    /* -------- 辅助函数 -------- */
+    /* ---- 辅助函数 ---- */
     function renderCustomGoalCard(g){
       const item=document.createElement('div');
       item.className='entry-item custom-goal';
@@ -183,39 +181,30 @@
       grid.appendChild(item);
     }
 
-    /* -------- 用户小弹窗 -------- */
+    /* ---- 用户小弹窗（新排版） ---- */
     function toggleUserPopup(user){
       const pop=document.createElement('div');
       pop.id='user-popup';
-      pop.style.cssText='position:absolute;right:12px;top:52px;width:240px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:14px;z-index:999;overflow:hidden';
+      pop.style.cssText='position:absolute;right:12px;top:52px;width:220px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:14px;z-index:999;overflow:hidden';
       pop.innerHTML=`
         <div style="padding:16px;display:flex;align-items:center;border-bottom:1px solid #f0f0f0">
           <img src="${user.avatar_url||'images/default-avatar.png'}" style="width:40px;height:40px;border-radius:50%;margin-right:12px">
-          <div>
+          <div style="flex:1">
             <div style="font-weight:500">${user.username||'用户'}</div>
             <div style="font-size:12px;color:#666">${user.is_member?(user.member_plan==='month'?'基础版':'尊享版')+'会员':'普通用户'}</div>
           </div>
+          ${!user.is_member?'<span id="popup-buy" style="color:#4a6bff;font-size:12px;cursor:pointer">开通</span>':''}
         </div>
-        <div style="padding:12px 16px;font-size:12px;color:#666">${user.is_member?'将于 '+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+' 天后到期':'开通会员立享权益'}</div>
-        <div style="display:flex;border-top:1px solid #f0f0f0">
-          <button id="popup-buy" style="flex:1;height:36px;border:none;background:#4a6bff;color:#fff;font-size:14px;cursor:pointer">${user.is_member?'续费':'开通'}</button>
-          <button id="popup-out" style="flex:1;height:36px;border:none;background:#fff;color:#ff4d4f;font-size:14px;cursor:pointer">退出登录</button>
+        <div style="padding:12px 16px;font-size:12px;color:#666;text-align:center">${user.is_member?'将于 '+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+' 天后到期':'开通会员立享权益'}</div>
+        <div style="border-top:1px solid #f0f0f0;padding:8px;text-align:center">
+          <button id="popup-out" style="border:none;background:none;color:#ff4d4f;font-size:13px;cursor:pointer">退出登录</button>
         </div>`;
       document.body.appendChild(pop);
-      pop.querySelector('#popup-buy').onclick=()=> document.getElementById('btn-open-pay').click();
+      if(!user.is_member) pop.querySelector('#popup-buy').onclick=()=> document.getElementById('btn-open-pay').click();
       pop.querySelector('#popup-out').onclick=async()=>{await logout(); location.reload();};
       const close=e=>{if(!e.target.closest('#user-popup')){pop.remove(); document.removeEventListener('click',close);}};
       setTimeout(()=>document.addEventListener('click',close),0);
     }
-</script>
-
-    /* -------- 活动弹窗关闭 -------- */
-    document.querySelectorAll('.close-modal').forEach(btn=>{
-      btn.onclick=()=> btn.closest('.modal').style.display='none';
-    });
-    window.onclick=e=>{
-      document.querySelectorAll('.modal').forEach(m=>{if(e.target===m) m.style.display='none';});
-    };
   </script>
 </body>
 </html>

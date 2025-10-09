@@ -14,6 +14,8 @@
     .btns button{flex:1;height:40px;border:none;border-radius:6px;font-size:15px;cursor:pointer}
     .save{background:#4a6bff;color:#fff}
     .cancel{background:#f0f0f0;color:#333}
+    .date-row{display:flex;gap:12px}
+    .date-row input{flex:1}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 </head>
@@ -22,7 +24,10 @@
     <div class="header" id="title">新建自定义目标</div>
     <div class="body">
       <input id="name" placeholder="目标名称（最多10字）" maxlength="10">
-      <input id="datetime" type="datetime-local">
+      <div class="date-row">
+        <input type="date" id="date">
+        <input type="time" id="time">
+      </div>
       <select id="category">
         <option value="exam">考试</option>
         <option value="work">工作</option>
@@ -30,8 +35,8 @@
         <option value="other">其他</option>
       </select>
       <div class="btns">
-        <button class="save" id="confirm">保存</button>
         <button class="cancel" onclick="window.location.href='index.html'">取消</button>
+        <button class="save" id="confirm">保存</button>
       </div>
     </div>
   </div>
@@ -50,19 +55,32 @@
       if(!goal){alert('目标不存在');window.open('index.html','_self')}
       document.getElementById('title').textContent='编辑自定义目标'
       document.getElementById('name').value=goal.name
-      document.getElementById('datetime').value=dayjs(goal.date).format('YYYY-MM-DDTHH:mm')
+      const d=dayjs(goal.date)
+      document.getElementById('date').value=d.format('YYYY-MM-DD')
+      document.getElementById('time').value=d.format('HH:mm')
       document.getElementById('category').value=goal.category
     }else{
-      document.getElementById('datetime').value=dayjs().add(1,'day').hour(9).minute(0).format('YYYY-MM-DDTHH:mm')
+      const d=dayjs().add(1,'day').hour(9).minute(0)
+      document.getElementById('date').value=d.format('YYYY-MM-DD')
+      document.getElementById('time').value=d.format('HH:mm')
     }
+    // 点击时间时日期选择器消失
+    document.getElementById('time').addEventListener('focus',()=>{
+      document.getElementById('date').style.display='none'
+    })
+    document.getElementById('time').addEventListener('blur',()=>{
+      document.getElementById('date').style.display='block'
+    })
     document.getElementById('confirm').onclick=async()=>{
       const name=document.getElementById('name').value.trim()
-      const date=document.getElementById('datetime').value
+      const date=document.getElementById('date').value
+      const time=document.getElementById('time').value
       const category=document.getElementById('category').value
       if(!name){alert('请输入目标名称');return}
-      if(dayjs(date).isBefore(dayjs())){alert('请选择未来的时间');return}
-      if(goal) await updateCustomGoal(goal.id,{name,date,category})
-      else await createCustomGoal({name,date,category})
+      const dt=dayjs(date+' '+time)
+      if(dt.isBefore(dayjs())){alert('请选择未来的时间');return}
+      if(goal) await updateCustomGoal(goal.id,{name,date:dt.toISOString(),category})
+      else await createCustomGoal({name,date:dt.toISOString(),category})
       window.opener?.location?.reload?window.opener.location.reload():null
       window.open('index.html','_self')
     }

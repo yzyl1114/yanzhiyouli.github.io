@@ -1,77 +1,76 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>开通会员</title>
-  <script type="module" src="js/member.js"></script>
   <style>
-    body{font-family:PingFang SC,Helvetica;margin:0;padding:40px;background:#f5f5f5;text-align:center;}
-    .card{display:inline-block;width:220px;margin:0;padding:20px;vertical-align:top;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);cursor:pointer;transition:.2s}
-    .card:hover{transform:translateY(-2px)}
-    .card.active{border:2px solid #4a6bff}
-    h3{margin:0 0 6px} small{color:#666}
-    .row{display:flex;justify-content:space-between;font-size:13px;margin:4px 0}
-    #pay-btn{width:96%;margin:10px 2%;height:44px;border:none;border-radius:8px;background:#07c160;color:#fff;font-size:16px;cursor:pointer}
-    #qrcode{width:80px;height:80px;margin:10px auto;display:block}
-    #tip{text-align:center;font-size:12px;color:#4a6bff;cursor:pointer}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:PingFang SC,Helvetica;background:#f5f5f5;display:flex;justify-content:center;align-items:center;height:100vh}
+    .box{background:#fff;width:420px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden}
+    .header{height:56px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;border-bottom:1px solid #f0f0f0}
+    .cards{display:flex;gap:16px;padding:24px}
+    .card{flex:1;border:2px solid transparent;border-radius:8px;padding:16px;cursor:pointer;transition:.2s}
+    .card:hover{border-color:#4a6bff}
+    .card.active{border-color:#4a6bff;background:#f6f9ff}
+    .card h3{font-size:16px;margin-bottom:4px}
+    .card small{font-size:12px;color:#666}
+    .row{display:flex;justify-content:space-between;font-size:13px;margin-top:8px}
+    .foot{padding:0 24px 24px}
+    #pay-btn{width:100%;height:40px;border:none;border-radius:6px;background:#07c160;color:#fff;font-size:15px;cursor:pointer}
+    #qrcode{width:80px;height:80px;margin:12px auto;display:block}
+    #tip{text-align:center;font-size:12px;color:#4a6bff;cursor:pointer;margin-top:6px}
+    .cancel{text-align:center;font-size:12px;color:#999;margin-top:12px;cursor:pointer}
   </style>
+  <script type="module" src="js/member.js"></script>
 </head>
 <body>
-  <h2 style="text-align:center">开通会员</h2>
-  <div id="cards" style="display:flex;justify-content:center;gap:20px;">
-    <div class="card" data-plan="month">
-      <h3>基础版</h3><small>30 天会员</small>
-      <div class="row"><span>会员专属背景图</span><span>✅</span></div>
-      <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
-      <div class="row"><span>保存数量</span><span>3 个</span></div>
+  <div class="box">
+    <div class="header">开通会员</div>
+    <div class="cards">
+      <div class="card" data-plan="month">
+        <h3>基础版</h3><small>30 天会员</small>
+        <div class="row"><span>会员专属背景图</span><span>✅</span></div>
+        <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
+        <div class="row"><span>保存数量</span><span>3 个</span></div>
+      </div>
+      <div class="card" data-plan="halfyear">
+        <h3>尊享版</h3><small>180 天会员</small>
+        <div class="row"><span>会员专属背景图</span><span>✅</span></div>
+        <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
+        <div class="row"><span>保存数量</span><span>5 个</span></div>
+      </div>
     </div>
-    <div class="card" data-plan="halfyear">
-      <h3>尊享版</h3><small>180 天会员</small>
-      <div class="row"><span>会员专属背景图</span><span>✅</span></div>
-      <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
-      <div class="row"><span>保存数量</span><span>5 个</span></div>
+    <div class="foot">
+      <button id="pay-btn">微信支付</button>
+      <img id="qrcode" style="display:none">
+      <div id="tip" style="display:none">我已支付</div>
+      <div class="cancel" onclick="window.history.back()">取消</div>
     </div>
   </div>
-  <button id="pay-btn">微信支付</button>
-  <img id="qrcode" style="display:none"/>
-  <div id="tip" style="display:none">我已支付</div>
 
   <script type="module">
     import { createOrder, pollOrder } from './js/member.js'
     let plan = 'month', orderId
-    cards.onclick = e => {
-      const c = e.target.closest('.card')
-      if (!c) return
-      document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
-      c.classList.add('active')
-      plan = c.dataset.plan
-    }
-    payBtn.onclick = async () => {
+    document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
+      document.querySelectorAll('.card').forEach(x=>x.classList.remove('active'))
+      c.classList.add('active'); plan=c.dataset.plan
+    })
+    document.getElementById('pay-btn').onclick=async()=>{
       const { qr_url, id } = await createOrder(plan);
-      orderId = id;
-      qrcode.src = qr_url;
-      qrcode.style.display = 'block';
-      tip.style.display = 'block';
-      payBtn.style.display = 'none';
-
-      // 新版轮询：最多 5 分钟
-      let tryTimes = 0;
-      const t = setInterval(async () => {
-        if (await pollOrder(orderId)) {
-          clearInterval(t);
-          alert('支付成功！');
-          location.reload();
-        } else if (++tryTimes >= 150) { // 150*2s = 5 分钟
-          clearInterval(t);
-          alert('支付超时，请重试');
-        }
-      }, 2000);
-    };
-
-    tip.onclick = async () => {
-      if (await pollOrder(orderId)) location.reload();
-      else alert('暂未检测到支付，请稍候');
-    };   
+      orderId=id;
+      document.getElementById('qrcode').src=qr_url;
+      document.getElementById('qrcode').style.display='block';
+      document.getElementById('tip').style.display='block';
+      document.getElementById('pay-btn').style.display='none';
+      let tryTimes=0;
+      const t=setInterval(async()=>{
+        if(await pollOrder(orderId)){clearInterval(t);alert('支付成功！');location.reload();}
+        else if(++tryTimes>=150){clearInterval(t);alert('支付超时，请重试');}
+      },2000)
+    }
+    document.getElementById('tip').onclick=async()=>{
+      if(await pollOrder(orderId)) location.reload(); else alert('暂未检测到支付，请稍候')
+    }
   </script>
 </body>
 </html>

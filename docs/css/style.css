@@ -356,19 +356,20 @@ body {
 }
 
 /* VIP 角标 */
-.bg-option[data-bg="bg5"]::after,
-.bg-option[data-bg="bg6"]::after {
-  content: 'VIP';
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #ff4d4f;
-  color: #fff;
-  font-size: 10px;
-  padding: 2px 4px;
-  border-radius: 3px;
-  line-height: 1;
+.bg-option.vip{position:relative}
+.bg-option.vip::after{
+  content:'VIP';
+  position:absolute;
+  top:4px;
+  right:4px;
+  background:#ff6a00;
+  color:#fff;
+  font-size:10px;
+  padding:2px 4px;
+  border-radius:3px;
+  line-height:1
 }
+
 /* 让缩略图相对定位 */
 .bg-option { position: relative; }
 

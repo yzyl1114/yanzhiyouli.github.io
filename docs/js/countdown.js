@@ -56,49 +56,50 @@ function formatExamTime(exam) {
 
 // 把函数改成 async
 async function initCountdownPage() {
-    const urlParams = new URLSearchParams(location.search);
-    const customId = urlParams.get('custom');
-    let exam; // 统一 exam 变量
+  const urlParams = new URLSearchParams(location.search);
+  const customId = urlParams.get('custom');
+  let exam; // 统一 exam 变量
 
-    // 自定义目标
-    if (customId) {
-        const { data, error } = await supabase
-            .from('custom_goals')
-            .select('*')
-            .eq('id', customId)
-            .single();
-        if (error || !data) {
-            location.href = 'index.html';
-            return;
-        }
-        exam = { name: data.name, date: data.date }; // 统一格式
-    } else {
-        // 内置考试
-        exam = getExamDataById(currentExamId);
-        if (!exam) {
-            location.href = 'index.html';
-            return;
-        }
+  // 1. 自定义目标
+  if (customId) {
+    const { data, error } = await supabase
+      .from('custom_goals')
+      .select('*')
+      .eq('id', customId)
+      .single();
+    if (error || !data) {
+      location.href = 'index.html';
+      return;
     }
+    exam = { name: data.name, date: data.date }; // 统一格式
+  } else {
+    // 2. 系统考试
+    const id = parseInt(urlParams.get('id')) || 1;
+    exam = getExamDataById(id);
+    if (!exam) {
+      location.href = 'index.html';
+      return;
+    }
+  }
 
-    // 统一渲染
-    document.getElementById('exam-title').textContent = exam.name;
-    document.getElementById('exam-time').textContent =
-        window.dayjs(exam.date).format('YYYY年MM月DD日 HH:mm');
+  // 统一渲染
+  document.getElementById('exam-title').textContent = exam.name;
+  document.getElementById('exam-time').textContent =
+    window.dayjs(exam.date).format('YYYY年MM月DD日 HH:mm');
 
-    // 倒计时
-    updateCountdownDisplay(exam);
-    setInterval(() => updateCountdownDisplay(exam), 1000);
+  // 倒计时
+  updateCountdownDisplay(exam);
+  setInterval(() => updateCountdownDisplay(exam), 1000);
 
-    // 背景图
-    const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
-    document.getElementById('countdown-bg').style.backgroundImage =
-        `url(${getBackgroundUrl(bgSetting)})`;
+  // 背景图
+  const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
+  document.getElementById('countdown-bg').style.backgroundImage =
+    `url(${getBackgroundUrl(bgSetting)})`;
 
-    // 弹窗/广告/设置
-    initSettingsModal();
-    showAdContainer();
-    document.querySelector('.settings-entry').style.display = 'block';
+  // 弹窗/广告/设置
+  initSettingsModal();
+  showAdContainer();
+  document.querySelector('.settings-entry').style.display = 'block';
 }
 
 // 获取背景图片URL
@@ -129,12 +130,11 @@ function initSettingsModal() {
     document.querySelectorAll(".bg-option").forEach(option => {
       option.addEventListener("click", async () => {
         const bgId = option.dataset.bg;
-        // 会员图判断（bg5/bg6 为会员图，按你实际命名改）
-        if (['bg5', 'bg6'].includes(bgId)) {
-          const user = await getUser(); // 先引入 auth.js
+        // VIP 图拦截
+        if (['bg5','bg6'].includes(bgId)) {
+          const user = await getUser();
           if (!user || !user.is_member) {
-            // 非会员 → 弹出支付
-            window.open('member-buy.html', '_blank', 'width=400,height=500,left=200,top=100');
+            window.open('member-buy.html','_blank','width=400,height=500,left=200,top=100');
             return;
           }
         }

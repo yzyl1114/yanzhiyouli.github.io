@@ -196,12 +196,13 @@
         </div>
         <div style="padding:12px 16px;font-size:12px;color:#666;display:flex;justify-content:space-between;align-items:center">
           <span>${user.is_member?'将于 '+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+' 天后到期':'开通会员立享权益'}</span>
-          ${!user.is_member?'<span style="color:#4a6bff;cursor:pointer">开通</span>':''}
+          ${!user.is_member?'<span id="popup-buy" style="color:#4a6bff;cursor:pointer">开通</span>':''}
         </div>
         <div style="border-top:1px solid #f0f0f0;padding:8px;text-align:center">
           <button id="popup-out" style="border:none;background:none;color:#ff4d4f;font-size:13px;cursor:pointer">退出登录</button>
         </div>`;
       document.body.appendChild(pop);
+      // 绑定事件
       if(!user.is_member) pop.querySelector('#popup-buy').onclick=()=> document.getElementById('btn-open-pay').click();
       pop.querySelector('#popup-out').onclick=async()=>{await logout(); location.reload();};
       const close=e=>{if(!e.target.closest('#user-popup')){pop.remove(); document.removeEventListener('click',close);}};

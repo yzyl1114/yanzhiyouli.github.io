@@ -335,39 +335,45 @@ body {
 }
 
 .background-options {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
 }
 
 .bg-option {
-    width: 48%; /* 每行显示 2 张缩略图 */
-    height: 80px;
-    object-fit: cover;
-    border: 3px solid transparent;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: border-color 0.3s;
-    margin-bottom: 10px;
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.bg-option:hover {
+  transform: scale(1.05);
 }
 
 .bg-option.active {
     border-color: #4a6bff;
+    box-shadow: 0 0 0 2px #4a6bff;
 }
 
 /* VIP 角标 */
 .bg-option.vip{position:relative}
-.bg-option.vip::after{
-  content:'VIP';
-  position:absolute;
-  top:4px;
-  right:4px;
-  background:#ff6a00;
-  color:#fff;
-  font-size:10px;
-  padding:2px 4px;
-  border-radius:3px;
-  line-height:1
+.bg-option.vip::after {
+  content: 'VIP';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ff6a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  line-height: 1;
+  font-weight: bold;
 }
 
 /* 让缩略图相对定位 */

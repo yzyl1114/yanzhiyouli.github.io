@@ -1,147 +1,213 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoalCountdown - 考试倒计时</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- 引用本地存储的脚本文件 -->
-    <script src="js/moment.min.js"></script>
-    <script src="js/moment-timezone-with-data-10-year-range.min.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <!-- 谷歌广告审核代码 -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7268374810307592"crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoalCountdown - 考试倒计时</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- 时区库 -->
+  <script src="js/moment.min.js"></script>
+  <script src="js/moment-timezone-with-data-10-year-range.min.js"></script>
+
+  <!-- 谷歌广告 -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7268374810307592" crossorigin="anonymous"></script>
+
+  <!-- 今天北京时间 -->
+  <script>
+    function setTodayBJ(){
+      const weekdays = ["日","一","二","三","四","五","六"];
+      const bj = moment.tz("Asia/Shanghai");
+      const str = `${bj.year()}年${bj.month()+1}月${bj.date()}日，星期${weekdays[bj.day()]}`;
+      document.addEventListener('DOMContentLoaded', ()=>{
+        document.getElementById('current-date').textContent = str;
+      });
+    }
+    setTodayBJ();
+  </script>
 </head>
+
 <body>
-    <!-- 标题栏 -->
-    <header class="header">
-        <div class="logo-container">
-            <img src="images/logo.png" alt="GoalCountdown Logo" class="logo">
-            <h1>GoalCountdown</h1>
-        </div>
-        <div class="date-container" style="margin-left:auto;margin-right:20px;">
-            <span id="current-date">2025年01月01日，星期三</span>
-        </div>
-
-        <!-- 新增登录按钮 -->
-        <!-- 替换原来的 <button id="btn-login"...> -->
-        <img id="user-avatar" src="images/default-avatar.png" style="width:30px;height:30px;border-radius:50%;margin-left:auto;margin-right:20px;cursor:pointer;display:none;">
-    </header>
-
-    <!-- Banner -->
-    <section class="banner">
-        <img src="images/banner.jpg" alt="考试倒计时网站宣传" class="banner-image">
-    </section>
-
-    <!-- 倒计时入口 -->
-    <section class="countdown-entries">
-        <div class="entry-grid">
-            <!-- 动态生成的倒计时入口将通过JS插入 -->
-        </div>
-    </section>
-
-    <!-- 备案及联系方式 -->
-    <footer class="footer">
-        <div class="beian">
-            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11010502057033" target="_blank" rel="noreferrer">
-                <img src="images/beian.png" alt="公安联网备案图标"> 京公网安备11010502057033号
-            </a>
-            <a href="http://beian.miit.gov.cn/" target="_blank" rel="noreferrer">京ICP备2024094021号</a>
-        </div>
-        <div class="contact">
-            <span>商务合作 goalcountdown@gmail.com</span>
-        </div>
-    </footer>
-
-    <!-- 活动弹窗 -->
-    <div class="modal activity-modal" id="activity-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 class="modal-title">新用户专享活动</h2>
-            <div class="modal-body">
-                <p>注册即送3次自定义倒计时机会！</p>
-                <button class="btn-primary">立即参与</button>
-            </div>
-        </div>
+  <!-- 标题栏 -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="images/logo.png" alt="GoalCountdown Logo" class="logo">
+      <h1>GoalCountdown</h1>
     </div>
+    <div class="date-container" style="margin-left:auto;margin-right:20px;">
+      <span id="current-date">2025年01月01日，星期三</span>
+    </div>
+    <!-- 统一头像入口 -->
+    <img id="user-avatar" src="images/default-avatar.png" style="width:30px;height:30px;border-radius:50%;margin-left:auto;margin-right:20px;cursor:pointer;display:none;">
+  </header>
 
-    <!-- 登录逻辑（模块脚本） -->
-    <script type="module">
-      import { supabase } from './js/supabase.js';
-      import { getUser, logout } from './js/auth.js';
-      import { getMyCustomGoals, deleteCustomGoal } from './js/custom.js';
+  <!-- Banner -->
+  <section class="banner">
+    <img src="images/banner.jpg" alt="考试倒计时网站宣传" class="banner-image">
+  </section>
 
-      /* -------- 统一渲染头像 -------- */
-      const avatar = document.getElementById('user-avatar');
-      async function renderAuth(){
-        const user = await getUser();
-        if(user){
-          avatar.src = user.avatar_url || 'images/default-avatar.png';
-          avatar.onclick = () => toggleUserPopup(user);
-        }else{
-          avatar.src = 'images/default-avatar.png';
-          avatar.onclick = () => supabase.auth.signInWithOAuth({
+  <!-- 倒计时入口 -->
+  <section class="countdown-entries">
+    <div class="entry-grid"></div>
+  </section>
+
+  <!-- 备案 -->
+  <footer class="footer">
+    <div class="beian">
+      <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11010502057033" target="_blank" rel="noreferrer">
+        <img src="images/beian.png" alt="公安联网备案图标"> 京公网安备11010502057033号
+      </a>
+      <a href="http://beian.miit.gov.cn/" target="_blank" rel="noreferrer">京ICP备2024094021号</a>
+    </div>
+    <div class="contact">
+      <span>商务合作 goalcountdown@gmail.com</span>
+    </div>
+  </footer>
+
+  <!-- 活动弹窗 -->
+  <div class="modal activity-modal" id="activity-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 class="modal-title">新用户专享活动</h2>
+      <div class="modal-body">
+        <p>注册即送3次自定义倒计时机会！</p>
+        <button class="btn-primary">立即参与</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 隐藏按钮（支付/新建/编辑） -->
+  <button id="btn-open-pay" style="display:none"
+    onclick="window.open('member-buy.html','_blank','width=400,height=500,left=200,top=100')"></button>
+  <button id="btn-open-new" style="display:none"
+    onclick="window.open('custom-goal.html','_blank','width=400,height=420,left=200,top=100')"></button>
+  <button id="btn-open-edit" style="display:none"
+    onclick="window.open('custom-goal.html?edit='+this.dataset.gid,'_blank','width=400,height=420,left=200,top=100')"></button>
+
+  <!-- 主脚本 -->
+  <script type="module">
+    import { supabase } from './js/supabase.js';
+    import { getUser, logout } from './js/auth.js';
+    import { getMyCustomGoals, deleteCustomGoal } from './js/custom.js';
+
+    /* -------- 统一渲染头像 -------- */
+    const avatar = document.getElementById('user-avatar');
+    async function renderAuth(){
+      const user = await getUser();
+      if(user){
+        avatar.src = user.avatar_url || 'images/default-avatar.png';
+        avatar.onclick = () => toggleUserPopup(user);
+      }else{
+        avatar.src = 'images/default-avatar.png';
+        avatar.onclick = async () => {
+          await supabase.auth.signInWithOAuth({
             provider:'github',
             options:{ redirectTo: location.origin + location.pathname }
           });
-        }
-        avatar.style.display = 'block';
+        };
       }
-      await renderAuth();
+      avatar.style.display = 'block';
+    }
+    // 如果是刚回调回来，立即换取会话并刷新
+    if(location.hash.includes('access_token') || location.search.includes('code')){
+      await supabase.auth.getSession();
+      location.replace(location.pathname);
+    }
+    await renderAuth();
 
-      /* -------- 渲染卡片（无论是否登录） -------- */
-      const grid = document.querySelector('.entry-grid');
+    /* -------- 渲染卡片（系统考试 + 自定义） -------- */
+    const grid = document.querySelector('.entry-grid');
 
-      /* 1. 系统考试入口（调用你原有函数即可） */
-      renderCountdownEntries();   // 你之前已有的函数，保持不动
+    // 1. 系统考试（保证 moment 就绪）
+    await import('./js/moment.min.js');
+    await import('./js/moment-timezone-with-data-10-year-range.min.js');
+    const { exams } = await import('./js/exams.js');
+    function renderCountdownEntries() {
+      const now = moment.tz('Asia/Shanghai');
+      const sorted = [...exams].sort((a,b)=> moment(a.date).diff(now) - moment(b.date).diff(now));
+      sorted.forEach(exam=>{
+        const diff = moment(exam.date).diff(now);
+        const div = document.createElement('div');
+        div.className='entry-item' + (diff<=0 ? ' entry-ended' : '');
+        div.innerHTML=`
+          ${diff<=0?'<div class="overlay"></div><div class="ended-badge">已结束</div>':''}
+          <img src="${exam.image}" class="entry-image">
+          <h3 class="entry-title">${exam.name}</h3>`;
+        div.onclick=()=> location.href=`countdown.html?id=${exam.id}`;
+        grid.appendChild(div);
+      });
+    }
+    renderCountdownEntries();
 
-      /* 2. 已创建的自定义目标 */
-      const user = await getUser(); // 再拿一次会员状态
-      const list = await getMyCustomGoals();
-      list.forEach(g => renderCustomGoalCard(g));
+    // 2. 已创建的自定义目标
+    const user = await getUser();
+    const list = await getMyCustomGoals();
+    list.forEach(g => renderCustomGoalCard(g));
 
-      /* 3. “+”卡片（始终显示） */
-      const plus = document.createElement('div');
-      plus.className = 'entry-item custom-plus';
-      plus.innerHTML = `<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
-      plus.onclick = () => {
-        if (!user) { avatar.click(); return; }          // 未登录→登录
-        if (!user.is_member) {                          // 非会员→支付
-          document.getElementById('btn-open-pay').click();
-          return;
-        }
-        document.getElementById('btn-open-new').click(); // 会员→新建
+    // 3. “+”卡片（始终显示）
+    const plus = document.createElement('div');
+    plus.className='entry-item custom-plus';
+    plus.innerHTML=`<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
+    plus.onclick=()=>{
+      if(!user){ avatar.click(); return; }
+      if(!user.is_member){ document.getElementById('btn-open-pay').click(); return; }
+      document.getElementById('btn-open-new').click();
+    };
+    grid.appendChild(plus);
+
+    /* -------- 辅助函数 -------- */
+    function renderCustomGoalCard(g){
+      const item=document.createElement('div');
+      item.className='entry-item custom-goal';
+      item.style.position='relative';
+      item.innerHTML=`
+        <img src="images/custom-plus.jpg" class="entry-image">
+        <h3 class="entry-title">${g.name}</h3>
+        <i class="edit-icon" style="display:none;position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
+        <i class="del-icon"  style="display:none;position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>`;
+      item.onclick=()=> location.href=`countdown.html?custom=${g.id}`;
+      item.onmouseenter=()=> item.querySelectorAll('i').forEach(i=>i.style.display='inline-block');
+      item.onmouseleave=()=> item.querySelectorAll('i').forEach(i=>i.style.display='none');
+      item.querySelector('.edit-icon').onclick=e=>{
+        e.stopPropagation();
+        const btn=document.getElementById('btn-open-edit');
+        btn.dataset.gid=g.id;
+        btn.click();
       };
-      grid.appendChild(plus);
+      item.querySelector('.del-icon').onclick=async e=>{
+        e.stopPropagation();
+        if(!confirm('确定删除？')) return;
+        await deleteCustomGoal(g.id);
+        location.reload();
+      };
+      grid.appendChild(item);
+    }
 
-      /* -------- 辅助函数 -------- */
-      function renderCustomGoalCard(g){
-        const item = document.createElement('div');
-        item.className = 'entry-item custom-goal';
-        item.style.position = 'relative';
-        item.innerHTML = `
-          <img src="images/custom-plus.jpg" class="entry-image">
-          <h3 class="entry-title">${g.name}</h3>
-          <i class="edit-icon" style="display:none;position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
-          <i class="del-icon"  style="display:none;position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>
-        `;
-        item.onclick = () => location.href = `countdown.html?custom=${g.id}`;
-        item.onmouseenter = () => { item.querySelectorAll('i').forEach(i=>i.style.display='inline-block'); };
-        item.onmouseleave = () => { item.querySelectorAll('i').forEach(i=>i.style.display='none'); };
-        item.querySelector('.edit-icon').onclick = e => {
-          e.stopPropagation();
-          const btn = document.getElementById('btn-open-edit');
-          btn.dataset.gid = g.id;
-          btn.click();
-        };
-        item.querySelector('.del-icon').onclick = async e => {
-          e.stopPropagation();
-          if (!confirm('确定删除？')) return;
-          await deleteCustomGoal(g.id);
-          location.reload();
-        };
-        grid.appendChild(item);
-      }
-    </script>
+    /* -------- 用户小弹窗 -------- */
+    function toggleUserPopup(user){
+      const pop=document.createElement('div');
+      pop.id='user-popup';
+      pop.style.cssText='position:absolute;right:20px;top:60px;background:#fff;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.15);padding:12px;font-size:14px;line-height:1.8;z-index:999';
+      pop.innerHTML=`
+        <div>${user.username||'用户'}</div>
+        <div style="color:#666">${user.is_member?(user.member_plan==='month'?'基础版':'尊享版')+'会员':'普通用户'}</div>
+        <div style="color:#666">${user.is_member?'将于'+Math.ceil((new Date(user.member_expires_at)-Date.now())/86400000)+'天后到期':'开通会员立享权益'}</div>
+        <button id="popup-buy" style="float:right;margin-top:-40px;height:24px;border:none;border-radius:4px;background:#4a6bff;color:#fff;font-size:12px;cursor:pointer">${user.is_member?'续费':'开通'}</button>
+        <button id="popup-out" style="width:100%;margin-top:10px;border:none;background:none;color:#ff4d4f;cursor:pointer">退出登录</button>`;
+      document.body.appendChild(pop);
+      pop.querySelector('#popup-buy').onclick=()=> document.getElementById('btn-open-pay').click();
+      pop.querySelector('#popup-out').onclick=async()=>{await logout(); location.reload();};
+      const close=e=>{if(!e.target.closest('#user-popup')){pop.remove(); document.removeEventListener('click',close);}};
+      setTimeout(()=>document.addEventListener('click',close),0);
+    }
+
+    /* -------- 活动弹窗关闭 -------- */
+    document.querySelectorAll('.close-modal').forEach(btn=>{
+      btn.onclick=()=> btn.closest('.modal').style.display='none';
+    });
+    window.onclick=e=>{
+      document.querySelectorAll('.modal').forEach(m=>{if(e.target===m) m.style.display='none';});
+    };
+  </script>
 </body>
 </html>

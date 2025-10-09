@@ -1,7 +1,7 @@
 // 引入考试数据
 import { exams } from './exams.js';
-import { supabase } from './js/supabase.js';
-import { getUser } from './js/auth.js';
+import { supabase } from './supabase.js';
+import { getUser } from './auth.js';
 
 // 当前考试ID
 let currentExamId = parseInt(new URLSearchParams(window.location.search).get("id")) || 1;

@@ -179,17 +179,34 @@ function initSettingsModal() {
     const bgId = img.dataset.bg;
     console.log('点击背景图:', bgId);
     
-    // VIP图片拦截逻辑
+    // VIP图片拦截逻辑 - 修复登录状态判断
     if (['bg5', 'bg6'].includes(bgId)) {
       console.log('VIP图片检查');
       const user = await getUser();
       console.log('用户状态:', user);
       
-      if (!user || !user.is_member) {
+      // 修复：先检查是否登录，再检查会员状态
+      if (!user) {
+        console.log('未登录用户点击VIP图片，跳转登录');
+        // 使用首页的登录逻辑
+        if (typeof loginWechat === 'function') {
+          loginWechat();
+        } else {
+          // 如果loginWechat不可用，跳转到首页
+          window.location.href = 'index.html';
+        }
+        return;
+      }
+      
+      // 已登录但不是会员
+      if (!user.is_member) {
         console.log('非会员点击VIP图片，弹出购买窗口');
         window.open('member-buy.html', '_blank', 'width=400,height=500,left=200,top=100');
         return;
       }
+      
+      // 已登录且是会员，继续执行切换逻辑
+      console.log('会员用户可以使用VIP图片');
     }
     
     // 正常切换背景图

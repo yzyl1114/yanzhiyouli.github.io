@@ -187,14 +187,12 @@ function initSettingsModal() {
       
       // 修复：先检查是否登录，再检查会员状态
       if (!user) {
-        console.log('未登录用户点击VIP图片，跳转登录');
-        // 使用首页的登录逻辑
-        if (typeof loginWechat === 'function') {
-          loginWechat();
-        } else {
-          // 如果loginWechat不可用，跳转到首页
-          window.location.href = 'index.html';
-        }
+        console.log('未登录用户点击VIP图片，显示提示并跳转首页');
+        showTips('请先点击首页头像登录');
+        // 延迟跳转首页，让用户看到提示
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
         return;
       }
       
@@ -208,7 +206,7 @@ function initSettingsModal() {
       // 已登录且是会员，继续执行切换逻辑
       console.log('会员用户可以使用VIP图片');
     }
-    
+
     // 正常切换背景图
     const bgImage = backgroundImages.find(b => b.id === bgId);
     if (bgImage) {
@@ -224,6 +222,52 @@ function initSettingsModal() {
       modal.style.display = 'none';
     }
   });
+}
+
+// 新增提示函数
+function showTips(message) {
+  // 创建提示元素
+  const tips = document.createElement('div');
+  tips.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    z-index: 10000;
+    font-size: 16px;
+    text-align: center;
+    max-width: 300px;
+    animation: fadeInOut 2s ease-in-out;
+  `;
+  tips.textContent = message;
+  
+  // 添加动画样式
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  document.body.appendChild(tips);
+  
+  // 2秒后自动移除
+  setTimeout(() => {
+    if (tips.parentNode) {
+      tips.parentNode.removeChild(tips);
+    }
+    if (style.parentNode) {
+      style.parentNode.removeChild(style);
+    }
+  }, 2000);
 }
 
 // 广告

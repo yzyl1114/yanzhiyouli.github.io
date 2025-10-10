@@ -2,20 +2,6 @@ import { exams } from './exams.js';
 import { supabase } from './supabase.js';
 import { getUser } from './auth.js';
 
-// 使用本地dayjs文件
-import dayjs from './js/dayjs/dayjs.min.js';
-import utc from './js/dayjs/utc.min.js';
-import timezone from './js/dayjs/timezone.min.js';
-import duration from './js/dayjs/duration.min.js';
-import timezoneData from './js/dayjs/timezone-data.min.js';
-
-// 注册插件
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(duration);
-// 时区数据插件需要特殊注册
-dayjs.extend(timezoneData);
-
 // 背景图表
 const backgroundImages = [
   { id: 'bg1', url: 'images/bg1.jpg' },
@@ -31,55 +17,56 @@ function getExamDataById(id) {
   return exams.find(e => e.id === id);
 }
 
-// 倒计时核心 - 修复时间处理
-function updateCountdownDisplay(exam) {
-  try {
-    const now = dayjs().tz('Asia/Shanghai');
-    let examTime;
-    
-    // 处理不同来源的时间数据
-    if (exam.date instanceof Date) {
-      examTime = dayjs(exam.date).tz('Asia/Shanghai');
-    } else if (typeof exam.date === 'string') {
-      examTime = dayjs(exam.date).tz('Asia/Shanghai');
-    } else {
-      console.error('未知的时间格式:', exam.date);
-      return;
-    }
-    
-    const diff = examTime.diff(now);
-    
-    if (diff <= 0) {
-      ['days', 'hours', 'minutes', 'seconds'].forEach(k => 
-        document.getElementById(k).textContent = '00'
-      );
-      return;
-    }
-    
-    const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    
-    document.getElementById('days').textContent = String(totalDays).padStart(2, '0');
-    document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-    document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-    document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-  } catch (error) {
-    console.error('更新倒计时显示错误:', error);
+// 简单的倒计时计算（不使用dayjs）
+function updateCountdownDisplay(targetDate) {
+  const now = new Date().getTime();
+  const target = new Date(targetDate).getTime();
+  const diff = target - now;
+  
+  if (diff <= 0) {
+    ['days', 'hours', 'minutes', 'seconds'].forEach(k => 
+      document.getElementById(k).textContent = '00'
+    );
+    return;
   }
+  
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  document.getElementById('days').textContent = String(days).padStart(2, '0');
+  document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+  document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+}
+
+// 格式化日期显示
+function formatDateForDisplay(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${year}年${month}月${day}日 ${hours}时${minutes}分`;
 }
 
 // 主初始化
 async function initCountdownPage() {
+  console.log('开始初始化倒计时页面...');
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const customId = urlParams.get('custom');
+  const examId = urlParams.get('id');
+  
+  console.log('URL参数:', { customId, examId });
+
+  let examData = null;
+
   try {
-    const urlParams = new URLSearchParams(location.search);
-    const customId = urlParams.get('custom');
-    let exam;
-
-    console.log('URL参数:', { customId, id: urlParams.get('id') });
-
-    // 自定义目标
+    // 优先处理自定义目标
     if (customId) {
       console.log('加载自定义目标:', customId);
       const { data, error } = await supabase
@@ -88,164 +75,143 @@ async function initCountdownPage() {
         .eq('id', customId)
         .single();
       
-      console.log('自定义目标查询结果:', { data, error });
+      if (error) throw error;
+      if (!data) throw new Error('自定义目标不存在');
       
-      if (error || !data) {
-        console.error('自定义目标加载失败:', error);
-        location.href = 'index.html';
-        return;
-      }
-      
-      // 修复：处理Supabase返回的时间戳
-      exam = { 
-        name: data.name, 
-        date: data.date // TIMESTAMPTZ格式，dayjs可以直接处理
+      examData = {
+        name: data.name,
+        date: data.date
       };
-    } else {
-      // 系统考试
-      const id = parseInt(urlParams.get('id')) || 1;
+      console.log('自定义目标数据:', examData);
+    } 
+    // 然后是系统考试
+    else if (examId) {
+      const id = parseInt(examId);
       console.log('加载系统考试:', id);
-      exam = getExamDataById(id);
-      if (!exam) {
-        console.error('系统考试不存在:', id);
-        location.href = 'index.html';
-        return;
-      }
+      examData = getExamDataById(id);
+      if (!examData) throw new Error('系统考试不存在');
+      console.log('系统考试数据:', examData);
     }
-
-    console.log('最终考试数据:', exam);
-
-    // 渲染标题 & 时间
-    document.getElementById('exam-title').textContent = exam.name;
-    
-    // 修复：统一时间格式化
-    let displayDate;
-    try {
-      displayDate = dayjs(exam.date).tz('Asia/Shanghai');
-      if (!displayDate.isValid()) {
-        throw new Error('日期解析无效');
-      }
-    } catch (error) {
-      console.error('日期解析错误，使用原始值:', exam.date);
-      displayDate = dayjs(exam.date); // 降级处理
+    // 如果没有参数，使用默认考试（id=1）
+    else {
+      console.log('使用默认考试');
+      examData = getExamDataById(1);
     }
-    
-    document.getElementById('exam-time').textContent = displayDate.format('YYYY年MM月DD日 HH时mm分');
-
-    // 倒计时 & 背景
-    updateCountdownDisplay(exam);
-    setInterval(() => updateCountdownDisplay(exam), 1000);
-    
-    const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
-    const bgImage = backgroundImages.find(b => b.id === bgSetting);
-    if (bgImage) {
-      document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
-    }
-
-    // 弹窗 & 广告
-    initSettingsModal();
-    showAdContainer();
-    document.querySelector('.settings-entry').style.display = 'block';
   } catch (error) {
-    console.error('初始化页面错误:', error);
+    console.error('加载考试数据失败:', error);
+    // 跳转回首页
+    window.location.href = 'index.html';
+    return;
   }
+
+  // 更新页面显示
+  document.getElementById('exam-title').textContent = examData.name;
+  document.getElementById('exam-time').textContent = formatDateForDisplay(examData.date);
+
+  // 启动倒计时
+  updateCountdownDisplay(examData.date);
+  setInterval(() => updateCountdownDisplay(examData.date), 1000);
+
+  // 设置背景图
+  const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
+  const bgImage = backgroundImages.find(b => b.id === bgSetting);
+  if (bgImage) {
+    document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
+  }
+
+  // 初始化其他功能
+  initSettingsModal();
+  showAdContainer();
 }
 
 // 背景图切换 + VIP 拦截
 function initSettingsModal() {
-  try {
-    const modal = document.getElementById('settings-modal');
-    if (!modal) {
-      console.error('设置弹窗元素未找到');
-      return;
-    }
-    
-    // 设置入口点击事件
-    const settingsEntry = document.querySelector('.settings-entry');
-    if (settingsEntry) {
-      settingsEntry.addEventListener('click', () => {
-        modal.style.display = 'flex';
-      });
-    }
-    
-    // 关闭按钮事件
-    const closeBtn = document.querySelector('.settings-modal .close-modal');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-      });
-    }
-    
-    // 点击背景关闭
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
-    });
+  const modal = document.getElementById('settings-modal');
+  const settingsEntry = document.querySelector('.settings-entry');
+  const closeBtn = document.querySelector('.settings-modal .close-modal');
 
-    // 修复：背景图点击事件
-    document.querySelectorAll('.bg-option').forEach(img => {
-      img.addEventListener('click', async () => {
-        const bgId = img.dataset.bg;
-        console.log('点击背景图:', bgId);
-        
-        // VIP图片拦截逻辑
-        if (['bg5', 'bg6'].includes(bgId)) {
-          console.log('VIP图片检查');
-          const user = await getUser();
-          console.log('用户状态:', user);
-          
-          // 修复：正确的条件判断
-          if (!user || !user.is_member) {
-            console.log('非会员点击VIP图片，弹出购买窗口');
-            window.open('member-buy.html', '_blank', 'width=400,height=500,left=200,top=100');
-            return;
-          }
-        }
-        
-        // 正常切换背景图逻辑
-        const bgImage = backgroundImages.find(b => b.id === bgId);
-        if (bgImage) {
-          console.log('切换背景图:', bgImage.url);
-          document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
-          localStorage.setItem('countdownBg', bgId);
-          
-          // 更新active状态
-          document.querySelectorAll('.bg-option').forEach(i => i.classList.remove('active'));
-          img.classList.add('active');
-          
-          // 关闭弹窗
-          modal.style.display = 'none';
-        }
-      });
+  // 设置入口点击事件
+  if (settingsEntry) {
+    settingsEntry.addEventListener('click', () => {
+      console.log('打开背景图弹窗');
+      modal.style.display = 'flex';
     });
-  } catch (error) {
-    console.error('初始化设置弹窗错误:', error);
   }
+
+  // 关闭按钮事件
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  }
+
+  // 点击背景关闭
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+
+  // 背景图点击事件 - 使用事件委托确保绑定成功
+  document.querySelector('.background-options').addEventListener('click', async (e) => {
+    const img = e.target.closest('.bg-option');
+    if (!img) return;
+    
+    const bgId = img.dataset.bg;
+    console.log('点击背景图:', bgId);
+    
+    // VIP图片拦截逻辑
+    if (['bg5', 'bg6'].includes(bgId)) {
+      console.log('VIP图片检查');
+      const user = await getUser();
+      console.log('用户状态:', user);
+      
+      if (!user || !user.is_member) {
+        console.log('非会员点击VIP图片，弹出购买窗口');
+        window.open('member-buy.html', '_blank', 'width=400,height=500,left=200,top=100');
+        return;
+      }
+    }
+    
+    // 正常切换背景图
+    const bgImage = backgroundImages.find(b => b.id === bgId);
+    if (bgImage) {
+      console.log('切换背景图:', bgImage.url);
+      document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
+      localStorage.setItem('countdownBg', bgId);
+      
+      // 更新active状态
+      document.querySelectorAll('.bg-option').forEach(i => i.classList.remove('active'));
+      img.classList.add('active');
+      
+      // 关闭弹窗
+      modal.style.display = 'none';
+    }
+  });
 }
 
 // 广告
 function showAdContainer() {
-  try {
-    const ad = document.querySelector('.ad-container');
-    const closeBtn = document.getElementById('ad-close');
-    
-    if (ad) {
-      ad.style.display = 'block';
-    }
-    
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        if (ad) ad.style.display = 'none';
-        setTimeout(() => {
-          if (ad) ad.style.display = 'block';
-        }, 600000);
-      });
-    }
-  } catch (error) {
-    console.error('广告容器初始化错误:', error);
+  const ad = document.querySelector('.ad-container');
+  const closeBtn = document.getElementById('ad-close');
+  
+  if (ad) ad.style.display = 'block';
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      if (ad) ad.style.display = 'none';
+      setTimeout(() => {
+        if (ad) ad.style.display = 'block';
+      }, 600000);
+    });
   }
 }
 
-document.addEventListener('DOMContentLoaded', initCountdownPage);
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCountdownPage);
+} else {
+  initCountdownPage();
+}
+
+// 防止iframe嵌入
 if (top !== self) top.location = self.location;

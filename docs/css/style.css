@@ -370,7 +370,7 @@ body {
     box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
 }
 
-/* 确保VIP角标样式优先级 */
+/* 修复VIP角标显示*/
 .background-options .bg-option.vip::after {
   content: 'VIP' !important;
   position: absolute !important;
@@ -382,14 +382,10 @@ body {
   font-weight: bold !important;
   padding: 2px 8px !important;
   border-radius: 12px !important;
-  z-index: 100 !important;
+  z-index: 1000 !important;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
 }
 
-/* 确保VIP图片没有红色边框 */
 .background-options .bg-option.vip {
   border: 2px solid transparent !important;
   position: relative;

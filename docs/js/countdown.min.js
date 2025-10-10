@@ -122,6 +122,15 @@ async function initCountdownPage() {
   // 初始化其他功能
   initSettingsModal();
   showAdContainer();
+  
+  // 修复：确保设置入口显示
+  const settingsEntry = document.querySelector('.settings-entry');
+  if (settingsEntry) {
+    settingsEntry.style.display = 'block';
+    console.log('设置入口已显示');
+  } else {
+    console.error('设置入口元素未找到');
+  }
 }
 
 // 背景图切换 + VIP 拦截
@@ -134,6 +143,16 @@ function initSettingsModal() {
   if (settingsEntry) {
     settingsEntry.addEventListener('click', () => {
       console.log('打开背景图弹窗');
+      
+      // 修复：打开弹窗时同步当前选中的背景图
+      const currentBg = localStorage.getItem('countdownBg') || 'bg1';
+      document.querySelectorAll('.bg-option').forEach(option => {
+        option.classList.remove('active');
+        if (option.dataset.bg === currentBg) {
+          option.classList.add('active');
+        }
+      });
+      
       modal.style.display = 'flex';
     });
   }

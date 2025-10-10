@@ -108,6 +108,17 @@
     document.getElementById('settings-modal').onclick = e => {
         if (e.target === e.currentTarget) e.currentTarget.style.display = 'none';
     };
+    // 页面加载时初始化背景图选中状态
+    document.addEventListener('DOMContentLoaded', function() {
+    // 设置初始背景图选中状态
+    const currentBg = localStorage.getItem('countdownBg') || 'bg1';
+    document.querySelectorAll('.bg-option').forEach(option => {
+        option.classList.remove('active');
+        if (option.dataset.bg === currentBg) {
+        option.classList.add('active');
+        }
+    });
+    });
     </script>
 </body>
 </html>

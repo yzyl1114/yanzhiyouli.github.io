@@ -173,7 +173,8 @@ function initSettingsModal() {
 
   // 背景图点击事件 - 使用事件委托确保绑定成功
   document.querySelector('.background-options').addEventListener('click', async (e) => {
-      const img = e.target.closest('.bg-option');
+      // 同时支持直接点击图片和点击容器内的图片
+      let img = e.target.closest('.bg-option');
       if (!img) return;
       
       const bgId = img.dataset.bg;

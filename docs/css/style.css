@@ -370,37 +370,53 @@ body {
     box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
 }
 
-/* 修复VIP角标显示*/
-.background-options .bg-option.vip::after {
-  content: 'VIP' !important;
-  position: absolute !important;
-  top: 5px !important;
-  right: 5px !important;
-  background: linear-gradient(45deg, #ff6a00, #ff3d00) !important;
-  color: white !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  padding: 2px 8px !important;
-  border-radius: 12px !important;
-  z-index: 1000 !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-}
-
-.background-options .bg-option.vip {
-  border: 2px solid transparent !important;
-  position: relative;
-}
-
-/* 确保VIP标识不会被覆盖 */
-.bg-option.vip::after {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
 
 /* 让缩略图相对定位 */
 .bg-option { 
   position: relative; 
+}
+
+/* 新增VIP容器和角标样式 */
+.bg-option-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* VIP角标样式 */
+.vip-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: linear-gradient(45deg, #ff6a00, #ff3d00);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 12px;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  line-height: 1;
+}
+
+/* 确保VIP容器的图片样式与普通图片一致 */
+.bg-option-container .bg-option {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.bg-option-container .bg-option:hover {
+  transform: scale(1.05);
+  border-color: #4a6bff !important;
+}
+
+.bg-option-container .bg-option.active {
+  border-color: #4a6bff !important;
+  box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
 }
 
 /* 广告位样式 */

@@ -94,21 +94,23 @@
     /* ---- 统一头像 ---- */
     const avatar = document.getElementById('user-avatar');
     async function renderAuth(){
-      const user = await getUser();
-      if(user){
-        avatar.src = user.avatar_url || 'images/default-avatar.png';
-        avatar.onclick = () => toggleUserPopup(user);
-      }else{
-        avatar.src = 'images/default-avatar.png';
-        avatar.onclick = async () => {
-          await supabase.auth.signInWithOAuth({
-            provider:'github',
-            options:{ redirectTo: location.origin + location.pathname }
-          });
-        };
-      }
-      avatar.style.display = 'block';
-      return user;
+        const user = await getUser();
+        if(user){
+            avatar.src = user.avatar_url || 'images/default-avatar.png';
+            // 已登录用户点击头像弹出用户小弹窗
+            avatar.onclick = () => toggleUserPopup(user);
+        }else{
+            avatar.src = 'images/default-avatar.png';
+            // 未登录用户点击头像执行登录
+            avatar.onclick = async () => {
+                await supabase.auth.signInWithOAuth({
+                    provider:'github',
+                    options:{ redirectTo: location.origin + location.pathname }
+                });
+            };
+        }
+        avatar.style.display = 'block';
+        return user;
     }
     // 如果是刚回调回来，立即换取会话并刷新
     if(location.hash.includes('access_token') || location.search.includes('code')){
@@ -147,9 +149,17 @@
     plus.className='entry-item custom-plus';
     plus.innerHTML=`<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
     plus.onclick=()=>{
-      if(!user){ avatar.click(); return; }
-      if(!user.is_member){ document.getElementById('btn-open-pay').click(); return; }
-      document.getElementById('btn-open-new').click();
+        if(!user){ 
+            avatar.click(); 
+            return; 
+        }
+        if(!user.is_member){ 
+            // 非会员直接打开会员购买页
+            document.getElementById('btn-open-pay').click(); 
+            return; 
+        }
+        // 会员才打开新建目标
+        document.getElementById('btn-open-new').click();
     };
     grid.appendChild(plus);
 

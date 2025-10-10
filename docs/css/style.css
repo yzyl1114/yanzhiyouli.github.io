@@ -370,26 +370,29 @@ body {
     box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
 }
 
-
-.background-options .bg-option.vip {
-  border: 2px solid transparent !important; /* 移除红色边框 */
-  position: relative;
+/* 确保VIP角标样式优先级 */
+.background-options .bg-option.vip::after {
+  content: 'VIP' !important;
+  position: absolute !important;
+  top: 5px !important;
+  right: 5px !important;
+  background: linear-gradient(45deg, #ff6a00, #ff3d00) !important;
+  color: white !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  padding: 2px 8px !important;
+  border-radius: 12px !important;
+  z-index: 100 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
-/* VIP 角标 */
-.background-options .bg-option.vip::after {
-  content: 'VIP';
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: linear-gradient(45deg, #ff6a00, #ff3d00);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 8px;
-  border-radius: 12px;
-  z-index: 100;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+/* 确保VIP图片没有红色边框 */
+.background-options .bg-option.vip {
+  border: 2px solid transparent !important;
+  position: relative;
 }
 
 /* 确保VIP标识不会被覆盖 */

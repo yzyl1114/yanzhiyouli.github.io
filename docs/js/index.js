@@ -82,7 +82,7 @@ async function initHomePage() {
         return;
     }
 
-    /******************** 新增开始 ********************/
+    /*注释掉冲突的用户渲染逻辑
     // 1. 拉取用户信息（含会员状态）
     const user = await getUser();   // 从 auth.js 来
 
@@ -91,9 +91,8 @@ async function initHomePage() {
 
     // 3. 渲染自定义目标卡片（会员且额度内才显示“+”卡片）
     await renderCustomCards(user);
-    /******************** 新增结束 ********************/
+    */
 
-    // 以下是你原有逻辑，一点不动
     updateCurrentDate();
     renderCountdownEntries();
     showActivityModal();

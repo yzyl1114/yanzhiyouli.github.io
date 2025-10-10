@@ -64,8 +64,6 @@ async function wxV3Token(method: string, url: string, body: string) {
 
 function str2ab(pem: string) {
   const b64 = pem.replace(/-----.*-----/g, '').replace(/\s/g, '')
-  const binary = atob(b64)
-  const buf = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) buf[i] = binary.charCodeAt(i)
-  return buf
+  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+  return bin
 }

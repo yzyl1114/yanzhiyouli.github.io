@@ -4,17 +4,35 @@ import { randomUUID } from 'https://deno.land/std@0.177.0/uuid/mod.ts'
 
 const sup = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
 
-// 微信 Native 支付 v3 统一入口
+// 统一入口：测试 / 正式 一键切换
 serve(async (req) => {
   const { plan, user_id } = await req.json()
   if (!plan || !user_id) return new Response('缺少参数', { status: 400 })
 
-  const fee = plan === 'month' ? 900 : 4500   // 分
   const out_trade_no = randomUUID()
   const body = 'GoalCountdown会员'
-  const notify_url = `${Deno.env.get('BASE_URL')}/api/wechat-notify`
 
-  // ① 调微信 Native 支付 v3
+  // ===== ① 读取开关 =====
+  const TEST_MODE = Deno.env.get('TEST_MODE') === 'true'   // 环境变量控制，测试环境true，正式环境false
+  const BASE_URL = Deno.env.get('BASE_URL')!
+
+  if (TEST_MODE) {
+    // ===== ② 测试模式：固定二维码 + 5 秒自动成功 =====
+    const code_url = `${BASE_URL}/images/test-wechat-pay.png` // 你保存的个人收款码
+    await sup.from('orders').insert({ id: out_trade_no, user_id, plan, status: 'unpaid' })
+
+    // 5 秒后自动标记为已支付（仅测试）
+    setTimeout(async () => {
+      await sup.from('orders').update({ status: 'paid' }).eq('id', out_trade_no)
+    }, 5000)
+
+    return new Response(JSON.stringify({ qr_url: code_url, order_id: out_trade_no }))
+  }
+
+  // ===== ③ 正式模式：微信 Native 支付 v3 =====
+  const fee = plan === 'month' ? 900 : 4500   // 分
+  const notify_url = `${BASE_URL}/api/wechat-notify`
+
   const url = 'https://api.mch.weixin.qq.com/v3/pay/transactions/native'
   const token = await wxV3Token('POST', url, JSON.stringify({
     mchid: Deno.env.get('WECHAT_MCH_ID'),
@@ -39,14 +57,11 @@ serve(async (req) => {
   })
 
   const { code_url } = await wxRes.json()
-
-  // ② 落单
   await sup.from('orders').insert({ id: out_trade_no, user_id, plan, status: 'unpaid' })
-
-  return new Response(JSON.stringify({ qr_url, order_id: out_trade_no }))
+  return new Response(JSON.stringify({ qr_url: code_url, order_id: out_trade_no }))
 })
 
-// 微信 V3 签名工具函数
+// ========== 微信 V3 签名工具 ==========
 async function wxV3Token(method: string, url: string, body: string) {
   const timestamp = Math.floor(Date.now() / 1000).toString()
   const nonce = randomUUID()
@@ -64,6 +79,5 @@ async function wxV3Token(method: string, url: string, body: string) {
 
 function str2ab(pem: string) {
   const b64 = pem.replace(/-----.*-----/g, '').replace(/\s/g, '')
-  const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
-  return bin
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0))
 }

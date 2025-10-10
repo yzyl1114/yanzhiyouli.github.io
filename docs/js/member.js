@@ -9,7 +9,7 @@ export async function createOrder(plan) {
     alert('网络错误')
     return null
   }
-  return data.qr_url // 微信二维码链接
+  return data // 微信返回：{ qr_url, order_id }
 }
 
 // 轮询订单状态

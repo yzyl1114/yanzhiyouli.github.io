@@ -53,6 +53,26 @@
   <script type="module">
     import { createOrder, pollOrder } from './js/member.js'
     let plan = 'month', orderId
+    
+    document.getElementById('pay-btn').onclick = async () => {
+      const { qr_url, order_id } = await createOrder(plan)
+      orderId = order_id
+      // 显示二维码
+      document.getElementById('qrcode').src = qr_url
+      document.getElementById('qrcode').style.display = 'block'
+      document.getElementById('tip').style.display = 'block'
+      document.getElementById('pay-btn').style.display = 'none'
+
+      // 轮询订单
+      const t = setInterval(async () => {
+        if (await pollOrder(orderId)) {
+          clearInterval(t)
+          alert('支付成功！')
+          location.reload()
+        }
+      }, 2000)
+    }
+    
     document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
       document.querySelectorAll('.card').forEach(x=>x.classList.remove('active'))
       c.classList.add('active'); plan=c.dataset.plan

@@ -9,10 +9,18 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  console.log('收到请求:', req.method)
+  console.log('收到请求:', req.method, req.headers.get('authorization'))
   
+  // 处理预检请求
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 200, headers: corsHeaders })
+  }
+
+  // 检查认证头，如果没有就跳过（模拟公开访问）
+  const authHeader = req.headers.get('authorization')
+  if (!authHeader) {
+    console.log('无认证头，继续处理')
+    // 不返回错误，继续处理请求
   }
 
   try {

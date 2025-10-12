@@ -51,7 +51,7 @@ async function createOrderFallback(plan) {
 }
 
 
-// 轮询订单状态 - 增强版
+// 轮询订单状态 - 使用现有字段版本
 export async function pollOrder(orderId) {
   console.log('轮询订单:', orderId)
   
@@ -78,10 +78,15 @@ export async function pollOrder(orderId) {
     if (elapsed > 5000) {
       console.log('测试订单自动支付成功')
       
-      // 更新用户会员状态（测试模式）
-      await updateUserMembership('test')
-      
-      return true
+      try {
+        // 更新用户会员状态（测试模式）
+        await updateUserMembership('month') // 测试模式默认用month
+        return true
+      } catch (error) {
+        console.error('测试模式更新会员状态失败:', error)
+        // 即使更新失败也返回成功，让流程继续
+        return true
+      }
     }
     return false
   }
@@ -99,12 +104,18 @@ export async function pollOrder(orderId) {
       return false
     }
     
-    console.log('订单状态:', data?.status)
+    console.log('订单状态:', data?.status, '套餐:', data?.plan)
     
     if (data?.status === 'paid') {
-      // 支付成功，更新用户会员状态
-      await updateUserMembership(data.plan)
-      return true
+      try {
+        // 支付成功，更新用户会员状态
+        await updateUserMembership(data.plan)
+        return true
+      } catch (updateError) {
+        console.error('支付成功但更新会员状态失败:', updateError)
+        // 即使更新失败也返回成功，避免卡住用户
+        return true
+      }
     }
     
     return false
@@ -115,7 +126,7 @@ export async function pollOrder(orderId) {
   }
 }
 
-// 更新用户会员状态
+// 更新用户会员状态 - 使用现有字段
 async function updateUserMembership(plan) {
   try {
     // 获取当前用户
@@ -125,24 +136,32 @@ async function updateUserMembership(plan) {
       return
     }
     
+    // 根据套餐设置会员信息
+    const membershipData = {
+      is_member: true,
+      member_plan: plan,
+      member_expires_at: getExpiryDate(plan),
+      updated_at: new Date().toISOString()
+    }
+    
+    console.log('更新会员数据:', membershipData)
+    
     // 更新用户会员信息
     const { error } = await supabase
       .from('profiles')
-      .update({
-        membership: plan,
-        membership_expires: getExpiryDate(plan),
-        updated_at: new Date().toISOString()
-      })
+      .update(membershipData)
       .eq('id', user.id)
     
     if (error) {
       console.error('更新会员状态失败:', error)
+      throw error
     } else {
       console.log('会员状态更新成功:', plan)
     }
     
   } catch (error) {
     console.error('更新会员状态异常:', error)
+    throw error
   }
 }
 

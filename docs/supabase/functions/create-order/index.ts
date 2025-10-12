@@ -1,10 +1,6 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 import { randomUUID } from 'https://deno.land/std@0.177.0/uuid/mod.ts'
 
-const sup = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-
-// CORS 头设置
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://yzyl1114.github.io',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -12,39 +8,16 @@ const corsHeaders = {
   'Content-Type': 'application/json',
 }
 
-// 统一入口：测试 / 正式 一键切换
 serve(async (req) => {
-  // 处理预检请求 (OPTIONS)
+  console.log('收到请求:', req.method)
+  
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders
-    })
+    return new Response(null, { status: 200, headers: corsHeaders })
   }
 
   try {
-    // 检查请求方法
-    if (req.method !== 'POST') {
-      return new Response(JSON.stringify({ error: '方法不允许' }), {
-        status: 405,
-        headers: corsHeaders
-      })
-    }
-
-    // 解析请求体
-    let plan, user_id
-    try {
-      const body = await req.json()
-      plan = body.plan
-      user_id = body.user_id
-    } catch (e) {
-      return new Response(JSON.stringify({ error: '无效的JSON格式' }), {
-        status: 400,
-        headers: corsHeaders
-      })
-    }
-
-    // 参数验证
+    const { plan, user_id } = await req.json()
+    
     if (!plan || !user_id) {
       return new Response(JSON.stringify({ error: '缺少参数' }), {
         status: 400,
@@ -53,7 +26,27 @@ serve(async (req) => {
     }
 
     const out_trade_no = randomUUID()
-    const body_desc = 'GoalCountdown会员'
+    const BASE_URL = 'https://yzyl1114.github.io'
+    
+    return new Response(JSON.stringify({
+      qr_url: `${BASE_URL}/images/test-wechat-pay.png`,
+      order_id: out_trade_no,
+      test_mode: true,
+      message: '测试成功 - 无需认证'
+    }), {
+      headers: corsHeaders
+    })
+
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      error: '处理请求失败',
+      message: error.message 
+    }), {
+      status: 500,
+      headers: corsHeaders
+    })
+  }
+})
 
     // ===== ① 读取开关 =====
     const TEST_MODE = Deno.env.get('TEST_MODE') === 'true'   // 环境变量控制，测试环境true，正式环境false

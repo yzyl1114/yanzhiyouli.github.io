@@ -98,16 +98,16 @@
             
             // 支付成功后的处理
             const membershipName = plan === 'month' ? '基础版' : '尊享版'
-            const membershipPlan = plan // 确保使用用户选择的套餐
-
             alert(`支付成功！您已成为${membershipName}会员`)
-
-            // 返回上一页或首页
-            if (document.referrer && document.referrer.includes(location.hostname)) {
-              history.back()
-            } else {
-              window.location.href = './index.html'
-            }
+            
+            // 强制跳转，不依赖会员状态更新
+            setTimeout(() => {
+              if (document.referrer && document.referrer.includes(location.hostname)) {
+                history.back()
+              } else {
+                window.location.href = './index.html'
+              }
+            }, 500)
             
           } else if (++tryTimes >= 150) {
             clearInterval(t)
@@ -120,8 +120,8 @@
         console.error('支付流程异常:', error)
         alert('支付失败: ' + error.message)
       }
-    }
-    
+    }   
+
     // "我已支付"按钮点击事件
     document.getElementById('tip').onclick = async () => {
       if (!orderId) {

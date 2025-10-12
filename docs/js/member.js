@@ -126,37 +126,75 @@ export async function pollOrder(orderId) {
   }
 }
 
-// 更新用户会员状态 - 使用现有字段
+// 更新用户会员状态 - 修复版
 async function updateUserMembership(plan) {
   try {
     // 获取当前用户
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      console.log('未找到用户信息')
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      console.log('未找到用户信息:', userError)
+      return
+    }
+    
+    console.log('当前用户ID:', user.id)
+    
+    // 首先检查用户是否在 profiles 表中存在
+    const { data: existingProfile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+    
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      console.error('查询用户资料失败:', fetchError)
       return
     }
     
     // 根据套餐设置会员信息
     const membershipData = {
+      id: user.id, // 确保包含主键
       is_member: true,
       member_plan: plan,
       member_expires_at: getExpiryDate(plan),
       updated_at: new Date().toISOString()
     }
     
+    // 如果用户没有 username，设置一个默认值
+    if (!existingProfile) {
+      membershipData.username = `user_${user.id.slice(0, 8)}`
+      membershipData.created_at = new Date().toISOString()
+    }
+    
     console.log('更新会员数据:', membershipData)
     
-    // 更新用户会员信息
-    const { error } = await supabase
-      .from('profiles')
-      .update(membershipData)
-      .eq('id', user.id)
+    let result
+    if (existingProfile) {
+      // 更新现有记录
+      result = await supabase
+        .from('profiles')
+        .update(membershipData)
+        .eq('id', user.id)
+    } else {
+      // 插入新记录
+      result = await supabase
+        .from('profiles')
+        .insert([membershipData])
+    }
+    
+    const { error } = result
     
     if (error) {
       console.error('更新会员状态失败:', error)
+      console.error('错误详情:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       throw error
     } else {
       console.log('会员状态更新成功:', plan)
+      return true
     }
     
   } catch (error) {

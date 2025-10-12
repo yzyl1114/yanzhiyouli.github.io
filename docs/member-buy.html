@@ -54,44 +54,78 @@
     import { createOrder, pollOrder } from './js/member.js'
     let plan = 'month', orderId
     
+    // 初始化卡片选择
+    document.querySelectorAll('.card').forEach(c => c.onclick = () => {
+      document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+      c.classList.add('active')
+      plan = c.dataset.plan
+      console.log('选择套餐:', plan)
+    })
+    
+    // 支付按钮点击事件 - 只有一个版本！
     document.getElementById('pay-btn').onclick = async () => {
-      const { qr_url, order_id } = await createOrder(plan)
-      orderId = order_id
-      // 显示二维码
-      document.getElementById('qrcode').src = qr_url
-      document.getElementById('qrcode').style.display = 'block'
-      document.getElementById('tip').style.display = 'block'
-      document.getElementById('pay-btn').style.display = 'none'
-
-      // 轮询订单
-      const t = setInterval(async () => {
-        if (await pollOrder(orderId)) {
-          clearInterval(t)
-          alert('支付成功！')
-          location.reload()
+      try {
+        console.log('开始创建订单，套餐:', plan)
+        
+        const result = await createOrder(plan)
+        console.log('订单创建结果:', result)
+        
+        if (!result || !result.qr_url) {
+          alert('创建订单失败，请重试')
+          return
         }
-      }, 2000)
+        
+        const { qr_url, order_id } = result
+        orderId = order_id
+        
+        console.log('订单ID:', orderId, '二维码URL:', qr_url)
+        
+        // 显示二维码
+        document.getElementById('qrcode').src = qr_url
+        document.getElementById('qrcode').style.display = 'block'
+        document.getElementById('tip').style.display = 'block'
+        document.getElementById('pay-btn').style.display = 'none'
+
+        // 轮询订单状态
+        let tryTimes = 0
+        const t = setInterval(async () => {
+          console.log(`轮询第${tryTimes + 1}次，订单ID:`, orderId)
+          const paid = await pollOrder(orderId)
+          
+          if (paid) {
+            clearInterval(t)
+            console.log('支付成功！')
+            alert('支付成功！')
+            location.reload()
+          } else if (++tryTimes >= 150) {
+            clearInterval(t)
+            console.log('支付超时')
+            alert('支付超时，请重试')
+          }
+        }, 2000)
+        
+      } catch (error) {
+        console.error('支付流程异常:', error)
+        alert('支付失败: ' + error.message)
+      }
     }
     
-    document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
-      document.querySelectorAll('.card').forEach(x=>x.classList.remove('active'))
-      c.classList.add('active'); plan=c.dataset.plan
-    })
-    document.getElementById('pay-btn').onclick=async()=>{
-      const { qr_url, id } = await createOrder(plan);
-      orderId=id;
-      document.getElementById('qrcode').src=qr_url;
-      document.getElementById('qrcode').style.display='block';
-      document.getElementById('tip').style.display='block';
-      document.getElementById('pay-btn').style.display='none';
-      let tryTimes=0;
-      const t=setInterval(async()=>{
-        if(await pollOrder(orderId)){clearInterval(t);alert('支付成功！');location.reload();}
-        else if(++tryTimes>=150){clearInterval(t);alert('支付超时，请重试');}
-      },2000)
-    }
-    document.getElementById('tip').onclick=async()=>{
-      if(await pollOrder(orderId)) location.reload(); else alert('暂未检测到支付，请稍候')
+    // "我已支付"按钮点击事件
+    document.getElementById('tip').onclick = async () => {
+      if (!orderId) {
+        alert('没有找到订单信息')
+        return
+      }
+      
+      console.log('手动检查支付状态，订单ID:', orderId)
+      const paid = await pollOrder(orderId)
+      
+      if (paid) {
+        alert('支付成功！')
+        location.reload()
+      } else {
+        alert('暂未检测到支付，请稍候或刷新页面重试')
+      }
     }
   </script>
 </body>

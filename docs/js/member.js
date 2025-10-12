@@ -77,7 +77,11 @@ export async function pollOrder(orderId) {
     // 5秒后自动成功
     if (elapsed > 5000) {
       console.log('测试订单自动支付成功')
-      
+
+      // 更新会员状态
+      const updateSuccess = await updateUserMembership(plan)
+      console.log('会员状态更新结果:', updateSuccess)
+
       // 尝试更新会员状态，但不阻塞主流程
       try {
         await updateUserMembership(plan)
@@ -125,80 +129,103 @@ export async function pollOrder(orderId) {
   }
 }
 
-// 更新用户会员状态 - 修复版
+// 更新用户会员状态 - UPSERT 版本
 async function updateUserMembership(plan) {
   try {
     // 获取当前用户
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
       console.log('未找到用户信息:', userError)
-      return
+      return false
     }
     
     console.log('当前用户ID:', user.id)
     
-    // 首先检查用户是否在 profiles 表中存在
-    const { data: existingProfile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', user.id)
-      .single()
+    // 计算会员到期时间
+    const expiryDate = getExpiryDate(plan)
+    console.log('会员到期时间:', expiryDate)
     
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('查询用户资料失败:', fetchError)
-      return
-    }
-    
-    // 根据套餐设置会员信息
+    // 使用 UPSERT (INSERT ... ON CONFLICT ... UPDATE)
     const membershipData = {
-      id: user.id, // 确保包含主键
+      id: user.id,
+      username: `user_${user.id.slice(0, 8)}`, // 确保有 username
       is_member: true,
       member_plan: plan,
-      member_expires_at: getExpiryDate(plan),
+      member_expires_at: expiryDate,
       updated_at: new Date().toISOString()
     }
     
-    // 如果用户没有 username，设置一个默认值
+    // 如果是新用户，设置创建时间
+    const { data: existingProfile } = await supabase
+      .from('profiles')
+      .select('id, created_at')
+      .eq('id', user.id)
+      .single()
+    
     if (!existingProfile) {
-      membershipData.username = `user_${user.id.slice(0, 8)}`
       membershipData.created_at = new Date().toISOString()
     }
     
-    console.log('更新会员数据:', membershipData)
+    console.log('准备更新的数据:', membershipData)
     
-    let result
-    if (existingProfile) {
-      // 更新现有记录
-      result = await supabase
-        .from('profiles')
-        .update(membershipData)
-        .eq('id', user.id)
-    } else {
-      // 插入新记录
-      result = await supabase
-        .from('profiles')
-        .insert([membershipData])
-    }
-    
-    const { error } = result
+    // 使用 upsert 方法
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(membershipData, {
+        onConflict: 'id',
+        ignoreDuplicates: false
+      })
+      .select()
     
     if (error) {
-      console.error('更新会员状态失败:', error)
-      console.error('错误详情:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      })
-      throw error
+      console.error('UPSERT 失败:', error)
+      console.error('完整错误:', JSON.stringify(error, null, 2))
+      
+      // 尝试分开插入和更新
+      return await trySeparateOperations(user.id, membershipData)
     } else {
-      console.log('会员状态更新成功:', plan)
+      console.log('UPSERT 成功:', data)
       return true
     }
     
   } catch (error) {
     console.error('更新会员状态异常:', error)
-    throw error
+    return false
+  }
+}
+
+// 备选方案：分别尝试 INSERT 和 UPDATE
+async function trySeparateOperations(userId, membershipData) {
+  try {
+    // 先尝试更新
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update(membershipData)
+      .eq('id', userId)
+    
+    if (!updateError) {
+      console.log('更新成功')
+      return true
+    }
+    
+    console.log('更新失败，尝试插入:', updateError)
+    
+    // 如果更新失败，尝试插入
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert([membershipData])
+    
+    if (!insertError) {
+      console.log('插入成功')
+      return true
+    }
+    
+    console.error('插入也失败:', insertError)
+    return false
+    
+  } catch (error) {
+    console.error('分开操作也失败:', error)
+    return false
   }
 }
 
@@ -211,4 +238,22 @@ function getExpiryDate(plan) {
     now.setMonth(now.getMonth() + 6)
   }
   return now.toISOString()
+}
+
+// 验证会员状态更新
+async function verifyMembershipUpdate() {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+    
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_member, member_plan, member_expires_at')
+      .eq('id', user.id)
+      .single()
+    
+    console.log('验证会员状态:', profile)
+  } catch (error) {
+    console.error('验证失败:', error)
+  }
 }

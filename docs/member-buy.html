@@ -62,7 +62,7 @@
       console.log('选择套餐:', plan)
     })
     
-    // 支付按钮点击事件 - 只有一个版本！
+    // 支付按钮点击事件
     document.getElementById('pay-btn').onclick = async () => {
       try {
         console.log('开始创建订单，套餐:', plan)
@@ -95,8 +95,20 @@
           if (paid) {
             clearInterval(t)
             console.log('支付成功！')
-            alert('支付成功！')
-            location.reload()
+            
+            // 支付成功后的处理
+            const membershipName = plan === 'month' ? '基础版' : '尊享版'
+            alert(`支付成功！您已成为${membershipName}会员`)
+            
+            // 返回上一页或首页
+            if (document.referrer && document.referrer.includes(location.hostname)) {
+              // 如果有来源页面且是同域名，返回上一页
+              history.back()
+            } else {
+              // 否则跳转到首页
+              window.location.href = './index.html'
+            }
+            
           } else if (++tryTimes >= 150) {
             clearInterval(t)
             console.log('支付超时')
@@ -121,8 +133,15 @@
       const paid = await pollOrder(orderId)
       
       if (paid) {
-        alert('支付成功！')
-        location.reload()
+        const membershipName = plan === 'month' ? '基础版' : '尊享版'
+        alert(`支付成功！您已成为${membershipName}会员`)
+        
+        // 返回上一页或首页
+        if (document.referrer && document.referrer.includes(location.hostname)) {
+          history.back()
+        } else {
+          window.location.href = './index.html'
+        }
       } else {
         alert('暂未检测到支付，请稍候或刷新页面重试')
       }

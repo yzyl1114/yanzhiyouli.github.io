@@ -50,6 +50,7 @@ async function createOrderFallback(plan) {
   }
 }
 
+
 // 轮询订单状态 - 增强版
 export async function pollOrder(orderId) {
   console.log('轮询订单:', orderId)
@@ -67,7 +68,6 @@ export async function pollOrder(orderId) {
     
     if (isNaN(orderTime)) {
       console.log('测试订单，但无法解析时间，5秒后自动成功')
-      // 简单逻辑：如果是测试订单但无法解析时间，固定5秒后成功
       return true
     }
     
@@ -77,6 +77,10 @@ export async function pollOrder(orderId) {
     // 5秒后自动成功
     if (elapsed > 5000) {
       console.log('测试订单自动支付成功')
+      
+      // 更新用户会员状态（测试模式）
+      await updateUserMembership('test')
+      
       return true
     }
     return false
@@ -86,7 +90,7 @@ export async function pollOrder(orderId) {
   try {
     const { data, error } = await supabase
       .from('orders')
-      .select('status')
+      .select('status, plan')
       .eq('id', orderId)
       .single()
     
@@ -96,10 +100,59 @@ export async function pollOrder(orderId) {
     }
     
     console.log('订单状态:', data?.status)
-    return data?.status === 'paid'
+    
+    if (data?.status === 'paid') {
+      // 支付成功，更新用户会员状态
+      await updateUserMembership(data.plan)
+      return true
+    }
+    
+    return false
     
   } catch (error) {
     console.log('查询订单异常:', error.message)
     return false
   }
+}
+
+// 更新用户会员状态
+async function updateUserMembership(plan) {
+  try {
+    // 获取当前用户
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      console.log('未找到用户信息')
+      return
+    }
+    
+    // 更新用户会员信息
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        membership: plan,
+        membership_expires: getExpiryDate(plan),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
+    
+    if (error) {
+      console.error('更新会员状态失败:', error)
+    } else {
+      console.log('会员状态更新成功:', plan)
+    }
+    
+  } catch (error) {
+    console.error('更新会员状态异常:', error)
+  }
+}
+
+// 计算会员到期时间
+function getExpiryDate(plan) {
+  const now = new Date()
+  if (plan === 'month') {
+    now.setMonth(now.getMonth() + 1)
+  } else if (plan === 'halfyear') {
+    now.setMonth(now.getMonth() + 6)
+  }
+  return now.toISOString()
 }

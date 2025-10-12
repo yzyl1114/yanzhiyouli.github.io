@@ -125,28 +125,37 @@ export async function pollOrder(orderId, plan = null) {
 // 更新用户会员状态
 async function updateUserMembership(plan) {
     try {
-        // 获取当前用户
+        console.log('=== 开始更新会员状态 ===')
+        
+        // 1. 检查用户认证状态
         const { data: { user }, error: userError } = await supabase.auth.getUser()
+        console.log('用户认证状态:', { 
+            user: user ? { id: user.id, email: user.email } : null, 
+            error: userError 
+        })
+        
         if (userError || !user) {
-            console.log('未找到用户信息:', userError)
+            console.log('❌ 用户认证失败，无法更新会员状态')
             return false
         }
 
-        console.log('当前用户ID:', user.id, '套餐:', plan)
+        console.log('✅ 用户认证成功，用户ID:', user.id)
 
-        // 计算会员到期时间
+        // 2. 计算到期时间
         const expiryDate = getExpiryDate(plan)
         console.log('会员到期时间:', expiryDate)
 
-        // 准备更新数据
+        // 3. 准备更新数据
         const updateData = {
             is_member: true,
             member_plan: plan,
             member_expires_at: expiryDate,
             updated_at: new Date().toISOString()
         }
+        console.log('准备更新的数据:', updateData)
 
-        // 更新数据库
+        // 4. 执行更新
+        console.log('正在更新数据库...')
         const { data, error } = await supabase
             .from('profiles')
             .update(updateData)
@@ -154,15 +163,16 @@ async function updateUserMembership(plan) {
             .select()
 
         if (error) {
-            console.error('更新会员状态失败:', error)
+            console.error('❌ 数据库更新失败:', error)
+            console.error('完整错误详情:', JSON.stringify(error, null, 2))
             return false
         }
 
-        console.log('会员状态更新成功:', data)
+        console.log('✅ 会员状态更新成功:', data)
         return true
 
     } catch (error) {
-        console.error('更新会员状态异常:', error)
+        console.error('❌ 更新会员状态异常:', error)
         return false
     }
 }

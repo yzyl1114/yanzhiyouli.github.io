@@ -96,18 +96,12 @@
             clearInterval(t)
             console.log('支付成功！')
             
-            // 支付成功后的处理
+            // 支付成功后的处理 - 确保一定会跳转
             const membershipName = plan === 'month' ? '基础版' : '尊享版'
             alert(`支付成功！您已成为${membershipName}会员`)
             
-            // 强制跳转，不依赖会员状态更新
-            setTimeout(() => {
-              if (document.referrer && document.referrer.includes(location.hostname)) {
-                history.back()
-              } else {
-                window.location.href = './index.html'
-              }
-            }, 500)
+            // 立即跳转，不等待任何异步操作
+            performRedirect()
             
           } else if (++tryTimes >= 150) {
             clearInterval(t)
@@ -120,7 +114,31 @@
         console.error('支付流程异常:', error)
         alert('支付失败: ' + error.message)
       }
-    }   
+    }
+
+    // 专门的跳转函数
+    function performRedirect() {
+      console.log('执行页面跳转...')
+      
+      // 方法1: 使用 history.back() 返回上一页
+      if (document.referrer && document.referrer.includes(location.hostname)) {
+        console.log('返回上一页:', document.referrer)
+        history.back()
+      } 
+      // 方法2: 直接跳转到首页
+      else {
+        console.log('跳转到首页')
+        window.location.href = './index.html'
+      }
+      
+      // 方法3: 如果上述方法都失败，3秒后强制跳转
+      setTimeout(() => {
+        if (!document.hidden) { // 如果页面还在显示，说明跳转失败
+          console.log('强制跳转到首页')
+          window.location.href = './index.html'
+        }
+      }, 3000)
+    }
 
     // "我已支付"按钮点击事件
     document.getElementById('tip').onclick = async () => {
@@ -136,12 +154,8 @@
         const membershipName = plan === 'month' ? '基础版' : '尊享版'
         alert(`支付成功！您已成为${membershipName}会员`)
         
-        // 返回上一页或首页
-        if (document.referrer && document.referrer.includes(location.hostname)) {
-          history.back()
-        } else {
-          window.location.href = './index.html'
-        }
+        // 立即跳转
+        performRedirect()
       } else {
         alert('暂未检测到支付，请稍候或刷新页面重试')
       }

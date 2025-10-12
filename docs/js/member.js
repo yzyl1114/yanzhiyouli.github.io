@@ -51,7 +51,7 @@ async function createOrderFallback(plan) {
 }
 
 
-// 轮询订单状态 - 使用现有字段版本
+// 轮询订单状态 - 确保跳转版本
 export async function pollOrder(orderId) {
   console.log('轮询订单:', orderId)
   
@@ -78,15 +78,14 @@ export async function pollOrder(orderId) {
     if (elapsed > 5000) {
       console.log('测试订单自动支付成功')
       
+      // 尝试更新会员状态，但不阻塞主流程
       try {
-        // 更新用户会员状态（测试模式）
-        await updateUserMembership('month') // 测试模式默认用month
-        return true
+        await updateUserMembership(plan)
       } catch (error) {
-        console.error('测试模式更新会员状态失败:', error)
-        // 即使更新失败也返回成功，让流程继续
-        return true
+        console.log('会员状态更新失败，但继续支付成功流程')
       }
+      
+      return true // 确保返回 true
     }
     return false
   }

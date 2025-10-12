@@ -30,7 +30,7 @@ serve(async (req) => {
     
     // 返回测试数据
     const response = {
-      qr_url: 'https://yzyl1114.github.io/images/test-wechat-pay.png',
+      qr_url: 'https://yzyl1114.github.io/yanzhiyouli.github.io/images/test-wechat-pay.png',
       order_id: 'test-order-' + Date.now(),
       test_mode: true,
       message: '公开函数测试成功',

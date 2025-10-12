@@ -90,7 +90,7 @@
         let tryTimes = 0
         const t = setInterval(async () => {
           console.log(`轮询第${tryTimes + 1}次，订单ID:`, orderId)
-          const paid = await pollOrder(orderId)
+          const paid = await pollOrder(orderId, plan)
           
           if (paid) {
             clearInterval(t)
@@ -116,7 +116,7 @@
       }
     }
     
-    // "我已支付"按钮点击事件
+    // "我已支付"按钮点击事件 - 修复版本
     document.getElementById('tip').onclick = async () => {
       if (!orderId) {
         alert('没有找到订单信息')
@@ -124,7 +124,9 @@
       }
       
       console.log('手动检查支付状态，订单ID:', orderId)
-      const paid = await pollOrder(orderId)
+      
+      // 这里需要调用 pollOrder 函数获取支付状态
+      const paid = await pollOrder(orderId, plan)  // 添加这行
       
       if (paid) {
         const membershipName = plan === 'month' ? '基础版' : '尊享版'

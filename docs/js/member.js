@@ -1,5 +1,34 @@
 import { supabase } from './supabase.js'
 
+// 获取当前用户完整信息
+export async function getCurrentUser() {
+    try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        if (authError || !user) {
+            console.log('未获取到用户信息:', authError)
+            return null
+        }
+
+        // 获取用户profile信息
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+        if (profileError) {
+            console.log('获取用户profile失败:', profileError)
+            return { id: user.id, is_member: false }
+        }
+
+        console.log('完整用户信息:', profile)
+        return profile
+    } catch (error) {
+        console.error('获取用户信息异常:', error)
+        return null
+    }
+}
+
 // 创建订单 → 返回二维码 URL
 export async function createOrder(plan) {
   try {
@@ -77,10 +106,17 @@ export async function pollOrder(orderId, plan = null) {
         if (elapsed > 5000) {
             console.log('测试订单自动支付成功')
 
-            // 尝试更新会员状态，但不阻塞主流程
+            // 更新会员状态
             try {
                 if (plan) {
-                    await updateUserMembership(plan)
+                    const updateSuccess = await updateUserMembership(plan)
+                    console.log('会员状态更新结果:', updateSuccess)
+                    
+                    // 清理本地存储的旧目标（如果从非会员升级）
+                    if (updateSuccess) {
+                        localStorage.removeItem('user_membership') // 清理临时方案
+                        console.log('会员升级成功')
+                    }
                 } else {
                     console.log('未提供plan参数，跳过会员状态更新')
                 }
@@ -88,7 +124,7 @@ export async function pollOrder(orderId, plan = null) {
                 console.log('会员状态更新失败，但继续支付成功流程:', error)
             }
 
-            return true // 确保返回 true
+            return true
         }
         return false
     }
@@ -135,9 +171,6 @@ async function updateUserMembership(plan) {
 
         console.log('✅ 用户认证成功，用户ID:', user.id)
         
-        // 强制等待一下确保DOM就绪
-        await new Promise(resolve => setTimeout(resolve, 100))
-        
         // 获取用户当前会员信息
         const { data: currentProfile, error: fetchError } = await supabase
             .from('profiles')
@@ -145,22 +178,10 @@ async function updateUserMembership(plan) {
             .eq('id', user.id)
             .single()
 
-        // 检查会员状态变化：从会员变成非会员时清理目标
-        if (currentProfile && currentProfile.is_member) {
-            const now = new Date()
-            const currentExpiry = currentProfile.member_expires_at ? new Date(currentProfile.member_expires_at) : null
-            
-            // 如果当前会员已过期，清理目标
-            if (currentExpiry && currentExpiry < now) {
-                console.log('检测到会员已过期，清理自定义目标...')
-                await cleanupExpiredMembership(user.id)
-            }
-        }
-
         let expiryDate
         const now = new Date()
         
-        // 计算新的到期时间（续期逻辑保持不变）
+        // 计算新的到期时间
         if (currentProfile && currentProfile.member_expires_at && 
             new Date(currentProfile.member_expires_at) > now) {
             // 已有会员，在现有基础上续期
@@ -206,15 +227,8 @@ async function updateUserMembership(plan) {
     }
 }
 
-// 计算到期时间
-function getExpiryDate(plan) {
-    const days = plan === 'month' ? 30 : 180
-    return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
-}
-
-// 设置本地会员状态（确保即使数据库更新失败也有反馈）
+// 设置本地会员状态
 function setLocalMembership(plan) {
-    // 这里可以保持简单，因为主要逻辑在数据库更新中
     const membership = {
         plan: plan,
         expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
@@ -264,10 +278,34 @@ export async function clearMembership() {
     }
 }
 
-async function cleanupExpiredMembership(userId) {
+// 会员状态监控和自动清理
+export async function checkMembershipAndCleanup() {
     try {
-        console.log('检查并清理过期会员的自定义目标...')
+        const user = await getCurrentUser()
+        if (!user) return
+
+        console.log('检查会员状态:', user)
         
+        // 检查会员是否过期
+        const now = new Date()
+        const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now
+        
+        if ((!user.is_member || isMemberExpired) && await hasCustomGoals(user.id)) {
+            console.log('会员已过期，清理自定义目标...')
+            await deleteAllCustomGoals(user.id)
+            alert('会员已过期，自定义目标已自动清理')
+            return true // 表示执行了清理操作
+        }
+        return false
+    } catch (error) {
+        console.error('会员状态检查失败:', error)
+        return false
+    }
+}
+
+// 检查是否有自定义目标
+async function hasCustomGoals(userId) {
+    try {
         const { data: goals, error } = await supabase
             .from('custom_goals')
             .select('id')
@@ -275,22 +313,33 @@ async function cleanupExpiredMembership(userId) {
             
         if (error) {
             console.error('查询自定义目标失败:', error)
-            return
+            return false
         }
         
-        if (goals && goals.length > 0) {
-            const { error: deleteError } = await supabase
-                .from('custom_goals')
-                .delete()
-                .eq('user_id', userId)
-                
-            if (deleteError) {
-                console.error('删除自定义目标失败:', deleteError)
-            } else {
-                console.log(`已删除 ${goals.length} 个自定义目标`)
-            }
-        }
+        return goals && goals.length > 0
     } catch (error) {
-        console.error('清理会员目标异常:', error)
+        console.error('检查目标失败:', error)
+        return false
+    }
+}
+
+// 删除所有自定义目标
+async function deleteAllCustomGoals(userId) {
+    try {
+        // 清空数据库中的目标
+        const { error } = await supabase
+            .from('custom_goals')
+            .delete()
+            .eq('user_id', userId)
+        
+        if (error) {
+            console.error('删除数据库目标失败:', error)
+        } else {
+            console.log('数据库目标删除成功')
+        }
+        
+        console.log('所有自定义目标已清理')
+    } catch (error) {
+        console.error('清理目标失败:', error)
     }
 }

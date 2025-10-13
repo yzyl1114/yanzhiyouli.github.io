@@ -51,24 +51,27 @@
   </div>
 
   <script type="module">
-      import { createOrder, pollOrder } from './js/member.js'
-      import { getUser } from './js/auth.js'
+      import { createOrder, pollOrder, getCurrentUser } from './js/member.js'
           
       let plan = 'month', orderId
 
-      // 初始化页面
+      // 初始化页面 - 简化版本
       async function initPage() {
           try {
-              const user = await getUser()
-              console.log('当前用户状态:', user) // 调试信息
+              console.log('开始初始化支付页面...')
+              
+              // 等待页面完全加载
+              await new Promise(resolve => setTimeout(resolve, 100))
+              
+              const user = await getCurrentUser()
+              console.log('当前用户状态:', user)
               
               // 清除所有卡片的active状态
               document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
               
-              // 简化逻辑：非会员和尊享版会员都默认选择基础版
-              // 只有基础版会员才默认选择尊享版
+              // 智能默认选择逻辑
               if (user && user.is_member && user.member_plan === 'month') {
-                  // 基础版会员默认选择尊享版（用于升级）
+                  // 基础版会员 → 默认选择尊享版（用于升级）
                   plan = 'halfyear'
                   const halfyearCard = document.querySelector('.card.halfyear')
                   if (halfyearCard) {
@@ -76,7 +79,7 @@
                       console.log('基础版会员，默认选择尊享版（升级）')
                   }
               } else {
-                  // 非会员、尊享版会员、或查询失败都默认选择基础版
+                  // 非会员、尊享版会员、或查询失败 → 默认选择基础版
                   plan = 'month'
                   const monthCard = document.querySelector('.card.month')
                   if (monthCard) {
@@ -88,8 +91,9 @@
               updatePayButtonText()
               
               // 添加视觉确认
-              console.log('当前选中计划:', plan)
+              console.log('初始化完成 - 当前选中计划:', plan)
               console.log('激活的卡片:', document.querySelector('.card.active'))
+              
           } catch (error) {
               console.error('初始化页面失败:', error)
               // 出错时默认选择基础版
@@ -99,31 +103,6 @@
               updatePayButtonText()
           }
       }
-
-      // 页面加载时初始化 - 使用多种方式确保执行
-      document.addEventListener('DOMContentLoaded', async () => {
-          console.log('DOM加载完成，开始初始化...')
-          await initPage()
-      })
-
-      // 备用初始化方式
-      window.addEventListener('load', async () => {
-          console.log('页面完全加载，检查初始化状态...')
-          // 如果没有激活的卡片，重新初始化
-          if (!document.querySelector('.card.active')) {
-              console.log('未检测到激活卡片，重新初始化...')
-              await initPage()
-          }
-      })
-
-      // 延迟检查
-      setTimeout(async () => {
-          console.log('延迟检查初始化状态...')
-          if (!document.querySelector('.card.active')) {
-              console.log('延迟检查：未检测到激活卡片，强制初始化...')
-              await initPage()
-          }
-      }, 500)
 
       // 更新支付按钮文案
       function updatePayButtonText() {
@@ -135,7 +114,7 @@
           }
       }
 
-      // 初始化卡片选择
+      // 卡片选择事件
       document.querySelectorAll('.card').forEach(c => c.onclick = () => {
           document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
           c.classList.add('active')
@@ -144,10 +123,20 @@
           updatePayButtonText()
       })
 
-      // 页面加载时初始化 - 确保在DOM加载完成后执行
+      // 页面加载时初始化
       document.addEventListener('DOMContentLoaded', async () => {
+          console.log('DOM加载完成，开始初始化...')
           await initPage()
       })
+
+      // 备用初始化：延迟执行确保DOM完全就绪
+      setTimeout(async () => {
+          const activeCard = document.querySelector('.card.active')
+          if (!activeCard) {
+              console.log('延迟检查：未检测到激活卡片，重新初始化...')
+              await initPage()
+          }
+      }, 300)
     
     // 支付按钮点击事件
     document.getElementById('pay-btn').onclick = async () => {
@@ -203,7 +192,7 @@
       }
     }
     
-    // "我已支付"按钮点击事件 - 修复版本
+    // "我已支付"按钮点击事件
     document.getElementById('tip').onclick = async () => {
       if (!orderId) {
         alert('没有找到订单信息')
@@ -211,15 +200,11 @@
       }
       
       console.log('手动检查支付状态，订单ID:', orderId)
-      
-      // 这里需要调用 pollOrder 函数获取支付状态
-      const paid = await pollOrder(orderId, plan)  // 添加这行
+      const paid = await pollOrder(orderId, plan)
       
       if (paid) {
         const membershipName = plan === 'month' ? '基础版' : '尊享版'
         alert(`支付成功！您已成为${membershipName}会员`)
-        
-        // 立即跳转
         performRedirect()
       } else {
         alert('暂未检测到支付，请稍候或刷新页面重试')

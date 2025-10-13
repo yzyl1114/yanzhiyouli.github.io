@@ -558,3 +558,35 @@ body {
 
 /* 3. 会员页/自定义页统一圆角按钮 */
 button{border-radius:6px;transition:.2s}button:hover{transform:translateY(-1px)}
+
+/* 会员购买页面卡片选中样式 - 修复边框显示问题 */
+.card.active {
+    border-color: #4a6bff !important;
+    background: #f6f9ff !important;
+    box-shadow: 0 0 0 2px #4a6bff !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+
+.card.halfyear.active {
+    border-color: #ff6a00 !important;
+    background: #fff9f0 !important;
+    box-shadow: 0 0 0 2px #ff6a00 !important;
+    border-width: 2px !important;
+    border-style: solid !important;
+}
+
+/* 确保卡片基础样式 */
+.card {
+    border: 2px solid #e0e0e0 !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    border-style: solid !important;
+}
+
+.card:hover {
+    border-color: #4a6bff !important;
+    transform: translateY(-2px) !important;
+}

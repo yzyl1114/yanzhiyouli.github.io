@@ -1,34 +1,65 @@
 import { supabase } from './supabase.js'
+import { getCurrentUser } from './member.js'
 
-// 新建目标 - 修复版本
+// 新建目标 - 增强会员验证版本
 export async function createCustomGoal({ name, date, category }) {
-  // 获取当前用户
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) {
-    alert('用户未登录')
-    return null
-  }
+  try {
+    // 获取当前用户完整信息
+    const user = await getCurrentUser()
+    if (!user) {
+      alert('用户未登录')
+      return null
+    }
 
-  const { data, error } = await supabase
-    .from('custom_goals')
-    .insert([{ 
-      name, 
-      date, 
-      category,
-      user_id: user.id  // 添加用户ID关联
-    }])
-    .select()
-    .single()
+    // 严格检查会员状态
+    const now = new Date()
+    const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now
+    const isValidMember = user.is_member && !isMemberExpired
     
-  if (error) {
-    alert('创建失败：' + error.message)
-    console.error('完整错误:', error)
+    if (!isValidMember) {
+      alert('请先开通会员才能创建自定义目标')
+      window.location.href = 'member-buy.html'
+      return null
+    }
+
+    // 检查目标数量限制
+    const existingGoals = await getMyCustomGoals()
+    const maxGoals = user.member_plan === 'month' ? 3 : 5
+    
+    if (existingGoals.length >= maxGoals) {
+      alert(`会员目标数量已达上限（${maxGoals}个），无法创建新目标`)
+      return null
+    }
+
+    const { data, error } = await supabase
+      .from('custom_goals')
+      .insert([{ 
+        name, 
+        date, 
+        category,
+        user_id: user.id
+      }])
+      .select()
+      .single()
+      
+    if (error) {
+      alert('创建失败：' + error.message)
+      console.error('完整错误:', error)
+      return null
+    }
+    
+    alert('创建成功！')
+    window.location.reload()
+    return data
+    
+  } catch (error) {
+    console.error('创建自定义目标异常:', error)
+    alert('创建失败: ' + error.message)
     return null
   }
-  return data
 }
 
-// 删除目标 - 修复版本
+// 删除目标 - 修复版本（保持不变）
 export async function deleteCustomGoal(id) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
@@ -41,11 +72,11 @@ export async function deleteCustomGoal(id) {
     
   if (error) {
     console.error('删除失败:', error)
-    throw error // 添加这行，让调用方知道删除失败
+    throw error
   }
 }
 
-// 编辑目标 - 修复版本
+// 编辑目标 - 修复版本（保持不变）
 export async function updateCustomGoal(id, updates) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return
@@ -54,7 +85,7 @@ export async function updateCustomGoal(id, updates) {
     .from('custom_goals')
     .update(updates)
     .eq('id', id)
-    .eq('user_id', user.id)  // 确保只能更新自己的目标
+    .eq('user_id', user.id)
     
   if (error) {
     console.error('更新失败:', error)
@@ -62,7 +93,7 @@ export async function updateCustomGoal(id, updates) {
   }
 }
 
-// 获取我的自定义目标 - 修复版本
+// 获取我的自定义目标 - 修复版本（保持不变）
 export async function getMyCustomGoals() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
@@ -70,7 +101,7 @@ export async function getMyCustomGoals() {
   const { data, error } = await supabase
     .from('custom_goals')
     .select('*')
-    .eq('user_id', user.id)  // 只获取当前用户的目标
+    .eq('user_id', user.id)
     .order('date', { ascending: true })
     
   if (error) {

@@ -134,7 +134,7 @@ async function updateUserMembership(plan) {
         }
 
         console.log('✅ 用户认证成功，用户ID:', user.id)
-
+        
         // 获取用户当前会员信息
         const { data: currentProfile, error: fetchError } = await supabase
             .from('profiles')

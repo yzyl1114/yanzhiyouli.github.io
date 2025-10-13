@@ -64,24 +64,18 @@
           // 清除所有卡片的active状态
           document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
           
-          // 根据用户当前会员状态智能选择
-          if (user && user.is_member) {
-              if (user.member_plan === 'month') {
-                  // 基础版会员默认选择尊享版
-                  plan = 'halfyear'
-                  document.querySelector('.card.halfyear').classList.add('active')
-                  console.log('基础版会员，默认选择尊享版')
-              } else {
-                  // 尊享版会员不会进入购买页，这里作为保护
-                  plan = 'month'
-                  document.querySelector('.card.month').classList.add('active')
-                  console.log('尊享版会员，默认选择基础版（保护逻辑）')
-              }
+          // 简化逻辑：非会员和尊享版会员都默认选择基础版
+          // 只有基础版会员才默认选择尊享版
+          if (user && user.is_member && user.member_plan === 'month') {
+              // 基础版会员默认选择尊享版（用于升级）
+              plan = 'halfyear'
+              document.querySelector('.card.halfyear').classList.add('active')
+              console.log('基础版会员，默认选择尊享版（升级）')
           } else {
-              // 非会员默认选择基础版
+              // 非会员、尊享版会员、或查询失败都默认选择基础版
               plan = 'month'
               document.querySelector('.card.month').classList.add('active')
-              console.log('非会员，默认选择基础版')
+              console.log('非会员/尊享版会员，默认选择基础版')
           }
           
           updatePayButtonText()

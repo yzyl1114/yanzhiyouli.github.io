@@ -33,18 +33,36 @@ export async function getUser() {
     if (error) {
       console.error('获取用户资料失败:', error)
       
-      // 如果查询失败，返回基础用户信息
+      // 如果查询失败，尝试从本地存储获取会员状态
+      const localMembership = localStorage.getItem('user_membership')
+      if (localMembership) {
+        try {
+          const membership = JSON.parse(localMembership)
+          return {
+            id: user.id,
+            username: user.user_metadata?.user_name || '用户',
+            avatar_url: user.user_metadata?.avatar_url || 'images/default-avatar.png',
+            is_member: membership.isMember || false,
+            member_plan: membership.plan || null,
+            member_expires_at: membership.expires ? new Date(membership.expires) : null
+          }
+        } catch (e) {
+          console.error('解析本地会员状态失败:', e)
+        }
+      }
+      
+      // 如果连本地存储都没有，返回非会员状态
       return {
         id: user.id,
         username: user.user_metadata?.user_name || '用户',
         avatar_url: user.user_metadata?.avatar_url || 'images/default-avatar.png',
-        is_member: false, // 默认非会员
+        is_member: false,
         member_plan: null,
         member_expires_at: null
       }
     }
     
-    // 修复：处理可能不存在的字段
+    // 正常返回数据库中的用户资料
     return {
       id: profile.id,
       username: profile.username || user.user_metadata?.user_name || '用户',

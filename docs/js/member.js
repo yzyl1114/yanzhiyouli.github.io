@@ -213,3 +213,38 @@ function setLocalMembership(plan) {
         window.userMembership = membership
     }
 }
+
+// 清理会员状态（用于测试或管理）
+export async function clearMembership() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return false
+
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                is_member: false,
+                member_plan: null,
+                member_expires_at: null,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id)
+
+        if (error) {
+            console.error('清理会员状态失败:', error)
+            return false
+        }
+
+        // 同时清理本地存储
+        localStorage.removeItem('user_membership')
+        if (window.userMembership) {
+            window.userMembership = null
+        }
+        
+        console.log('会员状态已清理')
+        return true
+    } catch (error) {
+        console.error('清理会员状态异常:', error)
+        return false
+    }
+}

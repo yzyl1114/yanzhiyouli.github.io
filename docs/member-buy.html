@@ -60,6 +60,9 @@
     async function initPage() {
         const user = await getUser()
         
+        // 清除所有卡片的active状态
+        document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+        
         // 根据用户当前会员状态智能选择
         if (user && user.is_member) {
             if (user.member_plan === 'month') {
@@ -67,7 +70,7 @@
                 plan = 'halfyear'
                 document.querySelector('.card.halfyear').classList.add('active')
             } else {
-                // 尊享版会员或非会员默认选择基础版
+                // 尊享版会员默认选择基础版
                 plan = 'month'
                 document.querySelector('.card.month').classList.add('active')
             }

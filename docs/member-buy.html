@@ -58,28 +58,72 @@
 
       // 初始化页面
       async function initPage() {
-          const user = await getUser()
-          console.log('当前用户状态:', user) // 调试信息
-          
-          // 清除所有卡片的active状态
-          document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
-          
-          // 简化逻辑：非会员和尊享版会员都默认选择基础版
-          // 只有基础版会员才默认选择尊享版
-          if (user && user.is_member && user.member_plan === 'month') {
-              // 基础版会员默认选择尊享版（用于升级）
-              plan = 'halfyear'
-              document.querySelector('.card.halfyear').classList.add('active')
-              console.log('基础版会员，默认选择尊享版（升级）')
-          } else {
-              // 非会员、尊享版会员、或查询失败都默认选择基础版
+          try {
+              const user = await getUser()
+              console.log('当前用户状态:', user) // 调试信息
+              
+              // 清除所有卡片的active状态
+              document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+              
+              // 简化逻辑：非会员和尊享版会员都默认选择基础版
+              // 只有基础版会员才默认选择尊享版
+              if (user && user.is_member && user.member_plan === 'month') {
+                  // 基础版会员默认选择尊享版（用于升级）
+                  plan = 'halfyear'
+                  const halfyearCard = document.querySelector('.card.halfyear')
+                  if (halfyearCard) {
+                      halfyearCard.classList.add('active')
+                      console.log('基础版会员，默认选择尊享版（升级）')
+                  }
+              } else {
+                  // 非会员、尊享版会员、或查询失败都默认选择基础版
+                  plan = 'month'
+                  const monthCard = document.querySelector('.card.month')
+                  if (monthCard) {
+                      monthCard.classList.add('active')
+                      console.log('非会员/尊享版会员，默认选择基础版')
+                  }
+              }
+              
+              updatePayButtonText()
+              
+              // 添加视觉确认
+              console.log('当前选中计划:', plan)
+              console.log('激活的卡片:', document.querySelector('.card.active'))
+          } catch (error) {
+              console.error('初始化页面失败:', error)
+              // 出错时默认选择基础版
               plan = 'month'
-              document.querySelector('.card.month').classList.add('active')
-              console.log('非会员/尊享版会员，默认选择基础版')
+              const monthCard = document.querySelector('.card.month')
+              if (monthCard) monthCard.classList.add('active')
+              updatePayButtonText()
           }
-          
-          updatePayButtonText()
       }
+
+      // 页面加载时初始化 - 使用多种方式确保执行
+      document.addEventListener('DOMContentLoaded', async () => {
+          console.log('DOM加载完成，开始初始化...')
+          await initPage()
+      })
+
+      // 备用初始化方式
+      window.addEventListener('load', async () => {
+          console.log('页面完全加载，检查初始化状态...')
+          // 如果没有激活的卡片，重新初始化
+          if (!document.querySelector('.card.active')) {
+              console.log('未检测到激活卡片，重新初始化...')
+              await initPage()
+          }
+      })
+
+      // 延迟检查
+      setTimeout(async () => {
+          console.log('延迟检查初始化状态...')
+          if (!document.querySelector('.card.active')) {
+              console.log('延迟检查：未检测到激活卡片，强制初始化...')
+              await initPage()
+          }
+      }, 500)
 
       // 更新支付按钮文案
       function updatePayButtonText() {

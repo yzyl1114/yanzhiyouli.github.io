@@ -275,22 +275,77 @@
           setTimeout(()=>document.addEventListener('click',close),0);
       }
 
-      // 在 index.html 的主脚本中添加
-      async function checkMembershipExpiry() {
-          const user = await getUser()
-          if (user && user.is_member && user.member_expires_at) {
-              const now = new Date()
-              const expiry = new Date(user.member_expires_at)
-              
-              if (expiry < now) {
-                  console.log('会员已过期，自动清理...')
-                  // 这里可以调用一个API来清理目标，或者在前端提示
+      // 在 index.html 的主脚本末尾添加
+      async function checkAndCleanupExpiredMembership() {
+          try {
+              const user = await getUser()
+              if (user && user.is_member && user.member_expires_at) {
+                  const now = new Date()
+                  const expiry = new Date(user.member_expires_at)
+                  
+                  if (expiry < now) {
+                      console.log('检测到会员已过期，开始清理...')
+                      
+                      // 1. 更新数据库中的会员状态
+                      const { error: updateError } = await supabase
+                          .from('profiles')
+                          .update({
+                              is_member: false,
+                              member_plan: null,
+                              member_expires_at: null,
+                              updated_at: new Date().toISOString()
+                          })
+                          .eq('id', user.id)
+                      
+                      if (updateError) {
+                          console.error('更新会员状态失败:', updateError)
+                          return
+                      }
+                      
+                      // 2. 删除自定义目标
+                      const { data: goals, error: goalsError } = await supabase
+                          .from('custom_goals')
+                          .select('id')
+                          .eq('user_id', user.id)
+                          
+                      if (goalsError) {
+                          console.error('查询自定义目标失败:', goalsError)
+                          return
+                      }
+                      
+                      if (goals && goals.length > 0) {
+                          const { error: deleteError } = await supabase
+                              .from('custom_goals')
+                              .delete()
+                              .eq('user_id', user.id)
+                              
+                          if (deleteError) {
+                              console.error('删除自定义目标失败:', deleteError)
+                          } else {
+                              console.log(`已删除 ${goals.length} 个过期会员的自定义目标`)
+                              // 刷新页面显示最新状态
+                              location.reload()
+                          }
+                      }
+                      
+                      // 3. 清理本地存储
+                      localStorage.removeItem('user_membership')
+                      if (window.userMembership) {
+                          window.userMembership = null
+                      }
+                      
+                      console.log('会员过期清理完成')
+                  }
               }
+          } catch (error) {
+              console.error('检查会员过期状态失败:', error)
           }
       }
-
       // 页面加载时检查
-      checkMembershipExpiry()
+      checkAndCleanupExpiredMembership()
+      // 每5分钟检查一次（生产环境可以调整频率）
+      setInterval(checkAndCleanupExpiredMembership, 5 * 60 * 1000)
+
   </script>
 </body>
 </html>

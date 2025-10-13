@@ -129,11 +129,14 @@ async function updateUserMembership(plan) {
         
         const { data: { user }, error: userError } = await supabase.auth.getUser()
         if (userError || !user) {
-            console.log('❌ 用户认证失败，无法更新会员状态')
+            console.log('❌ 用户认证失败，无法更新会员状态:', userError)
             return false
         }
 
         console.log('✅ 用户认证成功，用户ID:', user.id)
+        
+        // 强制等待一下确保DOM就绪
+        await new Promise(resolve => setTimeout(resolve, 100))
         
         // 获取用户当前会员信息
         const { data: currentProfile, error: fetchError } = await supabase

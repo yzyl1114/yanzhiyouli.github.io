@@ -274,6 +274,23 @@
           const close=e=>{if(!e.target.closest('#user-popup')){pop.remove(); document.removeEventListener('click',close);}};
           setTimeout(()=>document.addEventListener('click',close),0);
       }
+
+      // 在 index.html 的主脚本中添加
+      async function checkMembershipExpiry() {
+          const user = await getUser()
+          if (user && user.is_member && user.member_expires_at) {
+              const now = new Date()
+              const expiry = new Date(user.member_expires_at)
+              
+              if (expiry < now) {
+                  console.log('会员已过期，自动清理...')
+                  // 这里可以调用一个API来清理目标，或者在前端提示
+              }
+          }
+      }
+
+      // 页面加载时检查
+      checkMembershipExpiry()
   </script>
 </body>
 </html>

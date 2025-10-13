@@ -138,14 +138,26 @@ async function updateUserMembership(plan) {
         // 获取用户当前会员信息
         const { data: currentProfile, error: fetchError } = await supabase
             .from('profiles')
-            .select('member_expires_at, member_plan')
+            .select('member_expires_at, member_plan, is_member')
             .eq('id', user.id)
             .single()
+
+        // 检查会员状态变化：从会员变成非会员时清理目标
+        if (currentProfile && currentProfile.is_member) {
+            const now = new Date()
+            const currentExpiry = currentProfile.member_expires_at ? new Date(currentProfile.member_expires_at) : null
+            
+            // 如果当前会员已过期，清理目标
+            if (currentExpiry && currentExpiry < now) {
+                console.log('检测到会员已过期，清理自定义目标...')
+                await cleanupExpiredMembership(user.id)
+            }
+        }
 
         let expiryDate
         const now = new Date()
         
-        // 计算新的到期时间
+        // 计算新的到期时间（续期逻辑保持不变）
         if (currentProfile && currentProfile.member_expires_at && 
             new Date(currentProfile.member_expires_at) > now) {
             // 已有会员，在现有基础上续期
@@ -246,5 +258,36 @@ export async function clearMembership() {
     } catch (error) {
         console.error('清理会员状态异常:', error)
         return false
+    }
+}
+
+async function cleanupExpiredMembership(userId) {
+    try {
+        console.log('检查并清理过期会员的自定义目标...')
+        
+        const { data: goals, error } = await supabase
+            .from('custom_goals')
+            .select('id')
+            .eq('user_id', userId)
+            
+        if (error) {
+            console.error('查询自定义目标失败:', error)
+            return
+        }
+        
+        if (goals && goals.length > 0) {
+            const { error: deleteError } = await supabase
+                .from('custom_goals')
+                .delete()
+                .eq('user_id', userId)
+                
+            if (deleteError) {
+                console.error('删除自定义目标失败:', deleteError)
+            } else {
+                console.log(`已删除 ${goals.length} 个自定义目标`)
+            }
+        }
+    } catch (error) {
+        console.error('清理会员目标异常:', error)
     }
 }

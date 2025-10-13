@@ -51,59 +51,65 @@
   </div>
 
   <script type="module">
-    import { createOrder, pollOrder } from './js/member.js'
-    import { getUser } from './js/auth.js'
-        
-    let plan = 'month', orderId
+      import { createOrder, pollOrder } from './js/member.js'
+      import { getUser } from './js/auth.js'
+          
+      let plan = 'month', orderId
 
-    // 初始化页面
-    async function initPage() {
-        const user = await getUser()
-        
-        // 清除所有卡片的active状态
-        document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
-        
-        // 根据用户当前会员状态智能选择
-        if (user && user.is_member) {
-            if (user.member_plan === 'month') {
-                // 基础版会员默认选择尊享版
-                plan = 'halfyear'
-                document.querySelector('.card.halfyear').classList.add('active')
-            } else {
-                // 尊享版会员默认选择基础版
-                plan = 'month'
-                document.querySelector('.card.month').classList.add('active')
-            }
-        } else {
-            // 非会员默认选择基础版
-            plan = 'month'
-            document.querySelector('.card.month').classList.add('active')
-        }
-        
-        updatePayButtonText()
-    }
+      // 初始化页面
+      async function initPage() {
+          const user = await getUser()
+          console.log('当前用户状态:', user) // 调试信息
+          
+          // 清除所有卡片的active状态
+          document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+          
+          // 根据用户当前会员状态智能选择
+          if (user && user.is_member) {
+              if (user.member_plan === 'month') {
+                  // 基础版会员默认选择尊享版
+                  plan = 'halfyear'
+                  document.querySelector('.card.halfyear').classList.add('active')
+                  console.log('基础版会员，默认选择尊享版')
+              } else {
+                  // 尊享版会员不会进入购买页，这里作为保护
+                  plan = 'month'
+                  document.querySelector('.card.month').classList.add('active')
+                  console.log('尊享版会员，默认选择基础版（保护逻辑）')
+              }
+          } else {
+              // 非会员默认选择基础版
+              plan = 'month'
+              document.querySelector('.card.month').classList.add('active')
+              console.log('非会员，默认选择基础版')
+          }
+          
+          updatePayButtonText()
+      }
 
-    // 更新支付按钮文案
-    function updatePayButtonText() {
-        const payBtn = document.getElementById('pay-btn')
-        if (plan === 'month') {
-            payBtn.textContent = '¥6 微信支付'
-        } else {
-            payBtn.textContent = '¥19 微信支付'
-        }
-    }
+      // 更新支付按钮文案
+      function updatePayButtonText() {
+          const payBtn = document.getElementById('pay-btn')
+          if (plan === 'month') {
+              payBtn.textContent = '¥6 微信支付'
+          } else {
+              payBtn.textContent = '¥19 微信支付'
+          }
+      }
 
-    // 初始化卡片选择
-    document.querySelectorAll('.card').forEach(c => c.onclick = () => {
-        document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
-        c.classList.add('active')
-        plan = c.dataset.plan
-        console.log('选择套餐:', plan)
-        updatePayButtonText()
-    })
+      // 初始化卡片选择
+      document.querySelectorAll('.card').forEach(c => c.onclick = () => {
+          document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
+          c.classList.add('active')
+          plan = c.dataset.plan
+          console.log('选择套餐:', plan)
+          updatePayButtonText()
+      })
 
-    // 页面加载时初始化
-    initPage()
+      // 页面加载时初始化 - 确保在DOM加载完成后执行
+      document.addEventListener('DOMContentLoaded', async () => {
+          await initPage()
+      })
     
     // 支付按钮点击事件
     document.getElementById('pay-btn').onclick = async () => {

@@ -159,7 +159,7 @@
       const plus = document.createElement('div');
       plus.className='entry-item custom-plus';
       plus.innerHTML=`<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
-      plus.onclick=(e)=>{
+      plus.onclick=async (e)=>{
           e.stopPropagation();
           console.log('点击自定义目标，用户状态:', user);
           if(!user){ 
@@ -171,6 +171,23 @@
               document.getElementById('btn-open-pay').click(); 
               return; 
           }
+          
+          // 检查目标数量限制
+          const currentGoals = await getMyCustomGoals();
+          const maxGoals = user.member_plan === 'month' ? 3 : 5;
+          
+          console.log(`当前目标数: ${currentGoals.length}, 最大限制: ${maxGoals}, 会员类型: ${user.member_plan}`);
+          
+          if (currentGoals.length >= maxGoals) {
+              if (user.member_plan === 'month') {
+                  alert('升级尊享版会员，创建更多目标');
+                  document.getElementById('btn-open-pay').click();
+              } else {
+                  alert('自定义目标已达最多限制，可删除旧目标后新建');
+              }
+              return;
+          }
+          
           console.log('会员，打开新建目标');
           document.getElementById('btn-open-new').click();
       };
@@ -181,14 +198,34 @@
           const item=document.createElement('div');
           item.className='entry-item custom-goal';
           item.style.position='relative';
+          
+          // 根据分类选择图片
+          let imageSrc = 'images/custom-plus.jpg'; // 默认图片
+          switch(g.category) {
+              case 'work':
+                  imageSrc = 'images/work.png';
+                  break;
+              case 'life':
+                  imageSrc = 'images/life.png';
+                  break;
+              case 'other':
+                  imageSrc = 'images/others.png';
+                  break;
+              case 'exam':
+              default:
+                  imageSrc = 'images/custom-plus.jpg';
+          }
+          
           item.innerHTML=`
-              <img src="images/custom-plus.jpg" class="entry-image">
+              <img src="${imageSrc}" class="entry-image" onerror="this.src='images/custom-plus.jpg'">
               <h3 class="entry-title">${g.name}</h3>
-              <i class="edit-icon" style="display:none;position:absolute;top:6px;left:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
-              <i class="del-icon"  style="display:none;position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>`;
+              <div class="custom-goal-actions" style="display:none;position:absolute;top:6px;right:6px;display:flex;gap:4px;">
+                  <i class="edit-icon" style="background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
+                  <i class="del-icon" style="background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>
+              </div>`;
           item.onclick=()=> location.href=`countdown.html?custom=${g.id}`;
-          item.onmouseenter=()=> item.querySelectorAll('i').forEach(i=>i.style.display='inline-block');
-          item.onmouseleave=()=> item.querySelectorAll('i').forEach(i=>i.style.display='none');
+          item.onmouseenter=()=> item.querySelector('.custom-goal-actions').style.display='flex';
+          item.onmouseleave=()=> item.querySelector('.custom-goal-actions').style.display='none';
           item.querySelector('.edit-icon').onclick=e=>{
               e.stopPropagation();
               const btn=document.getElementById('btn-open-edit');

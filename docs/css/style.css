@@ -121,6 +121,38 @@ body {
     font-weight: bold;
 }
 
+/* 自定义目标操作按钮样式 */
+.custom-goal-actions {
+    display: none !important;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    gap: 4px;
+}
+
+.custom-goal:hover .custom-goal-actions {
+    display: flex !important;
+}
+
+.edit-icon, .del-icon {
+    background: rgba(0,0,0,.5);
+    color: #fff;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.edit-icon:hover, .del-icon:hover {
+    background: rgba(0,0,0,.7);
+}
+
+/* 自定义目标页日期时间输入框 */
+.date-row input {
+    display: block !important;
+}
+
 /* 备案及联系方式样式 */
 .footer {
     text-align: center;

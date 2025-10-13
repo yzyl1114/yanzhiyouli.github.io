@@ -235,8 +235,13 @@
           item.querySelector('.del-icon').onclick=async e=>{
               e.stopPropagation();
               if(!confirm('确定删除？')) return;
-              await deleteCustomGoal(g.id);
-              location.reload();
+              try {
+                  await deleteCustomGoal(g.id);
+                  alert('已删除');
+                  location.reload();
+              } catch (error) {
+                  alert('删除失败，请重试');
+              }
           };
           grid.appendChild(item);
       }

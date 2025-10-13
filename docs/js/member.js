@@ -127,13 +127,7 @@ async function updateUserMembership(plan) {
     try {
         console.log('=== 开始更新会员状态 ===')
         
-        // 1. 检查用户认证状态
         const { data: { user }, error: userError } = await supabase.auth.getUser()
-        console.log('用户认证状态:', { 
-            user: user ? { id: user.id, email: user.email } : null, 
-            error: userError 
-        })
-        
         if (userError || !user) {
             console.log('❌ 用户认证失败，无法更新会员状态')
             return false
@@ -141,21 +135,42 @@ async function updateUserMembership(plan) {
 
         console.log('✅ 用户认证成功，用户ID:', user.id)
 
-        // 2. 计算到期时间
-        const expiryDate = getExpiryDate(plan)
-        console.log('会员到期时间:', expiryDate)
+        // 获取用户当前会员信息
+        const { data: currentProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('member_expires_at, member_plan')
+            .eq('id', user.id)
+            .single()
 
-        // 3. 准备更新数据
+        let expiryDate
+        const now = new Date()
+        
+        // 计算新的到期时间
+        if (currentProfile && currentProfile.member_expires_at && 
+            new Date(currentProfile.member_expires_at) > now) {
+            // 已有会员，在现有基础上续期
+            const currentExpiry = new Date(currentProfile.member_expires_at)
+            const extensionDays = plan === 'month' ? 30 : 180
+            expiryDate = new Date(currentExpiry.getTime() + extensionDays * 24 * 60 * 60 * 1000)
+            console.log('会员续期，原到期时间:', currentExpiry, '新到期时间:', expiryDate)
+        } else {
+            // 新会员或已过期，从当前时间开始
+            const days = plan === 'month' ? 30 : 180
+            expiryDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
+            console.log('新开通会员，到期时间:', expiryDate)
+        }
+
+        console.log('会员到期时间:', expiryDate.toISOString())
+
+        // 准备更新数据
         const updateData = {
             is_member: true,
             member_plan: plan,
-            member_expires_at: expiryDate,
+            member_expires_at: expiryDate.toISOString(),
             updated_at: new Date().toISOString()
         }
-        console.log('准备更新的数据:', updateData)
 
-        // 4. 执行更新
-        console.log('正在更新数据库...')
+        // 更新数据库
         const { data, error } = await supabase
             .from('profiles')
             .update(updateData)
@@ -164,7 +179,6 @@ async function updateUserMembership(plan) {
 
         if (error) {
             console.error('❌ 数据库更新失败:', error)
-            console.error('完整错误详情:', JSON.stringify(error, null, 2))
             return false
         }
 
@@ -185,6 +199,7 @@ function getExpiryDate(plan) {
 
 // 设置本地会员状态（确保即使数据库更新失败也有反馈）
 function setLocalMembership(plan) {
+    // 这里可以保持简单，因为主要逻辑在数据库更新中
     const membership = {
         plan: plan,
         expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
@@ -194,7 +209,6 @@ function setLocalMembership(plan) {
     localStorage.setItem('user_membership', JSON.stringify(membership))
     console.log('本地会员状态已设置:', membership)
     
-    // 同时更新全局状态（如果存在）
     if (window.userMembership) {
         window.userMembership = membership
     }

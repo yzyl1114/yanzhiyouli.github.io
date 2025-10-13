@@ -65,17 +65,26 @@
       document.getElementById('time').value=d.format('HH:mm')
     }
     document.getElementById('confirm').onclick=async()=>{
-      const name=document.getElementById('name').value.trim()
-      const date=document.getElementById('date').value
-      const time=document.getElementById('time').value
-      const category=document.getElementById('category').value
-      if(!name){alert('请输入目标名称');return}
-      const dt=dayjs(date+' '+time)
-      if(dt.isBefore(dayjs())){alert('请选择未来的时间');return}
-      if(goal) await updateCustomGoal(goal.id,{name,date:dt.toISOString(),category})
-      else await createCustomGoal({name,date:dt.toISOString(),category})
-      window.opener?.location?.reload?window.opener.location.reload():null
-      window.open('index.html','_self')
+        const name=document.getElementById('name').value.trim()
+        const date=document.getElementById('date').value
+        const time=document.getElementById('time').value
+        const category=document.getElementById('category').value
+        if(!name){alert('请输入目标名称');return}
+        const dt=dayjs(date+' '+time)
+        if(dt.isBefore(dayjs())){alert('请选择未来的时间');return}
+        try {
+            if(goal) {
+                await updateCustomGoal(goal.id,{name,date:dt.toISOString(),category})
+                alert('目标更新成功')
+            } else {
+                await createCustomGoal({name,date:dt.toISOString(),category})
+                alert('目标创建成功')
+            }
+            window.opener?.location?.reload?.()
+            window.open('index.html','_self')
+        } catch (error) {
+            alert('操作失败，请重试')
+        }
     }
   </script>
 </body>

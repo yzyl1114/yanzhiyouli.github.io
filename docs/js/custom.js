@@ -37,10 +37,11 @@ export async function deleteCustomGoal(id) {
     .from('custom_goals')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id)  // 确保只能删除自己的目标
+    .eq('user_id', user.id)
     
   if (error) {
     console.error('删除失败:', error)
+    throw error // 添加这行，让调用方知道删除失败
   }
 }
 

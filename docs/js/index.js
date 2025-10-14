@@ -416,6 +416,8 @@ async function initHomePage() {
 
         // 6. 绑定事件
         document.querySelectorAll(".close-modal").forEach(closeBtn => {
+        // 6. 绑定事件
+        document.querySelectorAll(".close-modal").forEach(closeBtn => {
             closeBtn.addEventListener("click", () => {
                 document.querySelectorAll(".modal").forEach(modal => {
                     modal.style.display = "none";
@@ -430,6 +432,11 @@ async function initHomePage() {
                 }
             });
         });
+
+        // ① 立即执行一次会员过期检查 & 清理
+        await monitorMembershipStatus();
+        // ② 每 60 秒轮询一次（可自己改）
+        setInterval(monitorMembershipStatus, 60_000);
 
         console.log('首页初始化完成');
 

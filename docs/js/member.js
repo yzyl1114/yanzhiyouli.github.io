@@ -54,23 +54,30 @@ export async function createOrder(plan) {
   }
 }
 
-// 降级方案
 async function createOrderFallback(plan) {
   try {
-    const response = await fetch('https://tczipjdwbjmvkkdxogml.supabase.co/functions/v1/payment-public', {
+    // ===== 环境切换开关 =====
+    // 测试环境（GitHub Pages）
+    const TEST_MODE = false;   // ←  true = 测试，false = 正式
+    const FUNC_URL = TEST_MODE
+      ? 'https://tczipjdwbjmvkkdxogml.supabase.co/functions/v1/payment-public'   // 测试函数
+      : 'https://goalcountdown.com/api/payment-prod'                              // 正式函数（Nginx 反代）
+
+    const response = await fetch(FUNC_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({plan: plan, user_id: 'user-' + Date.now()})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: plan, user_id: 'user-' + Date.now() })
     })
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-    
+
     const data = await response.json()
-    console.log('降级方案成功:', data)
+    console.log(TEST_MODE ? '测试支付成功' : '正式支付成功', data)
     return data
-    
+
   } catch (error) {
-    console.error('降级方案失败:', error)
+    console.error('支付请求失败:', error)
+    // 兜底：返回测试码（无论测试/正式都兜底）
     return {
       qr_url: 'https://yzyl1114.github.io/yanzhiyouli.github.io/images/test-wechat-pay.png',
       order_id: 'test-order-' + Date.now(),

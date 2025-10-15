@@ -108,14 +108,12 @@
           }else{
               avatar.src = 'images/default-avatar.png';
               // 未登录用户点击头像执行登录
-              avatar.onclick = async (e) => {
+              avatar.onclick = (e) => {
                   e.stopPropagation();
                   console.log('点击头像，用户未登录');
-                  await supabase.auth.signInWithOAuth({
-                      provider:'github',
-                      options:{ redirectTo: location.origin + location.pathname }
-                  });
-              };
+                    // ===== 微信扫码登录（正式环境）=====
+                  window.location.href='https://open.weixin.qq.com/connect/qrconnect?appid=wxd4e5f7a42fa74524&redirect_uri=https://goalcountdown.com/api/wechat-login&response_type=code&scope=snsapi_login&state=123#wechat_redirect';
+                };
           }
           avatar.style.display = 'block';
           return user;

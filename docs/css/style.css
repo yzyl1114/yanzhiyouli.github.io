@@ -57,6 +57,29 @@ body {
     object-fit: cover;
 }
 
+/* 用户栏样式 */
+.user-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 20px;
+}
+
+.user-popup {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    padding: 16px;
+    z-index: 1000;
+    min-width: 200px;
+    border: 1px solid #eee;
+}
+
 /* 倒计时入口样式 */
 .countdown-entries {
     padding: 20px 50px;

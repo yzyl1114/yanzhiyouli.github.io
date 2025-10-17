@@ -1,7 +1,6 @@
-import { getUser, logout } from './auth.js'
-import { getMyCustomGoals, createCustomGoal, deleteCustomGoal } from './custom.js'
+import { getUser, logout, loginWechat } from './auth.js'  // 添加 loginWechat 导入
+import { getMyCustomGoals, createCustomGoal, deleteCustomGoal, updateCustomGoal } from './custom.js'
 import { checkMembershipAndCleanup, getCurrentUser } from './member.js'
-// 引入考试数据
 import { exams } from './exams.js';
 
 // 确保 moment 和 moment-timezone 在全局范围内可用
@@ -78,24 +77,25 @@ function showActivityModal() {
 
 // 渲染导航栏右侧头像/登录入口
 function renderUserBar(user) {
-    // 先移除现有的用户栏
-    const existingUserBar = document.querySelector('.user-bar');
-    if (existingUserBar) {
-        existingUserBar.remove();
-    }
+    const container = document.getElementById('user-bar-container');
+    if (!container) return;
 
-    const dateContainer = document.querySelector('.date-container');
+    // 清空容器
+    container.innerHTML = '';
+
     const wrap = document.createElement('div');
     wrap.className = 'user-bar';
-    wrap.style.marginLeft = 'auto';
-    wrap.style.marginRight = '20px';
-    wrap.style.cursor = 'pointer';
-    wrap.style.display = 'flex';
-    wrap.style.alignItems = 'center';
-    wrap.style.gap = '10px';
+    wrap.style.cssText = `
+        margin-left: auto;
+        margin-right: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
 
     if (user) {
-        // 已登录 - 显示会员状态和头像
+        // 已登录用户的显示逻辑（保持原样）
         let userStatus = '普通用户';
         let statusStyle = 'color: #666; font-size: 12px;';
         
@@ -110,7 +110,6 @@ function renderUserBar(user) {
                 userStatus = user.member_plan === 'month' ? '基础版会员' : '尊享版会员';
                 statusStyle = 'color: #4a6bff; font-size: 12px;';
                 
-                // 显示剩余天数
                 if (expiryDate) {
                     const daysLeft = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
                     userStatus += ` (${daysLeft}天)`;
@@ -128,7 +127,7 @@ function renderUserBar(user) {
         `;
         wrap.onclick = () => toggleUserPopup(user);
     } else {
-        // 未登录
+        // 未登录用户的显示逻辑
         wrap.innerHTML = `
             <div style="text-align: right;">
                 <div style="font-size: 14px; font-weight: 500;">未登录</div>
@@ -140,7 +139,7 @@ function renderUserBar(user) {
         wrap.onclick = () => loginWechat();
     }
     
-    dateContainer.after(wrap);
+    container.appendChild(wrap);
 }
 
 // 切换用户弹窗
@@ -414,8 +413,6 @@ async function initHomePage() {
         renderCountdownEntries();
         showActivityModal();
 
-        // 6. 绑定事件
-        document.querySelectorAll(".close-modal").forEach(closeBtn => {
         // 6. 绑定事件
         document.querySelectorAll(".close-modal").forEach(closeBtn => {
             closeBtn.addEventListener("click", () => {

@@ -159,10 +159,6 @@ export async function pollOrder(orderId, plan = null) {
     console.log('查询订单异常:', error.message);
     return false;
   }
-} catch (error) {
-    console.log('查询订单异常:', error.message);
-    return false;
-  }
 }
 
 // 更新用户会员状态

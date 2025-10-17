@@ -29,64 +29,59 @@ export async function getCurrentUser() {
     }
 }
 
-// 创建订单 → 返回二维码 URL
+// 创建订单 → 返回二维码 URL - 修复版本：直接调用本地后端
 export async function createOrder(plan) {
+  console.log('创建订单，计划:', plan);
+  
   try {
-    // 方法1：使用 supabase.functions.invoke
-    const { data, error } = await supabase.functions.invoke('payment-public', {
-      body: { 
+    // 直接调用本地后端 API
+    const response = await fetch('/api/payment-prod', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
         plan: plan,
         user_id: 'user-' + Date.now()
-      }
+      })
     })
-    
-    if (error) {
-      console.error('创建订单失败:', error)
-      return await createOrderFallback(plan)
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('创建订单失败 - HTTP错误:', response.status, errorData);
+      throw new Error(errorData.error || errorData.details || `HTTP错误: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log('订单创建成功:', data);
     
-    console.log('订单创建成功:', data)
-    return data
-    
-  } catch (error) {
-    console.error('创建订单异常:', error)
-    return await createOrderFallback(plan)
-  }
-}
-
-async function createOrderFallback(plan) {
-  try {
-    // ===== 环境切换开关 =====
-    // 测试环境（GitHub Pages）
-    const TEST_MODE = false;   // ←  true = 测试，false = 正式
-    const FUNC_URL = TEST_MODE
-      ? 'https://tczipjdwbjmvkkdxogml.supabase.co/functions/v1/payment-public'   // 测试函数
-      : 'https://goalcountdown.com/api/payment-prod'                              // 正式函数（Nginx 反代）
-
-    const response = await fetch(FUNC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ plan: plan, user_id: 'user-' + Date.now() })
-    })
-
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-
-    const data = await response.json()
-    console.log(TEST_MODE ? '测试支付成功' : '正式支付成功', data)
-    return data
-
-  } catch (error) {
-    console.error('支付请求失败:', error)
-    // 兜底：返回测试码（无论测试/正式都兜底）
+    // 转换为前端期望的格式
     return {
-      qr_url: 'https://yzyl1114.github.io/yanzhiyouli.github.io/images/test-wechat-pay.png',
-      order_id: 'test-order-' + Date.now(),
-      test_mode: true
-    }
+      success: true,
+      data: {
+        order_id: data.order_id,
+        qrcode_url: data.qr_url,
+        amount: data.amount,
+        plan: data.plan
+      }
+    };
+
+  } catch (error) {
+    console.error('创建订单异常:', error);
+    
+    // 兜底：返回测试二维码
+    return {
+      success: true,
+      data: {
+        order_id: 'test-order-' + Date.now(),
+        qrcode_url: 'https://yzyl1114.github.io/yanzhiyouli.github.io/images/test-wechat-pay.png',
+        test_mode: true
+      }
+    };
   }
 }
 
-// 轮询订单状态 - 修复版本
+// 轮询订单状态 - 修复版本：使用本地后端API
 export async function pollOrder(orderId, plan = null) {
     console.log('轮询订单:', orderId, '套餐:', plan)
 
@@ -136,32 +131,37 @@ export async function pollOrder(orderId, plan = null) {
         return false
     }
   
-  // 真实订单查询
+  // 真实订单查询 - 使用本地后端API
   try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('status, plan')
-      .eq('id', orderId)
-      .single()
+    const response = await fetch(`/api/payment-status/${orderId}`);
+    const data = await response.json();
     
-    if (error) {
-      console.log('查询订单失败:', error.message)
-      return false
-    }
+    console.log('订单状态查询结果:', data);
     
-    console.log('订单状态:', data?.status)
-    
-    if (data?.status === 'paid') {
+    // 正确处理支付状态：paid 表示成功，pending 表示等待中，其他表示失败
+    if (data.status === 'paid') {
       // 支付成功，设置会员状态
-      setLocalMembership(data.plan)
-      return true
+      if (plan) {
+        await updateUserMembership(plan);
+      }
+      return true;
+    } else if (data.status === 'pending') {
+      // 支付中，继续等待
+      console.log('支付进行中，状态:', data.status);
+      return false;
+    } else {
+      // 支付失败或其他状态
+      console.log('支付失败，状态:', data.status);
+      return false;
     }
-    
-    return false
     
   } catch (error) {
-    console.log('查询订单异常:', error.message)
-    return false
+    console.log('查询订单异常:', error.message);
+    return false;
+  }
+} catch (error) {
+    console.log('查询订单异常:', error.message);
+    return false;
   }
 }
 

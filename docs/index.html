@@ -132,6 +132,77 @@
           return false; // 返回 false 表示没有回调需要处理
       }
 
+      // 渲染用户栏函数
+      function renderUserBar(user) {
+          const container = document.getElementById('user-bar-container');
+          if (!container) {
+              console.error('用户栏容器不存在');
+              return;
+          }
+
+          console.log('渲染用户栏，用户状态:', user);
+          
+          // 清空容器
+          container.innerHTML = '';
+
+          const wrap = document.createElement('div');
+          wrap.className = 'user-bar';
+          wrap.style.cssText = `
+              margin-left: auto;
+              margin-right: 20px;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              background: rgba(0,255,0,0.1); /* 绿色背景用于调试 */
+              padding: 8px 12px;
+              border-radius: 8px;
+              border: 1px solid #ddd;
+          `;
+
+          if (user) {
+              // 已登录用户
+              let userStatus = '普通用户';
+              let statusStyle = 'color: #666; font-size: 12px;';
+              
+              if (user.is_member) {
+                  userStatus = user.member_plan === 'month' ? '基础版会员' : '尊享版会员';
+                  statusStyle = 'color: #4a6bff; font-size: 12px;';
+              }
+              
+              wrap.innerHTML = `
+                  <div style="text-align: right;">
+                      <div style="font-size: 14px; font-weight: 500; color: #333;">${user.username || '用户'}</div>
+                      <div style="${statusStyle}">${userStatus}</div>
+                  </div>
+                  <img src="${user.avatar_url || 'images/default-avatar.png'}" 
+                      style="width:40px;height:40px;border-radius:50%;border: 2px solid ${user.is_member ? '#4a6bff' : '#ddd'};">
+              `;
+              console.log('✅ 已登录用户栏渲染完成');
+          } else {
+              // 未登录用户
+              wrap.innerHTML = `
+                  <div style="text-align: right;">
+                      <div style="font-size: 14px; font-weight: 500; color: #333;">未登录</div>
+                      <div style="color: #666; font-size: 12px;">点击登录</div>
+                  </div>
+                  <img src="images/default-avatar.png" 
+                      style="width:40px;height:40px;border-radius:50%;border: 2px solid #ddd;">
+              `;
+              // 点击事件 - 微信登录
+              wrap.onclick = (e) => {
+                  e.stopPropagation();
+                  console.log('点击登录按钮');
+                  // 微信扫码登录
+                  window.location.href='https://open.weixin.qq.com/connect/qrconnect?appid=wxd4e5f7a42fa74524&redirect_uri=' + encodeURIComponent('https://goalcountdown.com/api/wechat-login') + '&response_type=code&scope=snsapi_login&state=123#wechat_redirect';
+              };
+              console.log('✅ 未登录用户栏渲染完成');
+          }
+          
+          container.appendChild(wrap);
+          console.log('用户栏已添加到容器');
+      }
+
       // 主执行流程
       async function main() {
           console.log('开始主流程...');
@@ -145,6 +216,9 @@
           // 获取用户信息
           const user = await getUser();
           console.log('用户信息:', user);
+
+          // 添加这行代码：渲染用户栏
+          renderUserBar(user);
 
           /* ---- 渲染卡片 ---- */
           const grid = document.querySelector('.entry-grid');

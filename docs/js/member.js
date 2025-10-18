@@ -175,8 +175,9 @@ export async function pollOrder(orderId, plan = null) {
         }
         return false
         */
-    }  // ✅ 这里结束测试订单的if语句
+    }  
     
+    /*
     // 真实订单查询 - 使用本地后端API
     try {
         const response = await fetch(`/api/payment-status/${orderId}`);
@@ -213,7 +214,41 @@ export async function pollOrder(orderId, plan = null) {
         console.log('查询订单异常:', error.message);
         return false;
     }
+
 } // ✅ 添加这行结束 pollOrder 函数
+*/
+
+    // 真实订单查询 - 使用微信支付查询API
+    try {
+        const response = await fetch(`/api/wechat-pay/orderquery/${orderId}`);
+        const data = await response.json();
+        
+        console.log('微信支付状态查询结果:', data);
+        
+        if (data.status === 'paid') {
+            // 支付成功，设置会员状态
+            console.log('✅ 支付成功，开始更新会员状态...');
+            if (plan) {
+                const updateSuccess = await updateUserMembership(plan);
+                console.log('会员状态更新结果:', updateSuccess ? '成功' : '失败');
+            }
+            return true;
+        } else if (data.status === 'pending') {
+            // 支付中，继续等待
+            console.log('支付进行中，状态:', data.wechat_status);
+            return false;
+        } else {
+            // 支付失败或其他状态
+            console.log('支付失败，状态:', data.status);
+            return false;
+        }
+        
+    } catch (error) {
+        console.log('查询订单异常:', error.message);
+        return false;
+    }
+}
+
 
 // 更新用户会员状态
 async function updateUserMembership(plan) {

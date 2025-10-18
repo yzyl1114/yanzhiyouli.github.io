@@ -451,31 +451,33 @@
           };
           grid.appendChild(item);
       }
-        // 在 index.html 的合适位置添加支付成功处理
+        // 添加支付成功处理
       function handlePaymentSuccess() {
           const urlParams = new URLSearchParams(window.location.search);
           const paymentSuccess = urlParams.get('payment') === 'success' || 
-                              localStorage.getItem('payment_success') === 'true';
-            
+                            localStorage.getItem('payment_success') === 'true';
+        
           if (paymentSuccess) {
               console.log('检测到支付成功，刷新用户状态');
-                
-                // 清理支付成功标记
+            
+              // 清理支付成功标记
               localStorage.removeItem('payment_success');
               localStorage.removeItem('payment_plan');
               localStorage.removeItem('payment_timestamp');
-                
-                // 强制重新获取用户信息
-              if (window.loadUserInfo) {
-                  window.loadUserInfo(true); // 强制刷新
-              } else {
-                  location.reload(); // 备用方案
+            
+              // 清除URL参数，避免重复触发
+              if (urlParams.get('payment') === 'success') {
+                  const cleanUrl = window.location.origin + window.location.pathname;
+                  window.history.replaceState({}, document.title, cleanUrl);
               }
-                
-                // 显示成功提示
+            
+              // 显示成功提示，但不强制刷新
               setTimeout(() => {
                   alert('会员开通成功！欢迎使用会员功能。');
               }, 500);
+            
+              // 不再自动刷新，让页面正常加载
+              console.log('支付成功处理完成，不强制刷新');
           }
       }
       // 启动主流程

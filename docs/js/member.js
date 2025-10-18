@@ -105,8 +105,8 @@ export async function pollOrder(orderId, plan = null) {
 
     // 如果是测试订单，模拟支付成功
     if (orderId.includes('test-order') || orderId.includes('fallback') || orderId.includes('user-')) {
-        console.log('测试订单，但跳过自动成功以测试真实支付流程');
-        return false; // 临时返回false以测试真实支付
+        console.log('🚫 测试订单被完全禁用，返回false');
+        return false; // 确保返回false，不自动成功
         
         // 以下是原有的测试订单逻辑，暂时禁用
         /*

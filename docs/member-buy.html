@@ -219,7 +219,7 @@
       }
     }
 
-    // 专门的跳转函数
+    // 专门的跳转函数 - 修复版本
     function performRedirect() {
         console.log('执行页面跳转...');
         
@@ -228,14 +228,13 @@
         localStorage.setItem('payment_plan', plan);
         localStorage.setItem('payment_timestamp', new Date().toISOString());
         
-        // 强制刷新首页以确保会员状态更新
+        // 使用普通跳转，不用 replace
         if (document.referrer && document.referrer.includes(location.hostname)) {
-            console.log('返回上一页并刷新:', document.referrer);
-            // 使用 replace 确保浏览器不会缓存旧状态
-            window.location.replace('./index.html?payment=success');
+            console.log('返回上一页:', document.referrer);
+            window.location.href = './index.html';
         } else {
             console.log('跳转到首页');
-            window.location.replace('./index.html?payment=success');
+            window.location.href = './index.html';
         }
     }
   </script>

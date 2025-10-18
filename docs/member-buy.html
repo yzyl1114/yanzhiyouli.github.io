@@ -64,14 +64,6 @@
               
               const user = await getCurrentUser()
               console.log('当前用户状态:', user)
-              
-              // 检查用户是否登录
-              if (!user) {
-                  console.log('用户未登录，跳转到登录页面')
-                  alert('请先登录后再开通会员')
-                  window.location.href = './index.html' // 跳回首页登录
-                  return
-              }
 
               // 清除所有卡片的active状态
               document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))

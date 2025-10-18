@@ -9,11 +9,10 @@
     .box{background:#fff;width:420px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden}
     .header{height:56px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:500;border-bottom:1px solid #f0f0f0}
     .cards{display:flex;gap:16px;padding:24px}
-    .card{flex:1;border:2px solid transparent;border-radius:8px;padding:16px;cursor:pointer;transition:.2s}
-    .card.month{border-color:#4a6bff;background:#f6f9ff}
-    .card.halfyear{border-color:#ff6a00;background:#fff9f0}
-    .card:hover{border-color:#4a6bff}
-    .card.active{border-color:#4a6bff !important;background:#f6f9ff}
+    .card{flex:1;border:2px solid #e0e0e0;border-radius:8px;padding:16px;cursor:pointer;transition:all 0.3s ease;background:#fff}
+    .card.month:hover, .card.halfyear:hover{border-color:#4a6bff;transform:translateY(-2px)}
+    .card.month.active{border-color:#4a6bff !important;background:#f6f9ff !important;box-shadow:0 0 0 2px #4a6bff}
+    .card.halfyear.active{border-color:#ff6a00 !important;background:#fff9f0 !important;box-shadow:0 0 0 2px #ff6a00}
     .card h3{font-size:16px;margin-bottom:4px}
     .card small{font-size:12px;color:#666}
     .row{display:flex;justify-content:space-between;font-size:13px;margin-top:8px}
@@ -29,13 +28,13 @@
   <div class="box">
     <div class="header">开通会员</div>
     <div class="cards">
-      <div class="card" data-plan="month">
+      <div class="card month" data-plan="month">
         <h3>基础版</h3><small>30 天会员</small>
         <div class="row"><span>会员专属背景图</span><span>✅</span></div>
         <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
         <div class="row"><span>保存数量</span><span>3 个</span></div>
       </div>
-      <div class="card" data-plan="halfyear">
+      <div class="card halfyear" data-plan="halfyear">
         <h3>尊享版</h3><small>180 天会员</small>
         <div class="row"><span>会员专属背景图</span><span>✅</span></div>
         <div class="row"><span>自定义倒计时事件</span><span>✅</span></div>
@@ -70,21 +69,21 @@
               document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
               
               // 智能默认选择逻辑
-              if (user && user.is_member && user.member_plan === 'month') {
-                  // 基础版会员 → 默认选择尊享版（用于升级）
+              if (user && user.is_member) {
+                  // 会员进入支付页 → 默认选中尊享版（用于升级或续费）
                   plan = 'halfyear'
                   const halfyearCard = document.querySelector('.card.halfyear')
                   if (halfyearCard) {
                       halfyearCard.classList.add('active')
-                      console.log('基础版会员，默认选择尊享版（升级）')
+                      console.log('会员用户，默认选择尊享版')
                   }
               } else {
-                  // 非会员、尊享版会员、或查询失败 → 默认选择基础版
+                  // 非会员 → 默认选择基础版
                   plan = 'month'
                   const monthCard = document.querySelector('.card.month')
                   if (monthCard) {
                       monthCard.classList.add('active')
-                      console.log('非会员/尊享版会员，默认选择基础版')
+                      console.log('非会员用户，默认选择基础版')
                   }
               }
               

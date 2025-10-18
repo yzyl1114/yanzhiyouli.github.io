@@ -229,6 +229,7 @@ app.get('/api/wechat-login', async (req, res) => {
   
   try {
     const result = await handleWechatLogin(code);
+    console.log('✅ 微信登录成功，返回用户信息');
     res.json(result);
   } catch (error) {
     console.error('❌ 微信登录失败:', error);

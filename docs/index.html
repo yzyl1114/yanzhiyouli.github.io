@@ -179,42 +179,55 @@
       // 主执行流程
       async function main() {
           console.log('开始主流程...');
-          
-          // 🔥 关键修复：检查URL中的code并立即处理
+        
+          // 🔥 关键修复：检查登录重定向参数
           const urlParams = new URLSearchParams(window.location.search);
+          const loginSuccess = urlParams.get('login_success');
+          const userData = urlParams.get('user_data');
+          const loginError = urlParams.get('login_error');
           const code = urlParams.get('code');
-          
-          if (code) {
-              console.log('🔥 检测到微信回调code，立即处理...', code);
-              
+        
+          console.log('URL参数:', { loginSuccess, userData: userData ? '有数据' : '无', loginError, code });
+        
+          // 情况1：处理登录成功重定向
+          if (loginSuccess === 'true' && userData) {
+              console.log('🔥 检测到登录成功重定向');
               try {
-                  // 直接调用后端API登录
-                  const response = await fetch(`/api/wechat-login?code=${code}`);
-                  const result = await response.json();
-                  
-                  console.log('微信登录结果:', result);
-                  
-                  if (result.success) {
-                      // 保存用户信息
-                      localStorage.setItem('user_info', JSON.stringify(result.user_info));
-                      console.log('✅ 登录成功，清除URL并刷新');
-                      
-                      // 清除URL参数，避免重复使用code
-                      const cleanUrl = window.location.origin + window.location.pathname;
-                      window.history.replaceState({}, document.title, cleanUrl);
-                      
-                      // 立即刷新页面
-                      location.reload();
-                      return; // 停止执行后续代码
-                  } else {
-                      console.error('登录失败:', result.error);
-                      alert('登录失败: ' + result.error);
-                  }
+                  const userInfo = JSON.parse(decodeURIComponent(userData));
+                  console.log('登录成功，用户信息:', userInfo);
+                
+                  // 保存用户信息
+                  localStorage.setItem('user_info', JSON.stringify(userInfo));
+                
+                  // 清除URL参数
+                  const cleanUrl = window.location.origin + window.location.pathname;
+                  window.history.replaceState({}, document.title, cleanUrl);
+                
+                  console.log('✅ 用户信息已保存，刷新页面');
+                  location.reload();
+                  return;
               } catch (error) {
-                  console.error('登录处理异常:', error);
-                  alert('登录处理出错');
+                  console.error('解析用户数据失败:', error);
               }
           }
+        
+          // 情况2：处理登录错误
+          if (loginError) {
+              const errorMsg = decodeURIComponent(loginError);
+              console.error('登录失败:', errorMsg);
+              alert('登录失败: ' + errorMsg);
+            
+              // 清除错误参数
+              const cleanUrl = window.location.origin + window.location.pathname;
+              window.history.replaceState({}, document.title, cleanUrl);
+          }
+        
+          // 情况3：如果还有code参数，说明后端没有正确重定向
+          if (code) {
+              console.log('⚠️ 检测到code参数，但后端应该已重定向。清除参数继续...');
+              const cleanUrl = window.location.origin + window.location.pathname;
+              window.history.replaceState({}, document.title, cleanUrl);
+          }      
           
           // 处理认证回调
           const isHandlingCallback = await handleAuthCallback();
@@ -226,7 +239,7 @@
           const user = await getUser();
           console.log('用户信息:', user);
 
-          // 添加这行代码：渲染用户栏
+          // 渲染用户栏
           renderUserBar(user);
 
           /* ---- 渲染卡片 ---- */

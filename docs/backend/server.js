@@ -212,32 +212,34 @@ async function handleWechatLogin(code) {
   }
 }
 
-// GET 方式的微信登录接口
+// GET 方式的微信登录接口 - 修复重定向问题
 app.get('/api/wechat-login', async (req, res) => {
-  console.log('=== GET方式微信登录请求 ===');
-  console.log('请求方法:', req.method);
-  console.log('查询参数:', req.query);
-  
-  const { code } = req.query;
-  
-  if (!code) {
-    console.log('❌ GET方式错误: code 参数为空');
-    return res.status(400).json({ error: '微信授权码不能为空' });
-  }
+    console.log('=== GET方式微信登录请求 ===');
+    const { code } = req.query;
+    
+    if (!code) {
+        return res.status(400).json({ error: '微信授权码不能为空' });
+    }
 
-  console.log('✅ GET方式收到微信授权码:', code);
-  
-  try {
-    const result = await handleWechatLogin(code);
-    console.log('✅ 微信登录成功，返回用户信息');
-    res.json(result);
-  } catch (error) {
-    console.error('❌ 微信登录失败:', error);
-    res.status(500).json({ 
-      error: error.message,
-      details: '登录处理失败，请稍后重试'
-    });
-  }
+    try {
+        const result = await handleWechatLogin(code);
+        console.log('✅ 微信登录成功，重定向到首页');
+        
+        // 🔥 关键：重定向到首页并携带用户信息
+        const userData = encodeURIComponent(JSON.stringify(result.user_info));
+        const redirectUrl = `https://goalcountdown.com/?login_success=true&user_data=${userData}`;
+        
+        res.redirect(redirectUrl);
+        
+    } catch (error) {
+        console.error('❌ 微信登录失败:', error);
+        
+        // 登录失败也重定向到首页
+        const errorMsg = encodeURIComponent(error.message);
+        const redirectUrl = `https://goalcountdown.com/?login_error=${errorMsg}`;
+        
+        res.redirect(redirectUrl);
+    }
 });
 
 // 获取用户信息接口

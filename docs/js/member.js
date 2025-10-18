@@ -3,6 +3,31 @@ import { supabase } from './supabase.js'
 // 获取当前用户完整信息
 export async function getCurrentUser() {
     try {
+        // 先尝试从本地存储获取
+        const localUser = localStorage.getItem('user_info');
+        if (localUser) {
+            try {
+                const user = JSON.parse(localUser);
+                console.log('从本地存储获取用户:', user);
+                
+                // 检查本地会员状态
+                const localMembership = localStorage.getItem('user_membership');
+                if (localMembership) {
+                    const membership = JSON.parse(localMembership);
+                    if (membership.isMember && new Date(membership.expires) > new Date()) {
+                        user.is_member = true;
+                        user.member_plan = membership.plan;
+                        user.member_expires_at = membership.expires;
+                        console.log('✅ 已应用本地会员状态到当前用户');
+                    }
+                }
+                
+                return user;
+            } catch (e) {
+                console.error('解析本地用户信息失败:', e);
+            }
+        } 
+        // 本地存储失败，尝试 Supabase 认证              
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         if (authError || !user) {
             console.log('未获取到用户信息:', authError)

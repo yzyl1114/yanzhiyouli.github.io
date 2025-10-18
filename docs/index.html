@@ -292,11 +292,12 @@
           const user = await getUser();
           console.log('用户信息:', user);
           
-          // 在获取用户信息后调用
-          checkLocalMembership(user);
-
-          // 渲染用户栏
-          renderUserBar(user);
+          // 关键修复：合并本地会员状态到用户信息
+          const userWithMembership = await mergeLocalMembership(user);
+          console.log('合并后的用户信息:', userWithMembership);
+            
+          // 渲染用户栏 - 使用合并后的用户信息
+          renderUserBar(userWithMembership);
           
           /* ---- 渲染卡片 ---- */
           const grid = document.querySelector('.entry-grid');
@@ -339,14 +340,19 @@
           plus.innerHTML=`<img src="images/plus.svg" class="entry-image"><h3 class="entry-title">自定义目标</h3>`;
           plus.onclick=async (e)=>{
               e.stopPropagation();
-              console.log('点击自定义目标，用户状态:', user);
-              if(!user){ 
+              console.log('点击自定义目标，用户状态:', userWithMembership);
+              if(!userWithMembership){ 
                   // 触发登录
                   const userBar = document.querySelector('.user-bar');
                   if (userBar) userBar.click(); 
                   return; 
               }
-              if(!user.is_member){ 
+
+              // 🔥 关键修复：检查会员状态（包括本地会员）
+              const isMember = userWithMembership.is_member || 
+                              (userWithMembership.local_membership && userWithMembership.member_plan);
+
+              if(!isMember){ 
                   console.log('非会员，打开会员购买页');
                   document.getElementById('btn-open-pay').click(); 
                   return; 
@@ -354,9 +360,10 @@
               
               // 检查目标数量限制
               const currentGoals = await getMyCustomGoals();
-              const maxGoals = user.member_plan === 'month' ? 3 : 5;
-              
-              console.log(`当前目标数: ${currentGoals.length}, 最大限制: ${maxGoals}, 会员类型: ${user.member_plan}`);
+              const memberPlan = userWithMembership.member_plan || 'month';
+              const maxGoals = memberPlan === 'month' ? 3 : 5;  // ✅ 正确：使用 memberPlan
+                    
+              console.log(`当前目标数: ${currentGoals.length}, 最大限制: ${maxGoals}, 会员类型: ${memberPlan}`);              
               
               if (currentGoals.length >= maxGoals) {
                   if (user.member_plan === 'month') {
@@ -376,24 +383,36 @@
           console.log('主流程完成');
       }
 
-      // 在 index.html 的用户信息获取部分添加本地会员状态检查
-      function checkLocalMembership() {
+        // 新增：合并本地会员状态函数
+      async function mergeLocalMembership(user) {
+          if (!user) return user;
+            
           try {
               const localMembership = localStorage.getItem('user_membership');
               if (localMembership) {
                   const membership = JSON.parse(localMembership);
                   console.log('发现本地会员状态:', membership);
-                
-                // 如果本地有会员状态，更新用户显示
-                  if (window.userInfo && membership.isMember) {
-                      window.userInfo.is_member = true;
-                      window.userInfo.member_plan = membership.plan;
-                      console.log('已使用本地会员状态更新用户信息');
+                    
+                  if (membership.isMember && new Date(membership.expires) > new Date()) {
+                        // 本地会员状态有效
+                      return {
+                          ...user,
+                          is_member: true,
+                          member_plan: membership.plan,
+                          member_expires_at: membership.expires,
+                          local_membership: true // 标记为本地会员
+                      };
+                  } else {
+                        // 本地会员已过期，清理
+                      localStorage.removeItem('user_membership');
+                      console.log('清理过期的本地会员状态');
                   }
               }
           } catch (error) {
-              console.error('检查本地会员状态失败:', error);
+              console.error('合并本地会员状态失败:', error);
           }
+            
+          return user;
       }
 
       // 辅助函数 - 渲染自定义目标卡片
@@ -451,11 +470,11 @@
           };
           grid.appendChild(item);
       }
-        // 添加支付成功处理
+      // 添加支付成功处理
       function handlePaymentSuccess() {
           const urlParams = new URLSearchParams(window.location.search);
           const paymentSuccess = urlParams.get('payment') === 'success' || 
-                            localStorage.getItem('payment_success') === 'true';
+                          localStorage.getItem('payment_success') === 'true';
         
           if (paymentSuccess) {
               console.log('检测到支付成功，刷新用户状态');
@@ -471,13 +490,12 @@
                   window.history.replaceState({}, document.title, cleanUrl);
               }
             
-              // 显示成功提示，但不强制刷新
+              // 显示成功提示并强制刷新页面应用会员权限
               setTimeout(() => {
                   alert('会员开通成功！欢迎使用会员功能。');
+                  // 强制刷新以确保会员权限生效
+                  location.reload();
               }, 500);
-            
-              // 不再自动刷新，让页面正常加载
-              console.log('支付成功处理完成，不强制刷新');
           }
       }
       // 启动主流程

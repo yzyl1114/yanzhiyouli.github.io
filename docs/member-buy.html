@@ -65,6 +65,14 @@
               const user = await getCurrentUser()
               console.log('当前用户状态:', user)
               
+              // 检查用户是否登录
+              if (!user) {
+                  console.log('用户未登录，跳转到登录页面')
+                  alert('请先登录后再开通会员')
+                  window.location.href = './index.html' // 跳回首页登录
+                  return
+              }
+
               // 清除所有卡片的active状态
               document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
               
@@ -221,26 +229,22 @@
 
     // 专门的跳转函数
     function performRedirect() {
-      console.log('执行页面跳转...')
-      console.log('来源页面:', document.referrer)
-      console.log('当前主机:', location.hostname)
-      
-      // 方法1: 使用 history.back() 返回上一页
-      if (document.referrer && document.referrer.includes(location.hostname)) {
-        console.log('返回上一页:', document.referrer)
-        history.back()
-      } 
-      // 方法2: 直接跳转到首页
-      else {
-        console.log('跳转到首页')
-        window.location.href = './index.html'
-      }
-      
-      // 方法3: 如果上述方法都失败，3秒后强制跳转
-      setTimeout(() => {
-        console.log('检查是否需要强制跳转...')
-        window.location.href = './index.html'
-      }, 3000)
+        console.log('执行页面跳转...');
+        
+        // 先设置一个标记，表示支付成功
+        localStorage.setItem('payment_success', 'true');
+        localStorage.setItem('payment_plan', plan);
+        localStorage.setItem('payment_timestamp', new Date().toISOString());
+        
+        // 强制刷新首页以确保会员状态更新
+        if (document.referrer && document.referrer.includes(location.hostname)) {
+            console.log('返回上一页并刷新:', document.referrer);
+            // 使用 replace 确保浏览器不会缓存旧状态
+            window.location.replace('./index.html?payment=success');
+        } else {
+            console.log('跳转到首页');
+            window.location.replace('./index.html?payment=success');
+        }
     }
   </script>
 </body>

@@ -63,12 +63,8 @@ export async function createOrder(plan) {
 
     // 确保二维码URL是完整的URL
     let qrCodeUrl = data.qr_url;
-    if (!qrCodeUrl.startsWith('http')) {
-        qrCodeUrl = `https://goalcountdown.com${qrCodeUrl.startsWith('/') ? '' : '/'}${qrCodeUrl}`;
-    }
 
     console.log('处理后的二维码URL:', qrCodeUrl);
-
 
     // 转换为前端期望的格式
     return {
@@ -109,6 +105,11 @@ export async function pollOrder(orderId, plan = null) {
 
     // 如果是测试订单，模拟支付成功
     if (orderId.includes('test-order') || orderId.includes('fallback') || orderId.includes('user-')) {
+        console.log('测试订单，但跳过自动成功以测试真实支付流程');
+        return false; // 临时返回false以测试真实支付
+        
+        // 以下是原有的测试订单逻辑，暂时禁用
+        /*
         const parts = orderId.split('-')
         const orderTime = parseInt(parts[parts.length - 1])
 
@@ -148,8 +149,9 @@ export async function pollOrder(orderId, plan = null) {
             return true
         }
         return false
-    }
-  
+        */
+    }  // ✅ 这里结束测试订单的if语句
+    
     // 真实订单查询 - 使用本地后端API
     try {
         const response = await fetch(`/api/payment-status/${orderId}`);
@@ -186,7 +188,7 @@ export async function pollOrder(orderId, plan = null) {
         console.log('查询订单异常:', error.message);
         return false;
     }
-}
+} // ✅ 添加这行结束 pollOrder 函数
 
 // 更新用户会员状态
 async function updateUserMembership(plan) {

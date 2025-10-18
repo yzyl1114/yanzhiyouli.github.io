@@ -230,7 +230,9 @@
       // 主执行流程
       async function main() {
           console.log('开始主流程...');
-        
+          // 先处理支付成功
+          handlePaymentSuccess();
+          
           // 🔥 关键修复：检查登录重定向参数
           const urlParams = new URLSearchParams(window.location.search);
           const loginSuccess = urlParams.get('login_success');
@@ -289,10 +291,13 @@
           // 获取用户信息
           const user = await getUser();
           console.log('用户信息:', user);
+          
+          // 在获取用户信息后调用
+          checkLocalMembership(user);
 
           // 渲染用户栏
           renderUserBar(user);
-
+          
           /* ---- 渲染卡片 ---- */
           const grid = document.querySelector('.entry-grid');
           if (!grid) {
@@ -371,6 +376,26 @@
           console.log('主流程完成');
       }
 
+      // 在 index.html 的用户信息获取部分添加本地会员状态检查
+      function checkLocalMembership() {
+          try {
+              const localMembership = localStorage.getItem('user_membership');
+              if (localMembership) {
+                  const membership = JSON.parse(localMembership);
+                  console.log('发现本地会员状态:', membership);
+                
+                // 如果本地有会员状态，更新用户显示
+                  if (window.userInfo && membership.isMember) {
+                      window.userInfo.is_member = true;
+                      window.userInfo.member_plan = membership.plan;
+                      console.log('已使用本地会员状态更新用户信息');
+                  }
+              }
+          } catch (error) {
+              console.error('检查本地会员状态失败:', error);
+          }
+      }
+
       // 辅助函数 - 渲染自定义目标卡片
       function renderCustomGoalCard(g){
           const grid = document.querySelector('.entry-grid');
@@ -426,7 +451,33 @@
           };
           grid.appendChild(item);
       }
-
+        // 在 index.html 的合适位置添加支付成功处理
+      function handlePaymentSuccess() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const paymentSuccess = urlParams.get('payment') === 'success' || 
+                              localStorage.getItem('payment_success') === 'true';
+            
+          if (paymentSuccess) {
+              console.log('检测到支付成功，刷新用户状态');
+                
+                // 清理支付成功标记
+              localStorage.removeItem('payment_success');
+              localStorage.removeItem('payment_plan');
+              localStorage.removeItem('payment_timestamp');
+                
+                // 强制重新获取用户信息
+              if (window.loadUserInfo) {
+                  window.loadUserInfo(true); // 强制刷新
+              } else {
+                  location.reload(); // 备用方案
+              }
+                
+                // 显示成功提示
+              setTimeout(() => {
+                  alert('会员开通成功！欢迎使用会员功能。');
+              }, 500);
+          }
+      }
       // 启动主流程
       main().catch(console.error);
   </script>

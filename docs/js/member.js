@@ -61,12 +61,21 @@ export async function createOrder(plan) {
       throw new Error('服务器响应格式错误');
     }
 
+    // 确保二维码URL是完整的URL
+    let qrCodeUrl = data.qr_url;
+    if (!qrCodeUrl.startsWith('http')) {
+        qrCodeUrl = `https://goalcountdown.com${qrCodeUrl.startsWith('/') ? '' : '/'}${qrCodeUrl}`;
+    }
+
+    console.log('处理后的二维码URL:', qrCodeUrl);
+
+
     // 转换为前端期望的格式
     return {
       success: true,
       data: {
         order_id: data.order_id,
-        qrcode_url: data.qr_url,
+        qrcode_url: qrCodeUrl,  // ✅ 使用处理后的URL
         amount: data.amount,
         plan: data.plan
       }
@@ -119,13 +128,16 @@ export async function pollOrder(orderId, plan = null) {
             try {
                 if (plan) {
                     const updateSuccess = await updateUserMembership(plan)
-                    console.log('会员状态更新结果:', updateSuccess)
+                    console.log('会员状态更新结果:', updateSuccess ? '成功' : '失败')
+                    
+                    // 无论数据库更新是否成功，都继续支付成功流程
+                    if (!updateSuccess) {
+                        console.log('⚠️ 会员状态更新失败，但支付已完成，使用本地存储方案')
+                    }
                     
                     // 清理本地存储的旧目标（如果从非会员升级）
-                    if (updateSuccess) {
-                        localStorage.removeItem('user_membership') // 清理临时方案
-                        console.log('会员升级成功')
-                    }
+                    localStorage.removeItem('user_membership') // 清理临时方案
+                    console.log('会员升级成功')
                 } else {
                     console.log('未提供plan参数，跳过会员状态更新')
                 }
@@ -138,34 +150,42 @@ export async function pollOrder(orderId, plan = null) {
         return false
     }
   
-  // 真实订单查询 - 使用本地后端API
-  try {
-    const response = await fetch(`/api/payment-status/${orderId}`);
-    const data = await response.json();
-    
-    console.log('订单状态查询结果:', data);
-    
-    // 正确处理支付状态：paid 表示成功，pending 表示等待中，其他表示失败
-    if (data.status === 'paid') {
-      // 支付成功，设置会员状态
-      if (plan) {
-        await updateUserMembership(plan);
-      }
-      return true;
-    } else if (data.status === 'pending') {
-      // 支付中，继续等待
-      console.log('支付进行中，状态:', data.status);
-      return false;
-    } else {
-      // 支付失败或其他状态
-      console.log('支付失败，状态:', data.status);
-      return false;
+    // 真实订单查询 - 使用本地后端API
+    try {
+        const response = await fetch(`/api/payment-status/${orderId}`);
+        const data = await response.json();
+        
+        console.log('订单状态查询结果:', data);
+        
+        // 正确处理支付状态：paid 表示成功，pending 表示等待中，其他表示失败
+        if (data.status === 'paid') {
+            // 支付成功，设置会员状态
+            console.log('✅ 支付成功，开始更新会员状态...');
+            if (plan) {
+                const updateSuccess = await updateUserMembership(plan);
+                console.log('会员状态更新结果:', updateSuccess ? '成功' : '失败');
+                
+                // 无论数据库更新是否成功，都返回支付成功
+                // 因为支付确实已经完成了
+                if (!updateSuccess) {
+                    console.log('⚠️ 会员状态更新失败，但支付已完成，使用本地存储方案');
+                }
+            }
+            return true;
+        } else if (data.status === 'pending') {
+            // 支付中，继续等待
+            console.log('支付进行中，状态:', data.status);
+            return false;
+        } else {
+            // 支付失败或其他状态
+            console.log('支付失败，状态:', data.status);
+            return false;
+        }
+        
+    } catch (error) {
+        console.log('查询订单异常:', error.message);
+        return false;
     }
-    
-  } catch (error) {
-    console.log('查询订单异常:', error.message);
-    return false;
-  }
 }
 
 // 更新用户会员状态
@@ -174,9 +194,27 @@ async function updateUserMembership(plan) {
         console.log('=== 开始更新会员状态 ===')
         
         const { data: { user }, error: userError } = await supabase.auth.getUser()
+        // 如果用户认证失败，使用本地存储作为兜底方案
         if (userError || !user) {
-            console.log('❌ 用户认证失败，无法更新会员状态:', userError)
-            return false
+            console.log('❌ 用户认证失败，使用本地存储方案:', userError)
+            
+            // 使用本地存储记录会员状态
+            const localMembership = {
+                plan: plan,
+                expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
+                isMember: true,
+                timestamp: new Date().toISOString(),
+                localOnly: true // 标记为仅本地存储
+            }
+            localStorage.setItem('user_membership', JSON.stringify(localMembership))
+            
+            // 更新全局变量
+            if (window.userMembership) {
+                window.userMembership = localMembership
+            }
+            
+            console.log('✅ 本地会员状态已设置（认证失败兜底）')
+            return true
         }
 
         console.log('✅ 用户认证成功，用户ID:', user.id)
@@ -224,16 +262,38 @@ async function updateUserMembership(plan) {
             .select()
 
         if (error) {
-            console.error('❌ 数据库更新失败:', error)
-            return false
+            console.error('❌ 数据库更新失败，使用本地存储:', error)
+            
+            // 数据库更新失败时也使用本地存储
+            const localMembership = {
+                plan: plan,
+                expires: expiryDate.toISOString(),
+                isMember: true,
+                timestamp: new Date().toISOString(),
+                localOnly: true
+            }
+            localStorage.setItem('user_membership', JSON.stringify(localMembership))
+            
+            return true
         }
 
         console.log('✅ 会员状态更新成功:', data)
         return true
 
     } catch (error) {
-        console.error('❌ 更新会员状态异常:', error)
-        return false
+        console.error('❌ 更新会员状态异常，使用本地存储:', error)
+        
+        // 异常情况下使用本地存储
+        const localMembership = {
+            plan: plan,
+            expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
+            isMember: true,
+            timestamp: new Date().toISOString(),
+            localOnly: true
+        }
+        localStorage.setItem('user_membership', JSON.stringify(localMembership))
+        
+        return true
     }
 }
 

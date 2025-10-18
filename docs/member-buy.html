@@ -137,26 +137,35 @@
           }
       }, 300)
     
-    // 支付按钮点击事件
+    // 支付按钮点击事件 - 修复版本
     document.getElementById('pay-btn').onclick = async () => {
       try {
+        console.log('=== 支付流程开始 ===');
+        console.log('当前计划:', plan);
+        console.log('用户信息:', await getCurrentUser());
         console.log('开始创建订单，套餐:', plan)
         
         const result = await createOrder(plan)
         console.log('订单创建结果:', result)
-        
-        if (!result || !result.qr_url) {
+        console.log('success 字段:', result?.success);
+        console.log('data 字段:', result?.data);
+        console.log('qrcode_url 字段:', result?.data?.qrcode_url);
+
+        // 修复：检查正确的数据结构
+        if (!result || !result.success || !result.data || !result.data.qrcode_url) {
+          console.error('订单创建失败或数据结构错误:', result)
           alert('创建订单失败，请重试')
           return
         }
         
-        const { qr_url, order_id } = result
+        // 修复：从 data 对象中获取字段
+        const { order_id, qrcode_url } = result.data
         orderId = order_id
         
-        console.log('订单ID:', orderId, '二维码URL:', qr_url)
+        console.log('订单ID:', orderId, '二维码URL:', qrcode_url)
         
         // 显示二维码
-        document.getElementById('qrcode').src = qr_url
+        document.getElementById('qrcode').src = qrcode_url  // 修复：使用 qrcode_url
         document.getElementById('qrcode').style.display = 'block'
         document.getElementById('tip').style.display = 'block'
         document.getElementById('pay-btn').style.display = 'none'

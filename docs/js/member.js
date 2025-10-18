@@ -47,14 +47,20 @@ export async function createOrder(plan) {
     })
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('创建订单失败 - HTTP错误:', response.status, errorData);
-      throw new Error(errorData.error || errorData.details || `HTTP错误: ${response.status}`);
+      const errorText = await response.text();
+      console.error('创建订单失败 - HTTP错误:', response.status, errorText);
+      throw new Error(`HTTP错误: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('订单创建成功:', data);
+    console.log('订单创建成功 - 完整响应:', data);
     
+    // 验证必要字段
+    if (!data.order_id || !data.qr_url) {
+      console.error('响应缺少必要字段:', data);
+      throw new Error('服务器响应格式错误');
+    }
+
     // 转换为前端期望的格式
     return {
       success: true,
@@ -69,9 +75,10 @@ export async function createOrder(plan) {
   } catch (error) {
     console.error('创建订单异常:', error);
     
-    // 兜底：返回测试二维码
+    // 兜底：返回测试二维码，但标记为失败
     return {
-      success: true,
+      success: false,
+      error: error.message,
       data: {
         order_id: 'test-order-' + Date.now(),
         qrcode_url: 'https://yzyl1114.github.io/yanzhiyouli.github.io/images/test-wechat-pay.png',

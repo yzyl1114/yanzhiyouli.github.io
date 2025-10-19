@@ -4,7 +4,7 @@ const { parseString } = require('xml2js');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = 3001;
+const PORT = 3007;
 
 // 中间件
 app.use(cors({
@@ -69,7 +69,7 @@ app.post('/api/payment-prod', async (req, res) => {
     // 存储订单
     orderStore.set(orderId, orderData);
     
-    // 🔥 修复：直接调用微信支付统一下单，而不是调用自己的接口
+    // 直接调用微信支付统一下单，而不是调用自己的接口
     const wechatParams = {
       appid: WECHAT_APPID,
       mch_id: WECHAT_MCH_ID,
@@ -437,15 +437,27 @@ function generateNonceStr(length = 32) {
 
 // 生成微信支付签名
 function generateWechatSign(params, key) {
-  const sortedParams = Object.keys(params).sort();
+  // 1. 过滤空值和sign字段，按参数名ASCII码从小到大排序
+  const sortedParams = Object.keys(params)
+    .filter(key => params[key] && key !== 'sign' && params[key] !== '')
+    .sort();
+  
+  // 2. 拼接成URL键值对格式
   let signStr = '';
   sortedParams.forEach(key => {
-    if (params[key] && key !== 'sign' && params[key] !== '') {
-      signStr += `${key}=${params[key]}&`;
-    }
+    signStr += `${key}=${params[key]}&`;
   });
+  
+  // 3. 最后加上key
   signStr += `key=${key}`;
-  return crypto.createHash('md5').update(signStr, 'utf8').digest('hex').toUpperCase();
+  
+  console.log('签名原串:', signStr);
+  
+  // 4. MD5加密并转为大写
+  const sign = crypto.createHash('md5').update(signStr, 'utf8').digest('hex').toUpperCase();
+  
+  console.log('生成签名:', sign);
+  return sign;
 }
 
 // 验证微信支付签名

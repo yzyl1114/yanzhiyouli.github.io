@@ -54,6 +54,7 @@ export async function getCurrentUser() {
     }
 }
 
+/* 注释掉微信支付相关函数
 // 创建订单 → 返回二维码 URL - 修复版本：直接调用本地后端
 export async function createOrder(plan) {
   console.log('创建订单，计划:', plan);
@@ -174,10 +175,7 @@ export async function pollOrder(orderId, plan = null) {
             return true
         }
         return false
-        */
-    }  
     
-    /*
     // 真实订单查询 - 使用本地后端API
     try {
         const response = await fetch(`/api/payment-status/${orderId}`);
@@ -215,9 +213,6 @@ export async function pollOrder(orderId, plan = null) {
         return false;
     }
 
-} // ✅ 添加这行结束 pollOrder 函数
-*/
-
     // 真实订单查询 - 使用微信支付查询API
     try {
         const response = await fetch(`/api/wechat-pay/orderquery/${orderId}`);
@@ -248,7 +243,67 @@ export async function pollOrder(orderId, plan = null) {
         return false;
     }
 }
+*/
 
+// 支付宝支付函数
+export async function createAlipayOrder(plan) {
+    console.log('创建支付宝订单，计划:', plan);
+    
+    try {
+        const user = await getCurrentUser(); // ✅ 添加 await
+        const response = await fetch('/api/alipay/create', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                plan: plan,
+                user_id: user?.id || 'user-' + Date.now()
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP错误: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('支付宝订单创建成功:', data);
+        
+        return data;
+
+    } catch (error) {
+        console.error('创建支付宝订单异常:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+export async function pollAlipayOrder(orderId, plan = null) {
+    console.log('轮询支付宝订单:', orderId);
+    
+    try {
+        const response = await fetch(`/api/alipay/query/${orderId}`);
+        const data = await response.json();
+        
+        console.log('支付宝订单状态:', data);
+        
+        if (data.status === 'paid') {
+            console.log('✅ 支付宝支付成功，更新会员状态...');
+            if (plan) {
+                await updateUserMembership(plan);
+            }
+            return true;
+        }
+        
+        return false;
+        
+    } catch (error) {
+        console.log('支付宝查询异常:', error.message);
+        return false;
+    }
+}
 
 // 更新用户会员状态
 async function updateUserMembership(plan) {

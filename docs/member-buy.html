@@ -54,7 +54,7 @@
               我已阅读并同意<a class="agreement-link" href="agreement/member-agreement.html" target="_blank">《会员服务协议》</a>
             </label>
           </div>
-      <button id="pay-btn">微信支付</button>
+      <button id="pay-btn">支付宝支付</button>
       <img id="qrcode" style="display:none">
       <div id="tip" style="display:none">我已支付</div>
       <div class="cancel" onclick="window.close()">取消</div>
@@ -62,24 +62,25 @@
   </div>
 
   <script type="module">
-      import { createOrder, pollOrder, getCurrentUser } from './js/member.js'
-          
+      // ✅ 修正导入语句
+      import { getCurrentUser, createAlipayOrder, pollAlipayOrder } from './js/member.js'
+        
       let plan = 'month', orderId
 
       // 初始化页面 - 简化版本
       async function initPage() {
           try {
               console.log('开始初始化支付页面...')
-              
+            
               // 等待页面完全加载
               await new Promise(resolve => setTimeout(resolve, 100))
-              
+            
               const user = await getCurrentUser()
               console.log('当前用户状态:', user)
 
               // 清除所有卡片的active状态
               document.querySelectorAll('.card').forEach(x => x.classList.remove('active'))
-              
+            
               // 智能默认选择逻辑
               if (user && user.is_member) {
                   // 会员进入支付页 → 默认选中尊享版（用于升级或续费）
@@ -98,40 +99,37 @@
                       console.log('非会员用户，默认选择基础版')
                   }
               }
-              
+            
               updatePayButtonText()
-              updatePayButtonState() // 新增：初始化支付按钮状态
+              updatePayButtonState()
 
-              // 添加视觉确认
               console.log('初始化完成 - 当前选中计划:', plan)
               console.log('激活的卡片:', document.querySelector('.card.active'))
-              
+            
           } catch (error) {
               console.error('初始化页面失败:', error)
-              // 出错时默认选择基础版
               plan = 'month'
               const monthCard = document.querySelector('.card.month')
               if (monthCard) monthCard.classList.add('active')
               updatePayButtonText()
-              updatePayButtonState() // 新增：出错时也更新按钮状态
+              updatePayButtonState()
           }
       }
 
-      // 支付按钮文案
+      // ✅ 修正金额显示
       function updatePayButtonText() {
           const payBtn = document.getElementById('pay-btn')
           if (plan === 'month') {
-              payBtn.textContent = '¥6 微信支付'
+              payBtn.textContent = '¥6 支付宝支付'
           } else {
-              payBtn.textContent = '¥19 微信支付'
+              payBtn.textContent = '¥19 支付宝支付'
           }
       }
 
-      // 新增：更新支付按钮状态
       function updatePayButtonState() {
           const payBtn = document.getElementById('pay-btn')
           const agreementCheckbox = document.getElementById('agreement-checkbox')
-          
+        
           if (agreementCheckbox.checked) {
               payBtn.disabled = false
           } else {
@@ -154,7 +152,6 @@
           await initPage()
       })
 
-      // 备用初始化：延迟执行确保DOM完全就绪
       setTimeout(async () => {
           const activeCard = document.querySelector('.card.active')
           if (!activeCard) {
@@ -163,118 +160,113 @@
           }
       }, 300)
 
-      // 新增：协议勾选框状态变化事件
       document.getElementById('agreement-checkbox').addEventListener('change', function() {
           updatePayButtonState()
       })      
-    
-    // 支付按钮点击事件 - 修复版本
-    document.getElementById('pay-btn').onclick = async () => {
-      try {
-        // 新增：检查协议是否勾选
-        const agreementCheckbox = document.getElementById('agreement-checkbox')
-        if (!agreementCheckbox.checked) {
-          alert('请先阅读并同意会员服务协议')
-          return
-        }        
-        
-        console.log('=== 支付流程开始 ===');
-        console.log('当前计划:', plan);
-        console.log('用户信息:', await getCurrentUser());
-        console.log('开始创建订单，套餐:', plan)
-        
-        const result = await createOrder(plan)
-        console.log('订单创建结果:', result)
-        console.log('success 字段:', result?.success);
-        console.log('data 字段:', result?.data);
-        console.log('qrcode_url 字段:', result?.data?.qrcode_url);
 
-        // 修复：检查正确的数据结构
-        if (!result || !result.success || !result.data || !result.data.qrcode_url) {
-          console.error('订单创建失败或数据结构错误:', result)
-          alert('创建订单失败，请重试')
-          return
-        }
-        
-        // 修复：从 data 对象中获取字段
-        const { order_id, qrcode_url } = result.data
-        orderId = order_id
-        
-        console.log('订单ID:', orderId, '二维码URL:', qrcode_url)
-        
-        // 显示二维码
-        document.getElementById('qrcode').src = qrcode_url  // 修复：使用 qrcode_url
-        document.getElementById('qrcode').style.display = 'block'
-        document.getElementById('tip').style.display = 'block'
-        document.getElementById('pay-btn').style.display = 'none'
+      // 支付按钮点击事件
+      document.getElementById('pay-btn').onclick = async () => {
+          try {
+              const agreementCheckbox = document.getElementById('agreement-checkbox')
+              if (!agreementCheckbox.checked) {
+                  alert('请先阅读并同意会员服务协议')
+                  return
+              }        
+            
+              console.log('=== 支付宝支付流程开始 ===');
+              console.log('当前计划:', plan);
+              console.log('用户信息:', await getCurrentUser());
+              console.log('开始创建支付宝订单，套餐:', plan)
+            
+              // ✅ 使用从 member.js 导入的函数
+              const result = await createAlipayOrder(plan)
+              console.log('支付宝订单创建结果:', result)
+              console.log('success 字段:', result?.success);
+              console.log('data 字段:', result?.data);
+              console.log('qrcode_url 字段:', result?.data?.qrcode_url);
 
-        // 轮询订单状态
-        let tryTimes = 0
-        const t = setInterval(async () => {
-          console.log(`轮询第${tryTimes + 1}次，订单ID:`, orderId)
-          const paid = await pollOrder(orderId, plan)
-          
-          if (paid) {
-            clearInterval(t)
-            console.log('支付成功！')
+              if (!result || !result.success || !result.data || !result.data.qrcode_url) {
+                  console.error('支付宝订单创建失败或数据结构错误:', result)
+                  alert('创建订单失败，请重试: ' + (result?.error || '未知错误'))
+                  return
+              }
             
-            // 支付成功后的处理
-            const membershipName = plan === 'month' ? '基础版' : '尊享版'
-            alert(`支付成功！您已成为${membershipName}会员`)
+              const { order_id, qrcode_url, pay_url } = result.data
+              orderId = order_id
             
-            // 立即跳转
-            performRedirect()
+              console.log('支付宝订单ID:', orderId, '二维码URL:', qrcode_url)
             
-          } else if (++tryTimes >= 150) {
-            clearInterval(t)
-            console.log('支付超时')
-            alert('支付超时，请重试')
+              document.getElementById('qrcode').src = qrcode_url
+              document.getElementById('qrcode').style.display = 'block'
+              document.getElementById('tip').style.display = 'block'
+              document.getElementById('pay-btn').style.display = 'none'
+
+              const tipElement = document.getElementById('tip')
+              tipElement.innerHTML = '使用支付宝扫码支付<br><small style="color:#666;font-size:10px;">或<a href="' + pay_url + '" target="_blank" style="color:#1677FF">点击这里</a>在支付宝中支付</small>'
+
+              let tryTimes = 0
+              const t = setInterval(async () => {
+                  console.log(`支付宝轮询第${tryTimes + 1}次，订单ID:`, orderId)
+                  // ✅ 使用从 member.js 导入的函数
+                  const paid = await pollAlipayOrder(orderId, plan)
+                
+                  if (paid) {
+                      clearInterval(t)
+                      console.log('支付宝支付成功！')
+                      const membershipName = plan === 'month' ? '基础版' : '尊享版'
+                      alert(`支付成功！您已成为${membershipName}会员`)
+                      performRedirect()
+                    
+                  } else if (++tryTimes >= 100) {
+                      clearInterval(t)
+                      console.log('支付宝支付超时')
+                      alert('支付超时，请重试或联系客服')
+                  }
+              }, 2000)
+            
+          } catch (error) {
+              console.error('支付宝支付流程异常:', error)
+              alert('支付失败: ' + error.message)
           }
-        }, 2000)
-        
-      } catch (error) {
-        console.error('支付流程异常:', error)
-        alert('支付失败: ' + error.message)
       }
-    }
     
-    // "我已支付"按钮点击事件
-    document.getElementById('tip').onclick = async () => {
-      if (!orderId) {
-        alert('没有找到订单信息')
-        return
+      // "我已支付"按钮点击事件
+      document.getElementById('tip').onclick = async () => {
+          if (!orderId) {
+              alert('没有找到订单信息')
+              return
+          }
+        
+          console.log('手动检查支付宝支付状态，订单ID:', orderId)
+          // ✅ 使用从 member.js 导入的函数
+          const paid = await pollAlipayOrder(orderId, plan)
+        
+          if (paid) {
+              const membershipName = plan === 'month' ? '基础版' : '尊享版'
+              alert(`支付成功！您已成为${membershipName}会员`)
+              performRedirect()
+          } else {
+              alert('暂未检测到支付，请稍候或刷新页面重试')
+          }
       }
-      
-      console.log('手动检查支付状态，订单ID:', orderId)
-      const paid = await pollOrder(orderId, plan)
-      
-      if (paid) {
-        const membershipName = plan === 'month' ? '基础版' : '尊享版'
-        alert(`支付成功！您已成为${membershipName}会员`)
-        performRedirect()
-      } else {
-        alert('暂未检测到支付，请稍候或刷新页面重试')
-      }
-    }
 
-    // 专门的跳转函数 - 修复版本
-    function performRedirect() {
-        console.log('执行页面跳转...');
+      // ❌ 删除这里重复定义的 createAlipayOrder 和 pollAlipayOrder 函数
+
+      function performRedirect() {
+          console.log('执行页面跳转...');
         
-        // 先设置一个标记，表示支付成功
-        localStorage.setItem('payment_success', 'true');
-        localStorage.setItem('payment_plan', plan);
-        localStorage.setItem('payment_timestamp', new Date().toISOString());
+          localStorage.setItem('payment_success', 'true');
+          localStorage.setItem('payment_plan', plan);
+          localStorage.setItem('payment_timestamp', new Date().toISOString());
         
-        // 使用普通跳转，不用 replace
-        if (document.referrer && document.referrer.includes(location.hostname)) {
-            console.log('返回上一页:', document.referrer);
-            window.location.href = './index.html';
-        } else {
-            console.log('跳转到首页');
-            window.location.href = './index.html';
-        }
-    }
+          if (document.referrer && document.referrer.includes(location.hostname)) {
+              console.log('返回上一页:', document.referrer);
+              window.location.href = './index.html';
+          } else {
+              console.log('跳转到首页');
+              window.location.href = './index.html';
+          }
+      }
   </script>
 </body>
 </html>

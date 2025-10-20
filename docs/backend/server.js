@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { parseString } = require('xml2js');
 const crypto = require('crypto');
+const AlipaySdk = require('alipay-sdk').default;
 
 const app = express();
 const PORT = 3007;
@@ -23,6 +24,27 @@ const WECHAT_SECRET = '8451317c0adeb0622fddae241c50e859';
 const WECHAT_MCH_ID = '1729491957'; // 商户号
 const WECHAT_PAY_KEY = 'Qyug1hJLDRbT9V0zAfXw8nMKBr7UWusP'; // 支付密钥
 const WECHAT_NOTIFY_URL = 'https://goalcountdown.com/api/wechat-notify';
+
+// ==================== 支付宝配置 ====================
+const ALIPAY_APP_ID = '2021006101633687';
+const ALIPAY_MERCHANT_PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFM0updW6UstOdqVhJIbO8iL9ngoaBG07+GjLtHOb0FUToS9GrWRIUwKMJ/ZZ7FMr2m6HGCcj30T/P+Z4vn5XoZ1A4M6aq7NdgKMLL0zH/pnuvY5OHoDv5lprcRHJNVt4Du78LnO6xmT4zyvRvaBGcpnQDZQ/yAQFVh7Tq+fwMf7X0vM5g1oTJQfN4XYS+ykCAS0CMgdpuy4rto7a2syem/ZjlUGtB70gzSfqeAFz+g4lx9abRmnmXoPSDk7zZ8n7s4JbU2Ezs2Vj+0uQB9noi0VhJG+IP1/ZL+0vZJtAqU1nPgjcdo/fDfAHX4tMt8uP18LJIIwVqxrwEoiqCVzNFAgMBAAECggEBALgTPMJO6s0E7EHUTKPfQL5xS3Gcxl8HlcHdxMHO48rde7f25h2zBAy5ELeHrgrwCtENz4FjquOgwJcrI7zCk5UfsyLzG9WbRSPuiH7oglhoGDZMle7Y5IMDUUTg421L8+u6OgfmEm1XZVfFUEwZ8a6vNcXhdXPp+kvTZE6e0Ob8PXn7U0A7JxuQ0rCn7o0eE4EkM3na/4X0z59hgtByIisPvhL1JLDpp7po4ESxt7iDtbKiUwl1W85ZPhTQv9r4TsUnS5L8dIsbF7vBlvNENEEJCQzeQyP+fsVGypr+xqplJQ4hB1XfRjANj0zQSedYDNcl0274O9MeOHndXkigdcECgYEA+lcd2ahyExi/D2w56fnBW+tNiJhaMW3Y0jJs/8pRTeVkjgNlildrYL7UyrVJfw//lMUbbcswHAY7cKmUnfHF/47Vo7VDtwNs6y9Oe9Af5aqVWf5icYGPAwxAALAuchBSXVT1AnpZ/4kWqsGlmRu0Wq47myfQJVFVkX8MGFWXHrUCgYEAyaiflSoFvyqgMxHQrNjxZ9n4D/uxnKegzrvWMXkTqBhsNPcaksDzggAZZZE4aEGrC1elt++T7U9benGuQKH6jMK9RAmwpnfoAir0wm4pBVfPWXCJQb6XNaUFM0qTd5X1yk2GEIYvlbKWDZBkix5CQGK99rQ1dBlIaJ5TsC9+DFECgYBOCwCcTV4aw/k0RqobXihAjq+iKNTdWgBhLyU57QnBvgTGHRr3sN8hzvwpobCi8wrbh0NQzCpYYjz/l25keu4eCJpjqevNTz0SaLIP+UcoYzCiWKK5/gjmi1gcntAr8RisTgL/3cLW3hb57trAS5nDN1QPv66tI5kIfdH4eB5fjQKBgCnmWGoU1ibXQ3v4+qO/W8FZP7qKcGf9SGNMEgAriRMHKAyFP0c4wh/Dx4Mb/l1jL5fmuS8Tn2fSck5pqmwRe86dc9fcL5EXHuS8aiiv3OQYT6PkxxAa+q4RwJfcqfFR/kTvgKiUSPTQq27cDpf9TIS2P4QwA19BFZNvOjJEW+tRAoGBAJdbv2Fw/JPXeqD7DvVUMmrVdYev68NEvHK7gfzUpFBzvdkUC0RhKjCCuZXTri8F/CI649PpKrvzBrM9lnB2GrEliN0azml+VW4UU+WQ+XyKhjlFA9h9F2PucY/0zr5oAW/3d/eVMo9CqObHCO3UU6ZCUXGhk5cBLqwdxwUIcbO6
+-----END RSA PRIVATE KEY-----`;
+
+// ✅ 修正后的支付宝公钥格式
+const ALIPAY_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj13qFSBriUiJj3y8H+9v
+6M+dQku7MtB1PsLu25kA2JM0R/fdcXvuxSaZUf5mbCAdTPHXwzherwSRoYoIH4fb
+tfsfsPuJ1RCb4NFLanSKZHU+6OQa01X82zRSsdTC5hZmnHM5QEZcDwStYgzTjdO5
+zwHd9BBQuCgGud63zGo53+SCS7BulOvfjBeLI0zJYvtrAiFsLnrUjt/DzSzJVHJp
+3LM/jt03nIWffv8AhXYGgkNUe6bbCxWvkYR5G3g+PHBnEOu+qnG7hCFVZFknh4SH
+XeCvTrH5A9vb87JaoTPi1Ol8H05NBC1lm8bsm05kwhxpKA58dZ4aM0YaLPRlTpH+
+RwIDAQAB
+-----END PUBLIC KEY-----`;
+
+const ALIPAY_NOTIFY_URL = 'https://goalcountdown.com/api/alipay-notify';
+const ALIPAY_RETURN_URL = 'https://goalcountdown.com/member-buy.html';
+// ===================================================
 
 // 用户存储（内存中）
 let userStore = new Map();
@@ -119,6 +141,63 @@ app.post('/api/payment-prod', async (req, res) => {
     res.status(500).json({ 
       error: '支付处理失败',
       details: error.message 
+    });
+  }
+});
+
+// 支付宝支付路由
+app.post('/api/alipay/create', async (req, res) => {
+  console.log('=== 支付宝支付请求 ===');
+  console.log('请求体:', req.body);
+  
+  const { plan, user_id } = req.body;
+  
+  try {
+    // 生成订单ID
+    const orderId = 'alipay_' + Date.now();
+    
+    // 套餐价格配置
+    const planPrices = {
+      'month': '9.90',
+      'year': '99.00'
+    };
+    
+    const amount = planPrices[plan] || '9.90';
+    
+    // 创建订单数据
+    const orderData = {
+      order_id: orderId,
+      plan: plan,
+      amount: amount,
+      user_id: user_id,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      pay_type: 'alipay'
+    };
+    
+    // 存储订单
+    orderStore.set(orderId, orderData);
+    
+    // 调用支付宝支付
+    const payResult = await createAlipayOrder(orderId, amount, plan);
+    
+    res.json({
+      success: true,
+      data: {
+        order_id: orderId,
+        pay_url: payResult.pay_url,
+        qrcode_url: payResult.qrcode_url,
+        amount: amount,
+        plan: plan,
+        pay_type: 'alipay'
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ 支付宝支付创建失败:', error);
+    res.status(500).json({
+      error: '支付创建失败',
+      details: error.message
     });
   }
 });
@@ -349,6 +428,33 @@ app.post('/api/wechat-notify', express.raw({type: 'application/xml'}), (req, res
   });
 });
 
+// 支付宝回调接口
+app.post('/api/alipay-notify', express.urlencoded({ extended: false }), (req, res) => {
+  console.log('支付宝支付回调:', req.body);
+  
+  const { out_trade_no, trade_status, total_amount } = req.body;
+  
+  // 验证签名
+  if (!verifyAlipaySign(req.body)) {
+    console.error('支付宝签名验证失败');
+    return res.send('fail');
+  }
+  
+  if (trade_status === 'TRADE_SUCCESS' || trade_status === 'TRADE_FINISHED') {
+    // 支付成功
+    const order = orderStore.get(out_trade_no);
+    if (order) {
+      order.status = 'paid';
+      order.paid_at = new Date().toISOString();
+      order.transaction_id = req.body.trade_no;
+      orderStore.set(out_trade_no, order);
+      console.log('✅ 支付宝支付成功:', out_trade_no);
+    }
+  }
+  
+  res.send('success');
+});
+
 // 查询微信支付状态
 app.get('/api/wechat-pay/orderquery/:orderId', async (req, res) => {
   const { orderId } = req.params;
@@ -397,6 +503,63 @@ app.get('/api/wechat-pay/orderquery/:orderId', async (req, res) => {
     
   } catch (error) {
     console.error('查询微信支付状态失败:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// 支付宝订单查询
+app.get('/api/alipay/query/:orderId', async (req, res) => {
+  const { orderId } = req.params;
+  
+  try {
+    const alipaySdk = new AlipaySdk({
+      appId: ALIPAY_APP_ID,
+      privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
+      alipayPublicKey: ALIPAY_PUBLIC_KEY,
+    });
+
+    const result = await alipaySdk.exec('alipay.trade.query', {
+      bizContent: {
+        out_trade_no: orderId,
+      },
+    });
+
+    if (result.code === '10000') {
+      const tradeStatus = result.trade_status;
+      const statusMap = {
+        'TRADE_SUCCESS': 'paid',
+        'TRADE_FINISHED': 'paid',
+        'WAIT_BUYER_PAY': 'pending',
+        'TRADE_CLOSED': 'failed'
+      };
+      
+      // 更新本地订单状态
+      const order = orderStore.get(orderId);
+      if (order && statusMap[tradeStatus]) {
+        order.status = statusMap[tradeStatus];
+        if (statusMap[tradeStatus] === 'paid') {
+          order.paid_at = new Date().toISOString();
+          order.transaction_id = result.trade_no;
+        }
+        orderStore.set(orderId, order);
+      }
+      
+      res.json({
+        success: true,
+        order_id: orderId,
+        status: statusMap[tradeStatus] || 'pending',
+        alipay_status: tradeStatus,
+        message: result.msg
+      });
+    } else {
+      throw new Error(result.msg || '查询失败');
+    }
+    
+  } catch (error) {
+    console.error('支付宝查询失败:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -537,9 +700,61 @@ function buildXml(params) {
   return xml;
 }
 
+// 支付宝支付创建函数
+async function createAlipayOrder(orderId, amount, plan) {
+  const AlipaySdk = require('alipay-sdk').default;
+  const alipaySdk = new AlipaySdk({
+    appId: ALIPAY_APP_ID,
+    privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
+    alipayPublicKey: ALIPAY_PUBLIC_KEY,
+    gateway: 'https://openapi.alipay.com/gateway.do',
+  });
+
+  const planNames = {
+    'month': '基础版会员(30天)',
+    'year': '尊享版会员(180天)'
+  };
+
+  const result = await alipaySdk.exec('alipay.trade.precreate', {
+    notify_url: ALIPAY_NOTIFY_URL,
+    bizContent: {
+      out_trade_no: orderId,
+      total_amount: amount,
+      subject: `GoalCountdown - ${planNames[plan]}`,
+      body: `开通${planNames[plan]}会员服务`,
+      qr_code_timeout_express: '15m',
+    },
+  });
+
+  console.log('支付宝响应:', result);
+  
+  if (result.code === '10000') {
+    return {
+      pay_url: `https://qr.alipay.com/${result.qr_code}`,
+      qrcode_url: `https://qr.alipay.com/${result.qr_code}`
+    };
+  } else {
+    throw new Error(result.msg || result.subMsg || '支付宝支付创建失败');
+  }
+}
+
+// 支付宝签名验证
+function verifyAlipaySign(params) {
+  const AlipaySdk = require('alipay-sdk').default;
+  const alipaySdk = new AlipaySdk({
+    appId: ALIPAY_APP_ID,
+    privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
+    alipayPublicKey: ALIPAY_PUBLIC_KEY,
+  });
+  
+  return alipaySdk.checkNotifySign(params);
+}
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ 微信登录后端运行在端口 ${PORT}`);
-  console.log('✅ 支付路由已添加: /api/payment-prod');
+  console.log(`✅ 支付后端运行在端口 ${PORT}`);
+  console.log('✅ 微信支付路由: /api/payment-prod');
+  console.log('✅ 支付宝支付路由: /api/alipay/create');
+  console.log('✅ 支付宝回调: /api/alipay-notify');
   console.log('✅ 当前使用完全离线模式');
   console.log('✅ 不依赖 Supabase，使用独立用户存储');
   console.log('✅ 已修复循环调用问题，直接调用微信支付API');

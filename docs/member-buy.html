@@ -15,9 +15,15 @@
     .card.halfyear.active{border-color:#ff6a00 !important;background:#fff9f0 !important;box-shadow:0 0 0 2px #ff6a00}
     .card h3{font-size:16px;margin-bottom:4px}
     .card small{font-size:12px;color:#666}
+    .agreement{display:flex;align-items:center;margin-bottom:16px;font-size:13px;color:#666}
+    .agreement-checkbox{width:16px;height:16px;margin-right:8px;cursor:pointer}
+    .agreement-text{line-height:1.4}
+    .agreement-link{color:#4a6bff;cursor:pointer;text-decoration:none}
+    .agreement-link:hover{text-decoration:underline}
     .row{display:flex;justify-content:space-between;font-size:13px;margin-top:8px}
     .foot{padding:0 24px 24px}
     #pay-btn{width:100%;height:40px;border:none;border-radius:6px;background:#07c160;color:#fff;font-size:15px;cursor:pointer}
+    #pay-btn:disabled{background:#cccccc;cursor:not-allowed}
     #qrcode{width:80px;height:80px;margin:12px auto;display:block}
     #tip{text-align:center;font-size:12px;color:#4a6bff;cursor:pointer;margin-top:6px}
     .cancel{text-align:center;font-size:12px;color:#999;margin-top:12px;cursor:pointer}
@@ -42,6 +48,12 @@
       </div>
     </div>
     <div class="foot">
+      <div class="agreement">
+            <input type="checkbox" id="agreement-checkbox" class="agreement-checkbox" checked>
+            <label for="agreement-checkbox" class="agreement-text">
+              我已阅读并同意<a class="agreement-link" href="agreement/member-agreement.html" target="_blank">《会员服务协议》</a>
+            </label>
+          </div>
       <button id="pay-btn">微信支付</button>
       <img id="qrcode" style="display:none">
       <div id="tip" style="display:none">我已支付</div>
@@ -88,7 +100,8 @@
               }
               
               updatePayButtonText()
-              
+              updatePayButtonState() // 新增：初始化支付按钮状态
+
               // 添加视觉确认
               console.log('初始化完成 - 当前选中计划:', plan)
               console.log('激活的卡片:', document.querySelector('.card.active'))
@@ -100,16 +113,29 @@
               const monthCard = document.querySelector('.card.month')
               if (monthCard) monthCard.classList.add('active')
               updatePayButtonText()
+              updatePayButtonState() // 新增：出错时也更新按钮状态
           }
       }
 
-      // 更新支付按钮文案
+      // 支付按钮文案
       function updatePayButtonText() {
           const payBtn = document.getElementById('pay-btn')
           if (plan === 'month') {
               payBtn.textContent = '¥6 微信支付'
           } else {
               payBtn.textContent = '¥19 微信支付'
+          }
+      }
+
+      // 新增：更新支付按钮状态
+      function updatePayButtonState() {
+          const payBtn = document.getElementById('pay-btn')
+          const agreementCheckbox = document.getElementById('agreement-checkbox')
+          
+          if (agreementCheckbox.checked) {
+              payBtn.disabled = false
+          } else {
+              payBtn.disabled = true
           }
       }
 
@@ -136,10 +162,22 @@
               await initPage()
           }
       }, 300)
+
+      // 新增：协议勾选框状态变化事件
+      document.getElementById('agreement-checkbox').addEventListener('change', function() {
+          updatePayButtonState()
+      })      
     
     // 支付按钮点击事件 - 修复版本
     document.getElementById('pay-btn').onclick = async () => {
       try {
+        // 新增：检查协议是否勾选
+        const agreementCheckbox = document.getElementById('agreement-checkbox')
+        if (!agreementCheckbox.checked) {
+          alert('请先阅读并同意会员服务协议')
+          return
+        }        
+        
         console.log('=== 支付流程开始 ===');
         console.log('当前计划:', plan);
         console.log('用户信息:', await getCurrentUser());

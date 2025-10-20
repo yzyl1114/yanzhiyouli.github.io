@@ -204,6 +204,31 @@ body {
     vertical-align: middle;
 }
 
+.legal-links-contact {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+}
+
+.legal-links-contact a {
+    color: #777;
+    text-decoration: none;
+}
+
+.legal-links-contact a:hover {
+    text-decoration: underline;
+}
+
+.link-separator {
+    margin: 0 10px;
+    color: #ccc;
+}
+
+.contact-text {
+    color: #777;
+}
+
 .contact {
     margin-top: 10px;
 }

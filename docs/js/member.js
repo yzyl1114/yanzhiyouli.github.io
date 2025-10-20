@@ -263,7 +263,7 @@ async function updateUserMembership(plan) {
             // 使用本地存储记录会员状态
             const localMembership = {
                 plan: plan,
-                expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
+                expires: new Date(Date.now() + (plan === 'month' ? 90 : 360) * 24 * 60 * 60 * 1000).toISOString(),
                 isMember: true,
                 timestamp: new Date().toISOString(),
                 localOnly: true // 标记为仅本地存储
@@ -296,12 +296,12 @@ async function updateUserMembership(plan) {
             new Date(currentProfile.member_expires_at) > now) {
             // 已有会员，在现有基础上续期
             const currentExpiry = new Date(currentProfile.member_expires_at)
-            const extensionDays = plan === 'month' ? 30 : 180
+            const extensionDays = plan === 'month' ? 90 : 360
             expiryDate = new Date(currentExpiry.getTime() + extensionDays * 24 * 60 * 60 * 1000)
             console.log('会员续期，原到期时间:', currentExpiry, '新到期时间:', expiryDate)
         } else {
             // 新会员或已过期，从当前时间开始
-            const days = plan === 'month' ? 30 : 180
+            const days = plan === 'month' ? 90 : 360
             expiryDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
             console.log('新开通会员，到期时间:', expiryDate)
         }
@@ -348,7 +348,7 @@ async function updateUserMembership(plan) {
         // 异常情况下使用本地存储
         const localMembership = {
             plan: plan,
-            expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
+            expires: new Date(Date.now() + (plan === 'month' ? 90 : 360) * 24 * 60 * 60 * 1000).toISOString(),
             isMember: true,
             timestamp: new Date().toISOString(),
             localOnly: true
@@ -363,7 +363,7 @@ async function updateUserMembership(plan) {
 function setLocalMembership(plan) {
     const membership = {
         plan: plan,
-        expires: new Date(Date.now() + (plan === 'month' ? 30 : 180) * 24 * 60 * 60 * 1000).toISOString(),
+        expires: new Date(Date.now() + (plan === 'month' ? 90 : 360) * 24 * 60 * 60 * 1000).toISOString(),
         isMember: true,
         timestamp: new Date().toISOString()
     }

@@ -50,11 +50,11 @@ app.post('/api/payment-prod', async (req, res) => {
     
     // 套餐价格配置
     const planPrices = {
-      'month': 9.9,
-      'year': 99
+      'month': 6,
+      'year': 19
     };
     
-    const amount = planPrices[plan] || 9.9;
+    const amount = planPrices[plan] || 6;
     
     // 创建订单数据
     const orderData = {
@@ -74,7 +74,7 @@ app.post('/api/payment-prod', async (req, res) => {
       appid: WECHAT_APPID,
       mch_id: WECHAT_MCH_ID,
       nonce_str: generateNonceStr(),
-      body: `GoalCountdown会员 - ${plan === 'month' ? '基础版(30天)' : '尊享版(180天)'}`,
+      body: `GoalCountdown会员 - ${plan === 'month' ? '基础版(90天)' : '尊享版(360天)'}`,
       out_trade_no: orderId,
       total_fee: Math.round(amount * 100), // 微信支付单位为分
       spbill_create_ip: req.ip || '127.0.0.1',

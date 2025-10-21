@@ -168,12 +168,24 @@ function initSettingsModal() {
         option.classList.remove('active');
         if (option.dataset.bg === currentBg) {
           option.classList.add('active');
+          
+          // 滚动到选中的背景图
+          const container = document.querySelector('.background-options-container');
+          if (container) {
+            setTimeout(() => {
+              option.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'center' 
+              });
+            }, 100);
+          }
         }
       });
       
       modal.style.display = 'flex';
     });
-  }
+  }  
 
   // 关闭按钮事件
   if (closeBtn) {
@@ -190,7 +202,7 @@ function initSettingsModal() {
   });
 
   // 背景图点击事件 - 修复VIP拦截逻辑
-  document.querySelector('.background-options').addEventListener('click', async (e) => {
+  document.querySelector('.background-options-container').addEventListener('click', async (e) => {
       // 同时支持直接点击图片和点击容器内的图片
       let img = e.target.closest('.bg-option');
       if (!img) return;

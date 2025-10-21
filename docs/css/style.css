@@ -400,8 +400,11 @@ body {
 }
 
 .settings-content {
-    width: 500px; /* 增加宽度 */
-    max-width: 90%; /* 确保在小屏幕上自适应 */
+    width: 90%;
+    max-width: 600px;
+    max-height: 500px; /* 恰好容纳两行缩略图的高度 */
+    display: flex;
+    flex-direction: column;
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -417,86 +420,87 @@ body {
 
 /* 设置弹窗标题居中 */
 .settings-body {
-    padding: 20px;
-    text-align: center;
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
 }
 
 .background-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: center;
-  padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding-right: 8px; /* 为滚动条留出空间 */
 }
 
 .bg-option {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: all 0.3s ease;
-  position: relative; 
-}
-
-.bg-option:hover {
-  transform: scale(1.05);
-  border-color: #4a6bff !important;
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .bg-option.active {
-    border-color: #4a6bff !important;
-    box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
+    border-color: #4a6bff;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
-
-/* 让缩略图相对定位 */
-.bg-option { 
-  position: relative; 
+.bg-option:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* 新增VIP容器和角标样式 */
 .bg-option-container {
-  position: relative;
-  display: inline-block;
+    position: relative;
+    grid-column: span 1;
+}
+
+.bg-option-container.vip .bg-option {
+    filter: brightness(0.7);
+}
+
+/* 新增背景选项容器样式 */
+.background-options-container {
+    height: 100%;
+    overflow-y: auto;
+    padding: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* 自定义滚动条样式 */
+.background-options-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.background-options-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.background-options-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+.background-options-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
 }
 
 /* VIP角标样式 */
 .vip-badge {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: linear-gradient(45deg, #ff6a00, #ff3d00);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 8px;
-  border-radius: 12px;
-  z-index: 100;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  line-height: 1;
-}
-
-/* 确保VIP容器的图片样式与普通图片一致 */
-.bg-option-container .bg-option {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.bg-option-container .bg-option:hover {
-  transform: scale(1.05);
-  border-color: #4a6bff !important;
-}
-
-.bg-option-container .bg-option.active {
-  border-color: #4a6bff !important;
-  box-shadow: 0 0 10px rgba(74, 107, 255, 0.5);
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 2;
 }
 
 /* 广告位样式 */
@@ -554,6 +558,16 @@ body {
         grid-template-columns: repeat(2, 1fr);
     }
     
+    .background-options {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .settings-content {
+        max-height: 450px;
+        width: 95%;
+    }
+
     .countdown-value {
         font-size: 60px;
         width: 100px;
@@ -570,6 +584,11 @@ body {
         grid-template-columns: 1fr;
     }
     
+    .background-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
     .countdown-value {
         font-size: 40px;
         width: 80px;

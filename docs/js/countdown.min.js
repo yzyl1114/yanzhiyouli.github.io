@@ -9,7 +9,25 @@ const backgroundImages = [
   { id: 'bg3', url: 'images/bg3.jpg' },
   { id: 'bg4', url: 'images/bg4.jpg' },
   { id: 'bg5', url: 'images/bg5.jpg' },
-  { id: 'bg6', url: 'images/bg6.jpg' }
+  { id: 'bg6', url: 'images/bg6.jpg' },
+  { id: 'bg7', url: 'images/bg7.jpg' },
+  { id: 'bg8', url: 'images/bg8.jpg' },
+  { id: 'bg9', url: 'images/bg9.jpg' },
+  { id: 'bg10', url: 'images/bg10.jpg' },
+  { id: 'bg11', url: 'images/bg11.jpg' },
+  { id: 'bg12', url: 'images/bg12.jpg' },
+  { id: 'bg13', url: 'images/bg13.jpg' },
+  { id: 'bg14', url: 'images/bg14.jpg' },
+  { id: 'bg15', url: 'images/bg15.jpg' },
+  { id: 'bg16', url: 'images/bg16.jpg' },
+  { id: 'bg17', url: 'images/bg17.jpg' },
+  { id: 'bg18', url: 'images/bg18.jpg' },
+  { id: 'bg19', url: 'images/bg19.jpg' },
+  { id: 'bg20', url: 'images/bg20.jpg' },
+  { id: 'bg21', url: 'images/bg21.jpg' },
+  { id: 'bg22', url: 'images/bg22.jpg' },
+  { id: 'bg23', url: 'images/bg23.jpg' },
+  { id: 'bg24', url: 'images/bg24.jpg' }
 ];
 
 // 取考试数据
@@ -181,7 +199,7 @@ function initSettingsModal() {
       console.log('点击背景图:', bgId);
       
       // VIP图片拦截逻辑 - 修复：简化逻辑，确保执行
-      if (['bg5', 'bg6'].includes(bgId)) {
+      if (['bg5', 'bg6', 'bg7', 'bg8', 'bg9', 'bg10', 'bg11', 'bg12', 'bg13', 'bg14', 'bg15', 'bg16', 'bg17', 'bg18', 'bg19', 'bg20', 'bg21', 'bg22', 'bg23', 'bg24'].includes(bgId)) {
           console.log('VIP图片检查开始');
           const user = await getUser();
           console.log('VIP检查用户状态:', user);

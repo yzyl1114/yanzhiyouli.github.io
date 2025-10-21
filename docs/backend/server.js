@@ -160,11 +160,11 @@ app.post('/api/alipay/create', async (req, res) => {
     
     // 套餐价格配置
     const planPrices = {
-      'month': '9.90',
-      'year': '99.00'
+      'month': '6',
+      'year': '19'
     };
     
-    const amount = planPrices[plan] || '9.90';
+    const amount = planPrices[plan] || '6';
     
     // 创建订单数据
     const orderData = {
@@ -180,7 +180,7 @@ app.post('/api/alipay/create', async (req, res) => {
     // 存储订单
     orderStore.set(orderId, orderData);
     
-    // 调用支付宝支付
+    // 调用支付宝支付（默认使用电脑网站支付）
     const payResult = await createAlipayOrder(orderId, amount, plan);
     
     res.json({
@@ -188,7 +188,6 @@ app.post('/api/alipay/create', async (req, res) => {
       data: {
         order_id: orderId,
         pay_url: payResult.pay_url,
-        qrcode_url: payResult.qrcode_url,
         amount: amount,
         plan: plan,
         pay_type: 'alipay'
@@ -702,42 +701,68 @@ function buildXml(params) {
   return xml;
 }
 
-// 支付宝支付创建函数
-async function createAlipayOrder(orderId, amount, plan) {
+// 支付宝支付创建函数 - 支持电脑和手机网站支付
+async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
   const alipay = new AlipaySdk({
     appId: ALIPAY_APP_ID,
     privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
     gateway: 'https://openapi.alipay.com/gateway.do',
-    signType: 'RSA2', // 🔥 必须添加
-    charset: 'utf-8', // 🔥 添加编码
+    signType: 'RSA2',
+    charset: 'utf-8',
   });
 
   const planNames = {
-    'month': '基础版会员(30天)',
-    'year': '尊享版会员(180天)'
+    'month': '基础版会员(90天)',
+    'year': '尊享版会员(360天)'
   };
 
-  const result = await alipay.exec('alipay.trade.precreate', {
-    notifyurl: ALIPAY_NOTIFY_URL,
-    bizContent: {
-      out_trade_no: orderId,
-      total_amount: amount,
-      subject: `GoalCountdown - ${planNames[plan]}`,
-      body: `开通${planNames[plan]}会员服务`,
-      qr_code_timeout_express: '15m',
-    },
-  });
+  const commonParams = {
+    out_trade_no: orderId,
+    total_amount: amount,
+    subject: `GoalCountdown - ${planNames[plan]}`,
+  };
 
-  console.log('支付宝响应:', result);
-  
-  if (result.code === '10000') {
+  if (deviceType === 'pc') {
+    // 🔥 电脑网站支付
+    const result = await alipay.exec('alipay.trade.page.pay', {
+      notifyUrl: ALIPAY_NOTIFY_URL,
+      returnUrl: ALIPAY_RETURN_URL,
+      bizContent: {
+        ...commonParams,
+        product_code: 'FAST_INSTANT_TRADE_PAY', // 电脑网站支付固定值
+      },
+    });
+
+    console.log('支付宝电脑网站支付响应:', result);
+    
     return {
-      pay_url: `https://qr.alipay.com/${result.qr_code}`,
-      qrcode_url: `https://qr.alipay.com/${result.qr_code}`
+      pay_url: result,
+      qrcode_url: null,
+      device_type: 'pc',
+      order_id: orderId
     };
+
   } else {
-    throw new Error(result.msg || result.subMsg || '支付宝支付创建失败');
+    // 🔥 手机网站支付
+    const result = await alipay.exec('alipay.trade.wap.pay', {
+      notifyUrl: ALIPAY_NOTIFY_URL,
+      returnUrl: ALIPAY_RETURN_URL,
+      bizContent: {
+        ...commonParams,
+        product_code: 'QUICK_WAP_WAY', // 手机网站支付固定值
+        quit_url: 'https://goalcountdown.com/member-buy.html', // 用户中途退出返回的页面
+      },
+    });
+
+    console.log('支付宝手机网站支付响应:', result);
+    
+    return {
+      pay_url: result,
+      qrcode_url: null,
+      device_type: 'mobile',
+      order_id: orderId
+    };
   }
 }
 

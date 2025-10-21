@@ -29,20 +29,10 @@ const WECHAT_NOTIFY_URL = 'https://goalcountdown.com/api/wechat-notify';
 
 // ==================== 支付宝配置 ====================
 const ALIPAY_APP_ID = '2021006101633687';
-const ALIPAY_MERCHANT_PRIVATE_KEY = `-----BEGIN RSA PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFM0updW6UstOdqVhJIbO8iL9ngoaBG07+GjLtHOb0FUToS9GrWRIUwKMJ/ZZ7FMr2m6HGCcj30T/P+Z4vn5XoZ1A4M6aq7NdgKMLL0zH/pnuvY5OHoDv5lprcRHJNVt4Du78LnO6xmT4zyvRvaBGcpnQDZQ/yAQFVh7Tq+fwMf7X0vM5g1oTJQfN4XYS+ykCAS0CMgdpuy4rto7a2syem/ZjlUGtB70gzSfqeAFz+g4lx9abRmnmXoPSDk7zZ8n7s4JbU2Ezs2Vj+0uQB9noi0VhJG+IP1/ZL+0vZJtAqU1nPgjcdo/fDfAHX4tMt8uP18LJIIwVqxrwEoiqCVzNFAgMBAAECggEBALgTPMJO6s0E7EHUTKPfQL5xS3Gcxl8HlcHdxMHO48rde7f25h2zBAy5ELeHrgrwCtENz4FjquOgwJcrI7zCk5UfsyLzG9WbRSPuiH7oglhoGDZMle7Y5IMDUUTg421L8+u6OgfmEm1XZVfFUEwZ8a6vNcXhdXPp+kvTZE6e0Ob8PXn7U0A7JxuQ0rCn7o0eE4EkM3na/4X0z59hgtByIisPvhL1JLDpp7po4ESxt7iDtbKiUwl1W85ZPhTQv9r4TsUnS5L8dIsbF7vBlvNENEEJCQzeQyP+fsVGypr+xqplJQ4hB1XfRjANj0zQSedYDNcl0274O9MeOHndXkigdcECgYEA+lcd2ahyExi/D2w56fnBW+tNiJhaMW3Y0jJs/8pRTeVkjgNlildrYL7UyrVJfw//lMUbbcswHAY7cKmUnfHF/47Vo7VDtwNs6y9Oe9Af5aqVWf5icYGPAwxAALAuchBSXVT1AnpZ/4kWqsGlmRu0Wq47myfQJVFVkX8MGFWXHrUCgYEAyaiflSoFvyqgMxHQrNjxZ9n4D/uxnKegzrvWMXkTqBhsNPcaksDzggAZZZE4aEGrC1elt++T7U9benGuQKH6jMK9RAmwpnfoAir0wm4pBVfPWXCJQb6XNaUFM0qTd5X1yk2GEIYvlbKWDZBkix5CQGK99rQ1dBlIaJ5TsC9+DFECgYBOCwCcTV4aw/k0RqobXihAjq+iKNTdWgBhLyU57QnBvgTGHRr3sN8hzvwpobCi8wrbh0NQzCpYYjz/l25keu4eCJpjqevNTz0SaLIP+UcoYzCiWKK5/gjmi1gcntAr8RisTgL/3cLW3hb57trAS5nDN1QPv66tI5kIfdH4eB5fjQKBgCnmWGoU1ibXQ3v4+qO/W8FZP7qKcGf9SGNMEgAriRMHKAyFP0c4wh/Dx4Mb/l1jL5fmuS8Tn2fSck5pqmwRe86dc9fcL5EXHuS8aiiv3OQYT6PkxxAa+q4RwJfcqfFR/kTvgKiUSPTQq27cDpf9TIS2P4QwA19BFZNvOjJEW+tRAoGBAJdbv2Fw/JPXeqD7DvVUMmrVdYev68NEvHK7gfzUpFBzvdkUC0RhKjCCuZXTri8F/CI649PpKrvzBrM9lnB2GrEliN0azml+VW4UU+WQ+XyKhjlFA9h9F2PucY/0zr5oAW/3d/eVMo9CqObHCO3UU6ZCUXGhk5cBLqwdxwUIcbO6
------END RSA PRIVATE KEY-----`;
+const ALIPAY_MERCHANT_PRIVATE_KEY = `MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFM0updW6UstOdqVhJIbO8iL9ngoaBG07+GjLtHOb0FUToS9GrWRIUwKMJ/ZZ7FMr2m6HGCcj30T/P+Z4vn5XoZ1A4M6aq7NdgKMLL0zH/pnuvY5OHoDv5lprcRHJNVt4Du78LnO6xmT4zyvRvaBGcpnQDZQ/yAQFVh7Tq+fwMf7X0vM5g1oTJQfN4XYS+ykCAS0CMgdpuy4rto7a2syem/ZjlUGtB70gzSfqeAFz+g4lx9abRmnmXoPSDk7zZ8n7s4JbU2Ezs2Vj+0uQB9noi0VhJG+IP1/ZL+0vZJtAqU1nPgjcdo/fDfAHX4tMt8uP18LJIIwVqxrwEoiqCVzNFAgMBAAECggEBALgTPMJO6s0E7EHUTKPfQL5xS3Gcxl8HlcHdxMHO48rde7f25h2zBAy5ELeHrgrwCtENz4FjquOgwJcrI7zCk5UfsyLzG9WbRSPuiH7oglhoGDZMle7Y5IMDUUTg421L8+u6OgfmEm1XZVfFUEwZ8a6vNcXhdXPp+kvTZE6e0Ob8PXn7U0A7JxuQ0rCn7o0eE4EkM3na/4X0z59hgtByIisPvhL1JLDpp7po4ESxt7iDtbKiUwl1W85ZPhTQv9r4TsUnS5L8dIsbF7vBlvNENEEJCQzeQyP+fsVGypr+xqplJQ4hB1XfRjANj0zQSedYDNcl0274O9MeOHndXkigdcECgYEA+lcd2ahyExi/D2w56fnBW+tNiJhaMW3Y0jJs/8pRTeVkjgNlildrYL7UyrVJfw//lMUbbcswHAY7cKmUnfHF/47Vo7VDtwNs6y9Oe9Af5aqVWf5icYGPAwxAALAuchBSXVT1AnpZ/4kWqsGlmRu0Wq47myfQJVFVkX8MGFWXHrUCgYEAyaiflSoFvyqgMxHQrNjxZ9n4D/uxnKegzrvWMXkTqBhsNPcaksDzggAZZZE4aEGrC1elt++T7U9benGuQKH6jMK9RAmwpnfoAir0wm4pBVfPWXCJQb6XNaUFM0qTd5X1yk2GEIYvlbKWDZBkix5CQGK99rQ1dBlIaJ5TsC9+DFECgYBOCwCcTV4aw/k0RqobXihAjq+iKNTdWgBhLyU57QnBvgTGHRr3sN8hzvwpobCi8wrbh0NQzCpYYjz/l25keu4eCJpjqevNTz0SaLIP+UcoYzCiWKK5/gjmi1gcntAr8RisTgL/3cLW3hb57trAS5nDN1QPv66tI5kIfdH4eB5fjQKBgCnmWGoU1ibXQ3v4+qO/W8FZP7qKcGf9SGNMEgAriRMHKAyFP0c4wh/Dx4Mb/l1jL5fmuS8Tn2fSck5pqmwRe86dc9fcL5EXHuS8aiiv3OQYT6PkxxAa+q4RwJfcqfFR/kTvgKiUSPTQq27cDpf9TIS2P4QwA19BFZNvOjJEW+tRAoGBAJdbv2Fw/JPXeqD7DvVUMmrVdYev68NEvHK7gfzUpFBzvdkUC0RhKjCCuZXTri8F/CI649PpKrvzBrM9lnB2GrEliN0azml+VW4UU+WQ+XyKhjlFA9h9F2PucY/0zr5oAW/3d/eVMo9CqObHCO3UU6ZCUXGhk5cBLqwdxwUIcbO6`;
 
 // ✅ 修正后的支付宝公钥格式
-const ALIPAY_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj13qFSBriUiJj3y8H+9v
-6M+dQku7MtB1PsLu25kA2JM0R/fdcXvuxSaZUf5mbCAdTPHXwzherwSRoYoIH4fb
-tfsfsPuJ1RCb4NFLanSKZHU+6OQa01X82zRSsdTC5hZmnHM5QEZcDwStYgzTjdO5
-zwHd9BBQuCgGud63zGo53+SCS7BulOvfjBeLI0zJYvtrAiFsLnrUjt/DzSzJVHJp
-3LM/jt03nIWffv8AhXYGgkNUe6bbCxWvkYR5G3g+PHBnEOu+qnG7hCFVZFknh4SH
-XeCvTrH5A9vb87JaoTPi1Ol8H05NBC1lm8bsm05kwhxpKA58dZ4aM0YaLPRlTpH+
-RwIDAQAB
------END PUBLIC KEY-----`;
+const ALIPAY_PUBLIC_KEY = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj13qFSBriUiJj3y8H+9v6M+dQku7MtB1PsLu25kA2JM0R/fdcXvuxSaZUf5mbCAdTPHXwzherwSRoYoIH4fbtfsfsPuJ1RCb4NFLanSKZHU+6OQa01X82zRSsdTC5hZmnHM5QEZcDwStYgzTjdO5zwHd9BBQuCgGud63zGo53+SCS7BulOvfjBeLI0zJYvtrAiFsLnrUjt/DzSzJVHJp3LM/jt03nIWffv8AhXYGgkNUe6bbCxWvkYR5G3g+PHBnEOu+qnG7hCFVZFknh4SHXeCvTrH5A9vb87JaoTPi1Ol8H05NBC1lm8bsm05kwhxpKA58dZ4aM0YaLPRlTpH+RwIDAQAB`;
 
 const ALIPAY_NOTIFY_URL = 'https://goalcountdown.com/api/alipay-notify';
 const ALIPAY_RETURN_URL = 'https://goalcountdown.com/member-buy.html';
@@ -435,11 +425,26 @@ app.post('/api/wechat-notify', express.raw({type: 'application/xml'}), (req, res
 app.post('/api/alipay-notify', express.urlencoded({ extended: false }), (req, res) => {
   console.log('支付宝支付回调:', req.body);
   
-  const { out_trade_no, trade_status, total_amount } = req.body;
+  const { out_trade_no, trade_status, total_amount, charset = 'utf-8' } = req.body;
   
+  // 🔥 添加调试信息
+  console.log('回调参数charset:', charset);
+  console.log('所有回调参数:', JSON.stringify(req.body, null, 2));
+
   // 验证签名
   if (!verifyAlipaySign(req.body)) {
     console.error('支付宝签名验证失败');
+    
+    // 🔥 详细日志
+    const alipay = new AlipaySdk({
+      appId: ALIPAY_APP_ID,
+      privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
+      alipayPublicKey: ALIPAY_PUBLIC_KEY,
+    });
+    
+    const signCheck = alipay.checkNotifySign(req.body);
+    console.log('签名验证详细结果:', signCheck);    
+    
     return res.send('fail');
   }
   
@@ -711,6 +716,7 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
     gateway: 'https://openapi.alipay.com/gateway.do',
     signType: 'RSA2',
+    charset: 'utf-8' // 🔥 关键：添加charset配置
   });
 
   const planNames = {

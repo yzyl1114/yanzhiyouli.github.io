@@ -250,7 +250,7 @@ export async function createAlipayOrder(plan) {
     console.log('创建支付宝订单，计划:', plan);
     
     try {
-        const user = await getCurrentUser(); // ✅ 添加 await
+        const user = await getCurrentUser();
         const response = await fetch('/api/alipay/create', {
             method: 'POST',
             headers: { 

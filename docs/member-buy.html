@@ -175,54 +175,62 @@
             
               console.log('=== 支付宝支付流程开始 ===');
               console.log('当前计划:', plan);
-              console.log('用户信息:', await getCurrentUser());
-              console.log('开始创建支付宝订单，套餐:', plan)
             
-              // ✅ 使用从 member.js 导入的函数
               const result = await createAlipayOrder(plan)
               console.log('支付宝订单创建结果:', result)
-              console.log('success 字段:', result?.success);
-              console.log('data 字段:', result?.data);
-              console.log('qrcode_url 字段:', result?.data?.qrcode_url);
 
-              if (!result || !result.success || !result.data || !result.data.qrcode_url) {
-                  console.error('支付宝订单创建失败或数据结构错误:', result)
-                  alert('创建订单失败，请重试: ' + (result?.error || '未知错误'))
+              if (!result || !result.success || !result.data) {
+                  console.error('支付宝订单创建失败:', result)
+                  alert('创建订单失败: ' + (result?.error || '未知错误'))
                   return
               }
             
-              const { order_id, qrcode_url, pay_url } = result.data
+              const { order_id, form_data } = result.data
               orderId = order_id
             
-              console.log('支付宝订单ID:', orderId, '二维码URL:', qrcode_url)
+              console.log('支付宝订单ID:', orderId);
             
-              document.getElementById('qrcode').src = qrcode_url
-              document.getElementById('qrcode').style.display = 'block'
-              document.getElementById('tip').style.display = 'block'
-              document.getElementById('pay-btn').style.display = 'none'
-
-              const tipElement = document.getElementById('tip')
-              tipElement.innerHTML = '使用支付宝扫码支付<br><small style="color:#666;font-size:10px;">或<a href="' + pay_url + '" target="_blank" style="color:#1677FF">点击这里</a>在支付宝中支付</small>'
-
-              let tryTimes = 0
-              const t = setInterval(async () => {
-                  console.log(`支付宝轮询第${tryTimes + 1}次，订单ID:`, orderId)
-                  // ✅ 使用从 member.js 导入的函数
-                  const paid = await pollAlipayOrder(orderId, plan)
+              // 🔥 处理支付宝表单数据
+              if (form_data) {
+                  console.log('处理支付宝支付表单...');
                 
-                  if (paid) {
-                      clearInterval(t)
-                      console.log('支付宝支付成功！')
-                      const membershipName = plan === 'month' ? '基础版' : '尊享版'
-                      alert(`支付成功！您已成为${membershipName}会员`)
-                      performRedirect()
-                    
-                  } else if (++tryTimes >= 100) {
-                      clearInterval(t)
-                      console.log('支付宝支付超时')
-                      alert('支付超时，请重试或联系客服')
+                  // 解码URL编码的表单数据
+                  const decodedFormData = decodeURIComponent(form_data);
+                  console.log('解码后的表单数据:', decodedFormData);
+                
+                  // 解析表单参数
+                  const formParams = new URLSearchParams(decodedFormData);
+                  const bizContent = JSON.parse(formParams.get('biz_content') || '{}');
+                
+                  console.log('订单信息:', {
+                      订单号: bizContent.out_trade_no,
+                      金额: bizContent.total_amount,
+                      商品描述: bizContent.subject
+                  });
+                
+                  // 创建并提交支付宝表单
+                  const form = document.createElement('form');
+                  form.method = 'POST';
+                  form.action = 'https://openapi.alipay.com/gateway.do';
+                  form.style.display = 'none';
+                
+                  // 添加所有表单参数
+                  for (const [key, value] of formParams.entries()) {
+                      const input = document.createElement('input');
+                      input.type = 'hidden';
+                      input.name = key;
+                      input.value = value;
+                      form.appendChild(input);
                   }
-              }, 2000)
+                
+                  document.body.appendChild(form);
+                  console.log('自动提交表单到支付宝...');
+                  form.submit();
+                
+              } else {
+                  console.error('支付宝返回数据格式不支持:', result.data);
+                  alert('支付方式暂不可用，请稍后重试');
+              }
             
           } catch (error) {
               console.error('支付宝支付流程异常:', error)

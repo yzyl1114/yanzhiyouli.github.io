@@ -203,7 +203,11 @@ function initSettingsModal() {
 
   // 背景图点击事件 - 修复VIP拦截逻辑
   document.querySelector('.background-options-container').addEventListener('click', async (e) => {
-      // 同时支持直接点击图片和点击容器内的图片
+      
+      // 阻止事件冒泡，防止点击背景图时关闭弹窗
+      e.stopPropagation();    
+    
+    // 同时支持直接点击图片和点击容器内的图片
       let img = e.target.closest('.bg-option');
       if (!img) return;
       
@@ -253,6 +257,10 @@ function initSettingsModal() {
       // 关闭弹窗
       modal.style.display = 'none';
     }
+  });
+  // 添加滚动事件处理，防止滚动传播到父元素
+  document.querySelector('.background-options-container').addEventListener('wheel', (e) => {
+      e.stopPropagation();
   });
 }
 

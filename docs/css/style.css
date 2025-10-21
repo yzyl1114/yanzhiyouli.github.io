@@ -408,6 +408,7 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden; /* 防止内容溢出 */
 }
 
 .modal-header {
@@ -416,6 +417,7 @@ body {
     align-items: center;
     padding: 15px;
     border-bottom: 1px solid #eee;
+    flex-shrink: 0; /* 防止标题栏被压缩 */
 }
 
 /* 设置弹窗标题居中 */
@@ -423,6 +425,8 @@ body {
     flex: 1;
     overflow: hidden;
     padding: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .background-options {
@@ -430,6 +434,7 @@ body {
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     padding-right: 8px; /* 为滚动条留出空间 */
+    min-height: min-content; /* 确保网格有最小高度 */
 }
 
 .bg-option {
@@ -464,11 +469,12 @@ body {
 
 /* 新增背景选项容器样式 */
 .background-options-container {
-    height: 100%;
-    overflow-y: auto;
+    flex: 1;
+    overflow-y: auto; /* 确保启用垂直滚动 */
     padding: 15px;
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+    min-height: 0; /* 重要：允许容器收缩 */
 }
 
 /* 自定义滚动条样式 */

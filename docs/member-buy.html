@@ -172,10 +172,10 @@
                   alert('请先阅读并同意会员服务协议')
                   return
               }        
-            
+        
               console.log('=== 支付宝支付流程开始 ===');
               console.log('当前计划:', plan);
-            
+        
               const result = await createAlipayOrder(plan)
               console.log('支付宝订单创建结果:', result)
 
@@ -184,54 +184,29 @@
                   alert('创建订单失败: ' + (result?.error || '未知错误'))
                   return
               }
-            
+        
               const { order_id, form_data } = result.data
               orderId = order_id
-            
+        
               console.log('支付宝订单ID:', orderId);
-            
-              // 🔥 处理支付宝表单数据
+              console.log('原始表单数据:', form_data);
+        
+              // 🔥 修复：正确处理支付宝返回的查询字符串
               if (form_data) {
                   console.log('处理支付宝支付表单...');
                 
-                  // 解码URL编码的表单数据
-                  const decodedFormData = decodeURIComponent(form_data);
-                  console.log('解码后的表单数据:', decodedFormData);
+                  // 方法1：直接构建完整的URL进行跳转（推荐）
+                  const payUrl = `https://openapi.alipay.com/gateway.do?${form_data}`;
+                  console.log('完整支付URL:', payUrl);
                 
-                  // 解析表单参数
-                  const formParams = new URLSearchParams(decodedFormData);
-                  const bizContent = JSON.parse(formParams.get('biz_content') || '{}');
-                
-                  console.log('订单信息:', {
-                      订单号: bizContent.out_trade_no,
-                      金额: bizContent.total_amount,
-                      商品描述: bizContent.subject
-                  });
-                
-                  // 创建并提交支付宝表单
-                  const form = document.createElement('form');
-                  form.method = 'POST';
-                  form.action = 'https://openapi.alipay.com/gateway.do';
-                  form.style.display = 'none';
-                
-                  // 添加所有表单参数
-                  for (const [key, value] of formParams.entries()) {
-                      const input = document.createElement('input');
-                      input.type = 'hidden';
-                      input.name = key;
-                      input.value = value;
-                      form.appendChild(input);
-                  }
-                
-                  document.body.appendChild(form);
-                  console.log('自动提交表单到支付宝...');
-                  form.submit();
+                  // 直接跳转到支付宝支付页面
+                  window.location.href = payUrl;
                 
               } else {
                   console.error('支付宝返回数据格式不支持:', result.data);
                   alert('支付方式暂不可用，请稍后重试');
               }
-            
+        
           } catch (error) {
               console.error('支付宝支付流程异常:', error)
               alert('支付失败: ' + error.message)

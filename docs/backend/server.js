@@ -709,6 +709,8 @@ async function createAlipayOrder(orderId, amount, plan) {
     privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
     gateway: 'https://openapi.alipay.com/gateway.do',
+    signType: 'RSA2', // 🔥 必须添加
+    charset: 'utf-8', // 🔥 添加编码
   });
 
   const planNames = {
@@ -717,7 +719,7 @@ async function createAlipayOrder(orderId, amount, plan) {
   };
 
   const result = await alipay.exec('alipay.trade.precreate', {
-    notify_url: ALIPAY_NOTIFY_URL,
+    notifyurl: ALIPAY_NOTIFY_URL,
     bizContent: {
       out_trade_no: orderId,
       total_amount: amount,

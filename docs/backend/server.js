@@ -2,7 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const { parseString } = require('xml2js');
 const crypto = require('crypto');
-const AlipaySdk = require('alipay-sdk');
+
+// 支付宝SDK正确引入 - 使用导出的AlipaySdk属性
+const { AlipaySdk } = require('alipay-sdk');
 
 const app = express();
 const PORT = 3007;
@@ -515,13 +517,13 @@ app.get('/api/alipay/query/:orderId', async (req, res) => {
   const { orderId } = req.params;
   
   try {
-    const alipaySdk = new AlipaySdk({
+    const alipay = new AlipaySdk({
       appId: ALIPAY_APP_ID,
       privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
       alipayPublicKey: ALIPAY_PUBLIC_KEY,
     });
 
-    const result = await alipaySdk.exec('alipay.trade.query', {
+    const result = await alipay.exec('alipay.trade.query', {
       bizContent: {
         out_trade_no: orderId,
       },
@@ -702,7 +704,7 @@ function buildXml(params) {
 
 // 支付宝支付创建函数
 async function createAlipayOrder(orderId, amount, plan) {
-  const alipaySdk = new AlipaySdk({
+  const alipay = new AlipaySdk({
     appId: ALIPAY_APP_ID,
     privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
@@ -714,7 +716,7 @@ async function createAlipayOrder(orderId, amount, plan) {
     'year': '尊享版会员(180天)'
   };
 
-  const result = await alipaySdk.exec('alipay.trade.precreate', {
+  const result = await alipay.exec('alipay.trade.precreate', {
     notify_url: ALIPAY_NOTIFY_URL,
     bizContent: {
       out_trade_no: orderId,
@@ -739,13 +741,13 @@ async function createAlipayOrder(orderId, amount, plan) {
 
 // 支付宝签名验证
 function verifyAlipaySign(params) {
-  const alipaySdk = new AlipaySdk({
+  const alipay = new AlipaySdk({
     appId: ALIPAY_APP_ID,
     privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
   });
   
-  return alipaySdk.checkNotifySign(params);
+  return alipay.checkNotifySign(params);
 }
 
 app.listen(PORT, '0.0.0.0', () => {
@@ -758,54 +760,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('✅ 已修复循环调用问题，直接调用微信支付API');
 });
 
-// 在 server.js 中添加测试路由
-app.get('/api/alipay/debug', async (req, res) => {
-  try {
-    console.log('=== 支付宝配置调试 ===');
-    
-    // 检查配置
-    console.log('APP_ID:', ALIPAY_APP_ID);
-    console.log('私钥长度:', ALIPAY_MERCHANT_PRIVATE_KEY.length);
-    console.log('公钥长度:', ALIPAY_PUBLIC_KEY.length);
-    
-    const alipaySdk = new AlipaySdk({
-      appId: ALIPAY_APP_ID,
-      privateKey: ALIPAY_MERCHANT_PRIVATE_KEY,
-      alipayPublicKey: ALIPAY_PUBLIC_KEY,
-      gateway: 'https://openapi.alipay.com/gateway.do',
-    });
-
-    // 测试创建订单
-    const testOrderId = 'test_' + Date.now();
-    const result = await alipaySdk.exec('alipay.trade.precreate', {
-      notify_url: ALIPAY_NOTIFY_URL,
-      bizContent: {
-        out_trade_no: testOrderId,
-        total_amount: '0.01', // 测试金额
-        subject: '测试订单',
-        body: '支付宝配置测试',
-        qr_code_timeout_express: '5m',
-      },
-    });
-
-    console.log('支付宝测试响应:', result);
-    
-    res.json({
-      success: true,
-      config: {
-        appId: ALIPAY_APP_ID,
-        privateKey: !!ALIPAY_MERCHANT_PRIVATE_KEY,
-        publicKey: !!ALIPAY_PUBLIC_KEY
-      },
-      testResult: result
-    });
-    
-  } catch (error) {
-    console.error('支付宝配置测试失败:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});

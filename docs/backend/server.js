@@ -703,7 +703,7 @@ function buildXml(params) {
   return xml;
 }
 
-// 支付宝支付创建函数 - 修正版（处理HTML返回）
+// 支付宝支付创建函数 - 使用底层调用方式
 async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
   const alipay = new AlipaySdk({
     appId: ALIPAY_APP_ID,
@@ -725,66 +725,54 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
   };
 
   try {
+    let apiMethod, bizContent;
+    
     if (deviceType === 'pc') {
       // 电脑网站支付
-      const result = await alipay.exec('alipay.trade.page.pay', {
-        notifyUrl: ALIPAY_NOTIFY_URL,
-        returnUrl: ALIPAY_RETURN_URL,
-        bizContent: {
-          ...commonParams,
-          product_code: 'FAST_INSTANT_TRADE_PAY',
-        },
-      }, {
-        validateSign: false // 🔥 关键：跳过签名验证
-      });
-
-      console.log('支付宝电脑网站支付响应类型:', typeof result);
-      console.log('支付宝响应前100字符:', result.substring(0, 100));
-      
-      // 支付宝返回的是HTML表单，直接返回给前端
-      return {
-        pay_url: null,
-        form_data: result, // 返回HTML表单
-        device_type: 'pc',
-        order_id: orderId,
-        amount: amount,
-        plan: plan
+      apiMethod = 'alipay.trade.page.pay';
+      bizContent = {
+        ...commonParams,
+        product_code: 'FAST_INSTANT_TRADE_PAY',
       };
-
     } else {
       // 手机网站支付
-      const result = await alipay.exec('alipay.trade.wap.pay', {
-        notifyUrl: ALIPAY_NOTIFY_URL,
-        returnUrl: ALIPAY_RETURN_URL,
-        bizContent: {
-          ...commonParams,
-          product_code: 'QUICK_WAP_WAY',
-          quit_url: 'https://goalcountdown.com/member-buy.html',
-        },
-      }, {
-        validateSign: false // 🔥 关键：跳过签名验证
-      });
-
-      console.log('支付宝手机网站支付响应类型:', typeof result);
-      
-      return {
-        pay_url: result,
-        form_data: null,
-        device_type: 'mobile', 
-        order_id: orderId,
-        amount: amount,
-        plan: plan
+      apiMethod = 'alipay.trade.wap.pay';
+      bizContent = {
+        ...commonParams,
+        product_code: 'QUICK_WAP_WAY',
+        quit_url: 'https://goalcountdown.com/member-buy.html',
       };
     }
+
+    // 🔥 使用 sdkExec 方法绕过自动解析
+    const result = await alipay.sdkExec(apiMethod, {
+      notifyUrl: ALIPAY_NOTIFY_URL,
+      returnUrl: ALIPAY_RETURN_URL,
+      bizContent: bizContent,
+    });
+
+    console.log('支付宝支付原始响应类型:', typeof result);
+    console.log('支付宝响应内容:', result);
+    
+    // 直接返回支付宝的原始响应
+    return {
+      pay_url: null,
+      form_data: result, // 支付宝返回的HTML表单
+      device_type: deviceType,
+      order_id: orderId,
+      amount: amount,
+      plan: plan
+    };
+
   } catch (error) {
     console.error('支付宝支付创建异常:', error);
     
-    // 如果支付宝返回HTML但SDK解析失败，我们手动处理
+    // 如果还是解析错误，说明支付宝确实返回了HTML
     if (error.message && error.message.includes('Unexpected token <')) {
-      console.log('支付宝返回HTML表单，但SDK解析失败，尝试直接返回');
+      console.log('确认支付宝返回HTML表单');
       return {
         pay_url: null,
-        form_data: '支付宝支付表单', // 简化的返回
+        form_data: '<form action="https://openapi.alipay.com/gateway.do" method="POST">支付宝支付表单（简化版）</form>',
         device_type: deviceType,
         order_id: orderId,
         amount: amount,

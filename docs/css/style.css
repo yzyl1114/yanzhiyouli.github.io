@@ -346,7 +346,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 10px;
+    margin: 0 5px;
 }
 
 .countdown-value {
@@ -361,6 +361,19 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
+    min-width: 120px; /* 确保最小宽度 */
+    padding: 0 10px; /* 添加内边距给数字呼吸空间 */
+    text-align: center;
+    box-sizing: border-box; /* 确保padding包含在宽度内 */
+    /* 添加响应式字体大小 */
+    font-size: clamp(40px, 8vw, 80px); /* 根据视口宽度自适应字体大小 */
+}
+
+/* 针对天数特别处理 */
+.countdown-block.days .countdown-value {
+    min-width: 140px; /* 天数框稍微宽一点 */
+    width: auto; /* 宽度自适应 */
+    padding: 0 15px; /* 更多内边距 */
 }
 
 .countdown-label {
@@ -576,11 +589,18 @@ body {
     }
 
     .countdown-value {
-        font-size: 60px;
+        font-size: clamp(30px, 6vw, 60px); /* 移动端字体更小 */
         width: 100px;
+        min-width: 100px;
         height: 100px;
+
     }
     
+    .countdown-block.days .countdown-value {
+        min-width: 120px;
+        padding: 0 12px;
+    }
+
     .countdown-label {
         font-size: 18px;
     }
@@ -601,11 +621,17 @@ body {
         }
 
     .countdown-value {
-        font-size: 40px;
+        font-size: clamp(24px, 5vw, 40px);
         width: 80px;
+        min-width: 80px;
         height: 80px;
     }
     
+    .countdown-block.days .countdown-value {
+        min-width: 100px;
+        padding: 0 10px;
+    }
+
     .countdown-label {
         font-size: 16px;
     }

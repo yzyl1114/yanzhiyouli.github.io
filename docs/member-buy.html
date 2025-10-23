@@ -164,55 +164,52 @@
           updatePayButtonState()
       })      
 
-      // 支付按钮点击事件
+      // 支付按钮点击事件 - 修复版本
       document.getElementById('pay-btn').onclick = async () => {
-          try {
-              const agreementCheckbox = document.getElementById('agreement-checkbox')
-              if (!agreementCheckbox.checked) {
-                  alert('请先阅读并同意会员服务协议')
-                  return
-              }        
-        
-              console.log('=== 支付宝支付流程开始 ===');
-              console.log('当前计划:', plan);
-        
-              const result = await createAlipayOrder(plan)
-              console.log('支付宝订单创建结果:', result)
+      try {
+          const agreementCheckbox = document.getElementById('agreement-checkbox')
+          if (!agreementCheckbox.checked) {
+          alert('请先阅读并同意会员服务协议')
+          return
+          }        
 
-              if (!result || !result.success || !result.data) {
-                  console.error('支付宝订单创建失败:', result)
-                  alert('创建订单失败: ' + (result?.error || '未知错误'))
-                  return
-              }
-        
-              const { order_id, form_data } = result.data
-              orderId = order_id
-        
-              console.log('支付宝订单ID:', orderId);
-              console.log('原始表单数据:', form_data);
-        
-              // 🔥 修复：正确处理支付宝返回的查询字符串
-              if (form_data) {
-                  console.log('处理支付宝支付表单...');
-                
-                  // 方法1：直接构建完整的URL进行跳转（推荐）
-                  const payUrl = `https://openapi.alipay.com/gateway.do?${form_data}`;
-                  console.log('完整支付URL:', payUrl);
-                
-                  // 直接跳转到支付宝支付页面
-                  window.location.href = payUrl;
-                
-              } else {
-                  console.error('支付宝返回数据格式不支持:', result.data);
-                  alert('支付方式暂不可用，请稍后重试');
-              }
-        
-          } catch (error) {
-              console.error('支付宝支付流程异常:', error)
-              alert('支付失败: ' + error.message)
+          console.log('=== 支付宝支付流程开始 ===');
+          console.log('当前计划:', plan);
+
+          const result = await createAlipayOrder(plan)
+          console.log('支付宝订单创建结果:', result)
+
+          if (!result || !result.success || !result.data) {
+          console.error('支付宝订单创建失败:', result)
+          alert('创建订单失败: ' + (result?.error || '未知错误'))
+          return
           }
+
+          const { order_id, pay_url, form_data } = result.data
+          orderId = order_id
+
+          console.log('支付宝订单ID:', orderId);
+        
+          // 🔥 关键修复：优先使用 pay_url，如果没有则使用 form_data 构建URL
+          let finalPayUrl = pay_url;
+          if (!finalPayUrl && form_data) {
+          finalPayUrl = `https://openapi.alipay.com/gateway.do?${form_data}`;
+          }
+        
+          if (finalPayUrl) {
+          console.log('跳转到支付宝支付页面:', finalPayUrl);
+          window.location.href = finalPayUrl;
+          } else {
+          console.error('无法生成支付URL');
+          alert('支付方式暂不可用，请稍后重试');
+          }
+
+      } catch (error) {
+          console.error('支付宝支付流程异常:', error)
+          alert('支付失败: ' + error.message)
       }
-    
+    }
+
       // "我已支付"按钮点击事件
       document.getElementById('tip').onclick = async () => {
           if (!orderId) {

@@ -35,7 +35,7 @@ const ALIPAY_MERCHANT_PRIVATE_KEY = `MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgE
 const ALIPAY_PUBLIC_KEY = `MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj13qFSBriUiJj3y8H+9v6M+dQku7MtB1PsLu25kA2JM0R/fdcXvuxSaZUf5mbCAdTPHXwzherwSRoYoIH4fbtfsfsPuJ1RCb4NFLanSKZHU+6OQa01X82zRSsdTC5hZmnHM5QEZcDwStYgzTjdO5zwHd9BBQuCgGud63zGo53+SCS7BulOvfjBeLI0zJYvtrAiFsLnrUjt/DzSzJVHJp3LM/jt03nIWffv8AhXYGgkNUe6bbCxWvkYR5G3g+PHBnEOu+qnG7hCFVZFknh4SHXeCvTrH5A9vb87JaoTPi1Ol8H05NBC1lm8bsm05kwhxpKA58dZ4aM0YaLPRlTpH+RwIDAQAB`;
 
 const ALIPAY_NOTIFY_URL = 'https://goalcountdown.com/api/alipay-notify';
-const ALIPAY_RETURN_URL = 'https://goalcountdown.com/member-buy.html';
+const ALIPAY_RETURN_URL = 'https://goalcountdown.com/?payment=success';
 // ===================================================
 
 // 用户存储（内存中）

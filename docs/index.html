@@ -236,7 +236,7 @@
       async function main() {
           console.log('开始主流程...');
           // 先处理支付成功
-          handlePaymentSuccess();
+          await handlePaymentSuccess();
           
           // 🔥 关键修复：检查登录重定向参数
           const urlParams = new URLSearchParams(window.location.search);
@@ -493,34 +493,30 @@
           };
           grid.appendChild(item);
       }
-      // 添加支付成功处理
+      // 添加支付成功处理 - 增强版本
       function handlePaymentSuccess() {
-          const urlParams = new URLSearchParams(window.location.search);
-          const paymentSuccess = urlParams.get('payment') === 'success' || 
-                          localStorage.getItem('payment_success') === 'true';
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentSuccess = urlParams.get('payment') === 'success';
+    
+      console.log('检查支付成功状态:', { paymentSuccess, urlParams: Object.fromEntries(urlParams) });
+
+      if (paymentSuccess) {
+          console.log('🔥 检测到支付成功回调');
         
-          if (paymentSuccess) {
-              console.log('检测到支付成功，刷新用户状态');
-            
-              // 清理支付成功标记
-              localStorage.removeItem('payment_success');
-              localStorage.removeItem('payment_plan');
-              localStorage.removeItem('payment_timestamp');
-            
-              // 清除URL参数，避免重复触发
-              if (urlParams.get('payment') === 'success') {
-                  const cleanUrl = window.location.origin + window.location.pathname;
-                  window.history.replaceState({}, document.title, cleanUrl);
-              }
-            
-              // 显示成功提示并强制刷新页面应用会员权限
-              setTimeout(() => {
-                  alert('会员开通成功！欢迎使用会员功能。');
-                  // 强制刷新以确保会员权限生效
-                  location.reload();
-              }, 500);
-          }
+          // 清除URL参数
+          const cleanUrl = window.location.origin + window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        
+          // 显示成功提示
+          setTimeout(() => {
+          alert('🎉 支付成功！您已成为会员，欢迎使用会员专属功能。');
+        
+          // 强制刷新页面以获取最新的用户状态
+          console.log('强制刷新页面应用会员权限...');
+          location.reload();
+          }, 300);
       }
+    }
       // 启动主流程
       main().catch(console.error);
   </script>

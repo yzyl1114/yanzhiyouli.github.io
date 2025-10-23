@@ -113,20 +113,23 @@
       // 用户小弹窗功能
       function toggleUserPopup(user) {
           console.log('显示用户弹窗');
-          
+            
           // 先移除已存在的弹窗
           const existingPopup = document.getElementById('user-popup');
           if (existingPopup) {
               existingPopup.remove();
               return;
           }
-          
+            
+          // 🔥 修复：使用正确的头像字段
+          const avatarUrl = user.avatar_url || user.avatar || 'images/default-avatar.png';
+            
           const pop = document.createElement('div');
           pop.id = 'user-popup';
           pop.style.cssText = 'position:absolute;right:12px;top:52px;width:220px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:14px;z-index:999;overflow:hidden';
           pop.innerHTML = `
               <div style="padding:16px;display:flex;align-items:center;border-bottom:1px solid #f0f0f0">
-              <img src="${user.avatar_url||'images/default-avatar.png'}" style="width:40px;height:40px;border-radius:50%;margin-right:12px">
+              <img src="${avatarUrl}" style="width:40px;height:40px;border-radius:50%;margin-right:12px" onerror="this.src='images/default-avatar.png'">
               <div style="flex:1">
                   <div style="font-weight:500">${user.username||'用户'}</div>
                   <div style="font-size:12px;color:#666">${user.is_member?(user.member_plan==='month'?'基础版':'尊享版')+'会员':'普通用户'}</div>
@@ -139,7 +142,8 @@
               <div style="border-top:1px solid #f0f0f0;padding:8px;text-align:center">
               <button id="popup-out" style="border:none;background:none;color:#ff4d4f;font-size:13px;cursor:pointer">退出登录</button>
               </div>`;
-          document.body.appendChild(pop);
+          document.body.appendChild(pop);   
+
           
           // 绑定事件
           if (!user.is_member) {
@@ -175,7 +179,7 @@
           }
 
           console.log('渲染用户栏，用户状态:', user);
-          
+            
           // 清空容器
           container.innerHTML = '';
 
@@ -186,36 +190,40 @@
               margin-right: 20px;
               cursor: pointer;
               display: flex;
-              align-items: center;
+               align-items: center;
               gap: 10px;
           `;
 
           if (user) {
+              // 🔥 修复：使用正确的头像字段
+              const avatarUrl = user.avatar_url || user.avatar || 'images/default-avatar.png';
+                
               // 已登录用户
               let userStatus = '普通用户';
               let statusStyle = 'color: #666; font-size: 12px;';
-              
+                
               if (user.is_member) {
                   userStatus = user.member_plan === 'month' ? '基础版会员' : '尊享版会员';
                   statusStyle = 'color: #4a6bff; font-size: 12px;';
               }
-              
+                
               wrap.innerHTML = `
-                  <img src="${user.avatar_url || 'images/default-avatar.png'}" 
-                      style="width:40px;height:40px;border-radius:50%;border: 2px solid ${user.is_member ? '#4a6bff' : '#ddd'};">
+                   <img src="${avatarUrl}" 
+                      style="width:40px;height:40px;border-radius:50%;border: 2px solid ${user.is_member ? '#4a6bff' : '#ddd'};"
+                      onerror="this.src='images/default-avatar.png'">
               `;
-                // 点击头像显示用户弹窗
+              // 点击头像显示用户弹窗
               wrap.onclick = (e) => {
                   e.stopPropagation();
                   console.log('点击用户头像');
                   toggleUserPopup(user);
               };
 
-              console.log('✅ 已登录用户栏渲染完成');
+              console.log('✅ 已登录用户栏渲染完成，头像URL:', avatarUrl);
           } else {
               // 未登录用户
               wrap.innerHTML = `
-                  <img src="images/default-avatar.png" 
+                   <img src="images/default-avatar.png" 
                       style="width:40px;height:40px;border-radius:50%;border: 2px solid #ddd;">
               `;
               // 点击事件 - 微信登录
@@ -227,7 +235,7 @@
               };
               console.log('✅ 未登录用户栏渲染完成');
           }
-          
+            
           container.appendChild(wrap);
           console.log('用户栏已添加到容器');
       }

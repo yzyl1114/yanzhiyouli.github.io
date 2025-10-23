@@ -42,18 +42,13 @@ export async function getUser() {
                 user = JSON.parse(localUser);
                 console.log('从本地存储获取用户:', user);
                 
-                // 🔥 关键：如果是支付成功后的页面，强制从服务器同步
-                const urlParams = new URLSearchParams(window.location.search);
-                const paymentSuccess = urlParams.get('payment') === 'success';
-                const forceRefresh = localStorage.getItem('force_refresh_user') === 'true';
-                
-                if ((paymentSuccess || forceRefresh) && user.openid) {
-                    console.log('🔥 支付成功/强制刷新，从服务器同步用户信息');
-                    localStorage.removeItem('force_refresh_user');
-                    
+                // 🔥 关键修复：每次获取用户信息时都从服务器同步
+                if (user && user.openid) {
+                    console.log('🔥 从服务器同步最新用户信息');
                     const serverUser = await fetchUserFromServer(user.openid);
                     if (serverUser) {
                         user = serverUser;
+                        console.log('✅ 已同步服务器用户信息，会员状态:', user.is_member);
                     }
                 }
                 

@@ -321,7 +321,7 @@ app.post('/api/payment-simulate/:orderId', (req, res) => {
 });
 */
 
-// 简化的微信登录逻辑 - 不依赖 Supabase
+// 简化的微信登录逻辑 - 修复版本：检查用户是否已存在
 async function handleWechatLogin(code) {
   console.log('开始处理微信登录，code:', code);
   
@@ -342,50 +342,93 @@ async function handleWechatLogin(code) {
     const { access_token, openid } = tokenData;
     console.log('获取到微信openid:', openid);
 
-    // 2. 获取微信用户信息
-    const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`;
-    const userInfoResponse = await fetch(userInfoUrl);
-    const userInfo = await userInfoResponse.json();
-    console.log('微信用户信息:', userInfo);
-
-    if (userInfo.errcode) {
-      console.error('获取用户信息失败:', userInfo);
-      throw new Error(`获取用户信息失败: ${userInfo.errmsg}`);
-    }
-
-    // 3. 生成用户ID（基于openid）
-    const userId = 'user_' + openid.substr(0, 8);
+    // 🔥 关键修复：先检查用户是否已存在
+    let userData = userStore.get(openid);
+    console.log('用户存在性检查:', userData ? '用户存在' : '用户不存在');
     
-    // 4. 存储用户信息（内存中）
-    const userData = {
-      id: userId,
-      openid: openid,
-      nickname: userInfo.nickname,
-      avatar: userInfo.headimgurl,
-      created_at: new Date().toISOString(),
-      is_member: false,
-      member_plan: null,
-      // 🔥 添加更新时间戳
+    if (userData) {
+      console.log('✅ 用户已存在，使用现有数据:', {
+        id: userData.id,
+        nickname: userData.nickname,
+        is_member: userData.is_member,
+        member_plan: userData.member_plan
+      });
+      
+      // 🔥 更新用户信息（如头像、昵称可能变化）
+      const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`;
+      const userInfoResponse = await fetch(userInfoUrl);
+      const userInfo = await userInfoResponse.json();
+      
+      if (!userInfo.errcode) {
+        // 🔥 关键修复：创建新的用户对象，确保存储的是新对象
+        const updatedUserData = {
+          ...userData,  // 保留原有的所有属性（包括会员状态）
+          nickname: userInfo.nickname,
+          avatar: userInfo.headimgurl,
+          updated_at: new Date().toISOString()
+        };
+        
+        // 使用持久化存储更新
+        updateUserInStore(openid, updatedUserData);
+        console.log('✅ 用户信息已更新');
+      }
+      
+    } else {
+      console.log('🆕 新用户，创建用户数据');
+      
+      // 2. 获取微信用户信息
+      const userInfoUrl = `https://api.weixin.qq.com/sns/userinfo?access_token=${access_token}&openid=${openid}&lang=zh_CN`;
+      const userInfoResponse = await fetch(userInfoUrl);
+      const userInfo = await userInfoResponse.json();
+      console.log('微信用户信息:', userInfo);
+
+      if (userInfo.errcode) {
+        console.error('获取用户信息失败:', userInfo);
+        throw new Error(`获取用户信息失败: ${userInfo.errmsg}`);
+      }
+
+      // 3. 生成用户ID（基于openid）
+      const userId = 'user_' + openid.substr(0, 8);
+      
+      // 4. 创建新用户数据
+      userData = {
+        id: userId,
+        openid: openid,
+        nickname: userInfo.nickname,
+        avatar: userInfo.headimgurl,
+        created_at: new Date().toISOString(),
+        is_member: false,  // 新用户默认非会员
+        member_plan: null,
         updated_at: new Date().toISOString()
-    };
-    // 使用持久化存储
-    updateUserInStore(openid, userData);
-    console.log('用户信息已存储:', userData);
+      };
+      
+      // 使用持久化存储
+      updateUserInStore(openid, userData);
+      console.log('用户信息已存储:', userData);
+    }
 
     console.log('✅ 微信登录处理完成');
 
+    // 🔥 关键修复：重新从存储获取最新数据，确保返回的是更新后的数据
+    const latestUserData = userStore.get(openid);
+    console.log('返回给前端的用户数据:', {
+      id: latestUserData.id,
+      is_member: latestUserData.is_member,
+      member_plan: latestUserData.member_plan
+    });
+
     return {
       success: true,
-      user_id: userId,
+      user_id: latestUserData.id,
       user_info: {
-        id: userId,
-        nickname: userInfo.nickname,
-        avatar: userInfo.headimgurl,
-        openid: openid,
-        is_member: false,
-        member_plan: null,
-        username: userInfo.nickname,
-        avatar_url: userInfo.headimgurl
+        id: latestUserData.id,
+        nickname: latestUserData.nickname,
+        avatar: latestUserData.avatar,
+        openid: latestUserData.openid,
+        is_member: latestUserData.is_member,
+        member_plan: latestUserData.member_plan,
+        username: latestUserData.nickname,
+        avatar_url: latestUserData.avatar
       }
     };
 

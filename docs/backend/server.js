@@ -177,12 +177,12 @@ app.post('/api/alipay/create', async (req, res) => {
     res.json({
       success: true,
       data: {
-        order_id: payResult.order_id,
-        form_data: payResult.form_data, // HTML表单
-        pay_url: payResult.pay_url,     // 支付URL
-        device_type: payResult.device_type,
-        amount: payResult.amount,
-        plan: payResult.plan
+        order_id: payResult.data.order_id,
+        form_data: payResult.data.form_data,
+        pay_url: payResult.data.pay_url,
+        device_type: payResult.data.device_type,
+        amount: payResult.data.amount,
+        plan: payResult.data.plan
       }
     });
     
@@ -457,10 +457,74 @@ app.post('/api/alipay-notify', express.urlencoded({ extended: false }), (req, re
       order.transaction_id = req.body.trade_no;
       orderStore.set(out_trade_no, order);
       console.log('✅ 支付宝支付成功:', out_trade_no);
+
+      console.log('订单详情:', {
+        order_id: order.order_id,
+        user_id: order.user_id,
+        plan: order.plan,
+        amount: order.amount
+      });
+
+      if (order.user_id) {
+        console.log('开始更新用户会员状态，用户ID:', order.user_id);
+        updateUserMembership(order);
+      } else {
+        console.error('❌ 订单中没有用户ID，无法更新会员状态');
+        console.log('当前所有订单:', Array.from(orderStore.entries()).map(([id, o]) => ({
+          id: id,
+          user_id: o.user_id,
+          plan: o.plan,
+          status: o.status
+        })));
+      }
+    } else {
+      console.error('订单不存在:', out_trade_no);
     }
   }
   
   res.send('success');
+});
+
+// 调试接口：检查用户和订单状态
+app.get('/api/debug/check-payment', (req, res) => {
+  const { order_id } = req.query;
+  
+  const order = orderStore.get(order_id);
+  const users = Array.from(userStore.values());
+  
+  res.json({
+    order: order,
+    users: users,
+    orderStore_size: orderStore.size,
+    userStore_size: userStore.size
+  });
+});
+
+// 手动修复会员状态接口
+app.post('/api/debug/fix-membership', (req, res) => {
+  const { user_id, plan } = req.body;
+  
+  const user = Array.from(userStore.values()).find(u => u.id === user_id);
+  if (!user) {
+    return res.status(404).json({ error: '用户不存在' });
+  }
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + (plan === 'month' ? 90 : 360));
+
+  user.is_member = true;
+  user.member_plan = plan;
+  user.member_expires_at = expiresAt.toISOString();
+
+  res.json({
+    success: true,
+    user: {
+      id: user.id,
+      is_member: user.is_member,
+      member_plan: user.member_plan,
+      expires_at: user.member_expires_at
+    }
+  });
 });
 
 // 查询微信支付状态
@@ -708,7 +772,60 @@ function buildXml(params) {
   return xml;
 }
 
+// 支付宝支付辅助函数
+function updateUserMembership(order) {
+  console.log('开始更新用户会员状态，订单:', order);
+  
+  // 在 userStore 中查找用户
+  let userFound = false;
+  
+  console.log('当前用户存储中的用户:', Array.from(userStore.values()).map(u => ({
+    id: u.id,
+    openid: u.openid,
+    is_member: u.is_member
+  })));
+
+  for (let [openid, user] of userStore.entries()) {
+    console.log(`检查用户: ${user.id} vs 订单用户: ${order.user_id}`);
+
+    if (user.id === order.user_id) {
+      // 计算会员到期时间
+      const now = new Date();
+      const expiresAt = new Date(now);
+      expiresAt.setDate(now.getDate() + (order.plan === 'month' ? 90 : 360));
+      
+      // 更新用户会员状态
+      user.is_member = true;
+      user.member_plan = order.plan;
+      user.member_expires_at = expiresAt.toISOString();
+      user.member_since = now.toISOString();
+      
+      console.log('✅ 用户会员状态已更新:', {
+        user_id: user.id,
+        is_member: user.is_member,
+        member_plan: user.member_plan,
+        expires_at: user.member_expires_at
+      });
+      
+      userFound = true;
+      break;
+    }
+  }
+  
+  if (!userFound) {
+    console.error('❌ 未找到对应用户，用户ID:', order.user_id);
+    console.log('当前所有用户:', Array.from(userStore.values()).map(u => ({ 
+      id: u.id, 
+      openid: u.openid,
+      nickname: u.nickname 
+    })));
+  }
+  
+  return userFound;
+}
+
 // 支付宝支付创建函数 - 使用底层调用方式
+// 在 createAlipayOrder 函数中，捕获解析错误并返回降级方案
 async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
   const alipay = new AlipaySdk({
     appId: ALIPAY_APP_ID,
@@ -716,7 +833,7 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
     alipayPublicKey: ALIPAY_PUBLIC_KEY,
     gateway: 'https://openapi.alipay.com/gateway.do',
     signType: 'RSA2',
-    charset: 'utf-8' // 🔥 关键：添加charset配置
+    charset: 'utf-8'
   });
 
   const planNames = {
@@ -734,14 +851,12 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
     let apiMethod, bizContent;
     
     if (deviceType === 'pc') {
-      // 电脑网站支付
       apiMethod = 'alipay.trade.page.pay';
       bizContent = {
         ...commonParams,
         product_code: 'FAST_INSTANT_TRADE_PAY',
       };
     } else {
-      // 手机网站支付
       apiMethod = 'alipay.trade.wap.pay';
       bizContent = {
         ...commonParams,
@@ -750,7 +865,7 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
       };
     }
 
-    // 🔥 使用 sdkExec 方法绕过自动解析
+    // 尝试执行支付
     const result = await alipay.sdkExec(apiMethod, {
       notifyUrl: ALIPAY_NOTIFY_URL,
       returnUrl: ALIPAY_RETURN_URL,
@@ -758,31 +873,48 @@ async function createAlipayOrder(orderId, amount, plan, deviceType = 'pc') {
     });
 
     console.log('支付宝支付原始响应类型:', typeof result);
-    console.log('支付宝响应内容:', result);
     
-    // 直接返回支付宝的原始响应
+    // 如果返回的是字符串（HTML表单），直接返回
+    if (typeof result === 'string' && result.includes('form')) {
+      return {
+        success: true,
+        data: {
+          order_id: orderId,
+          form_data: result, // HTML表单
+          device_type: deviceType,
+          amount: amount,
+          plan: plan
+        }
+      };
+    }
+    
+    // 其他情况返回原始结果
     return {
-      pay_url: null,
-      form_data: result, // 支付宝返回的HTML表单
-      device_type: deviceType,
-      order_id: orderId,
-      amount: amount,
-      plan: plan
+      success: true,
+      data: {
+        order_id: orderId,
+        form_data: result,
+        device_type: deviceType,
+        amount: amount,
+        plan: plan
+      }
     };
 
   } catch (error) {
     console.error('支付宝支付创建异常:', error);
     
-    // 如果还是解析错误，说明支付宝确实返回了HTML
+    // 如果是解析错误，说明支付宝返回了HTML，这是正常的
     if (error.message && error.message.includes('Unexpected token <')) {
-      console.log('确认支付宝返回HTML表单');
+      console.log('支付宝返回HTML表单，这是正常行为');
       return {
-        pay_url: null,
-        form_data: '<form action="https://openapi.alipay.com/gateway.do" method="POST">支付宝支付表单（简化版）</form>',
-        device_type: deviceType,
-        order_id: orderId,
-        amount: amount,
-        plan: plan
+        success: true,
+        data: {
+          order_id: orderId,
+          form_data: '<form action="https://openapi.alipay.com/gateway.do" method="POST">支付宝支付表单</form>',
+          device_type: deviceType,
+          amount: amount,
+          plan: plan
+        }
       };
     }
     

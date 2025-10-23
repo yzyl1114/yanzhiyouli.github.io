@@ -3,6 +3,12 @@ const cors = require('cors');
 const { parseString } = require('xml2js');
 const crypto = require('crypto');
 
+const fs = require('fs').promises;
+const path = require('path');
+// 用户数据文件路径
+const USER_DATA_FILE = path.join(__dirname, 'user_data.json');
+const ORDER_DATA_FILE = path.join(__dirname, 'order_data.json');
+
 // 支付宝SDK正确引入 - 使用导出的AlipaySdk属性
 const { AlipaySdk } = require('alipay-sdk');
 
@@ -43,6 +49,64 @@ let userStore = new Map();
 
 // 支付订单存储
 let orderStore = new Map();
+
+// 文件锁机制，防止并发写入
+let fileLock = false;
+
+// 文件锁函数
+async function withFileLock(operation) {
+    // 等待锁释放
+    while (fileLock) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    fileLock = true;
+    try {
+        return await operation();
+    } finally {
+        fileLock = false;
+    }
+}
+
+// 加载用户数据
+async function loadUserData() {
+    return withFileLock(async () => {
+        try {
+            const data = await fs.readFile(USER_DATA_FILE, 'utf8');
+            const users = JSON.parse(data);
+            userStore = new Map(users);
+            console.log(`✅ 已加载 ${userStore.size} 个用户数据`);
+            
+            // 🔥 调试：打印所有用户状态
+            users.forEach(([openid, user]) => {
+                console.log(`用户 ${user.nickname} (${openid}): is_member=${user.is_member}`);
+            });
+        } catch (error) {
+            console.log('用户数据文件不存在，使用空存储');
+            userStore = new Map();
+        }
+    });
+}
+
+// 保存用户数据
+async function saveUserData() {
+    return withFileLock(async () => {
+        try {
+            const usersArray = Array.from(userStore.entries());
+            await fs.writeFile(USER_DATA_FILE, JSON.stringify(usersArray, null, 2));
+            console.log(`✅ 已保存 ${userStore.size} 个用户数据`);
+        } catch (error) {
+            console.error('保存用户数据失败:', error);
+        }
+    });
+}
+
+// 修改用户存储操作函数
+function updateUserInStore(openid, userData) {
+    userStore.set(openid, userData);
+    // 自动保存到文件
+    saveUserData().catch(console.error);  // ✅ 修复：添加错误处理参数
+}
 
 // 支付路由 - 正式环境（使用真实微信支付）
 app.post('/api/payment-prod', async (req, res) => {
@@ -300,10 +364,12 @@ async function handleWechatLogin(code) {
       avatar: userInfo.headimgurl,
       created_at: new Date().toISOString(),
       is_member: false,
-      member_plan: null
+      member_plan: null,
+      // 🔥 添加更新时间戳
+        updated_at: new Date().toISOString()
     };
-    
-    userStore.set(openid, userData);
+    // 使用持久化存储
+    updateUserInStore(openid, userData);
     console.log('用户信息已存储:', userData);
 
     console.log('✅ 微信登录处理完成');
@@ -826,14 +892,18 @@ function updateUserMembership(order) {
       user.member_plan = order.plan;
       user.member_expires_at = expiresAt.toISOString();
       user.member_since = now.toISOString();
+      user.updated_at = new Date().toISOString(); // 更新更新时间
       
-      console.log('✅ 用户会员状态已更新:', {
-        user_id: user.id,
-        is_member: user.is_member,
-        member_plan: user.member_plan,
-        expires_at: user.member_expires_at
+      // 🔥 使用持久化存储
+      updateUserInStore(openid, user);
+      
+      console.log('✅ 用户会员状态已更新并持久化:', {
+          user_id: user.id,
+          is_member: user.is_member,
+          member_plan: user.member_plan,
+          expires_at: user.member_expires_at
       });
-      
+
       userFound = true;
       break;
     }
@@ -960,7 +1030,10 @@ function verifyAlipaySign(params) {
   return alipay.checkNotifySign(params);
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+// 🔥 修复：将监听函数改为async
+app.listen(PORT, '0.0.0.0', async () => {
+  // 先加载用户数据
+  await loadUserData();
   console.log(`✅ 支付后端运行在端口 ${PORT}`);
   console.log('✅ 微信支付路由: /api/payment-prod');
   console.log('✅ 支付宝支付路由: /api/alipay/create');
@@ -969,4 +1042,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('✅ 不依赖 Supabase，使用独立用户存储');
   console.log('✅ 已修复循环调用问题，直接调用微信支付API');
 });
-

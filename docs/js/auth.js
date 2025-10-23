@@ -1,4 +1,4 @@
-// auth.js - 使用后端微信登录系统
+
 // 微信登录 - 跳转到你的后端微信登录
 export async function loginWechat() {
   const redirectUri = encodeURIComponent('https://goalcountdown.com/api/wechat-login');
@@ -12,7 +12,26 @@ export async function logout() {
   location.reload();
 }
 
-// 获取当前用户-只从本地存储获取，不处理URL参数，添加本地会员支持
+// 从服务器获取用户信息
+async function fetchUserFromServer(openid) {
+    try {
+        const response = await fetch(`/api/user/current?openid=${encodeURIComponent(openid)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.user) {
+                console.log('✅ 从服务器获取到最新用户信息:', data.user);
+                // 保存到本地存储
+                localStorage.setItem('user_info', JSON.stringify(data.user));
+                return data.user;
+            }
+        }
+    } catch (error) {
+        console.error('从服务器获取用户信息失败:', error);
+    }
+    return null;
+}
+
+// 获取当前用户 - 支持服务器同步
 export async function getUser() {
     try {
         const localUser = localStorage.getItem('user_info');
@@ -22,6 +41,22 @@ export async function getUser() {
             try {
                 user = JSON.parse(localUser);
                 console.log('从本地存储获取用户:', user);
+                
+                // 🔥 关键：如果是支付成功后的页面，强制从服务器同步
+                const urlParams = new URLSearchParams(window.location.search);
+                const paymentSuccess = urlParams.get('payment') === 'success';
+                const forceRefresh = localStorage.getItem('force_refresh_user') === 'true';
+                
+                if ((paymentSuccess || forceRefresh) && user.openid) {
+                    console.log('🔥 支付成功/强制刷新，从服务器同步用户信息');
+                    localStorage.removeItem('force_refresh_user');
+                    
+                    const serverUser = await fetchUserFromServer(user.openid);
+                    if (serverUser) {
+                        user = serverUser;
+                    }
+                }
+                
             } catch (e) {
                 console.error('解析本地用户信息失败:', e);
                 localStorage.removeItem('user_info');
@@ -62,4 +97,10 @@ export async function getUser() {
         console.error('getUser error:', error);
         return null;
     }
+}
+
+// 强制刷新用户信息
+export async function refreshUserInfo() {
+    localStorage.setItem('force_refresh_user', 'true');
+    location.reload();
 }

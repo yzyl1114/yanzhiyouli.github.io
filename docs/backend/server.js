@@ -658,6 +658,33 @@ app.get('/api/debug/orders', (req, res) => {
   });
 });
 
+// 用户信息接口
+app.get('/api/user/current', (req, res) => {
+    const { openid } = req.query;
+    
+    console.log('查询用户信息，openid:', openid);
+    console.log('当前用户存储:', Array.from(userStore.entries()));
+    
+    if (!openid) {
+        return res.status(400).json({ error: 'openid 不能为空' });
+    }
+    
+    const userData = userStore.get(openid);
+    if (userData) {
+        console.log('找到用户:', userData);
+        res.json({ 
+            success: true, 
+            user: userData 
+        });
+    } else {
+        console.log('用户不存在，openid:', openid);
+        res.status(404).json({ 
+            success: false, 
+            error: '用户不存在' 
+        });
+    }
+});
+
 // 工具函数
 
 // 生成随机字符串

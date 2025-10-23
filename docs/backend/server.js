@@ -9,6 +9,8 @@ const path = require('path');
 const USER_DATA_FILE = path.join(__dirname, 'user_data.json');
 const ORDER_DATA_FILE = path.join(__dirname, 'order_data.json');
 
+const CUSTOM_GOALS_FILE = path.join(__dirname, 'custom_goals.json');
+
 // 支付宝SDK正确引入 - 使用导出的AlipaySdk属性
 const { AlipaySdk } = require('alipay-sdk');
 
@@ -47,6 +49,8 @@ const ALIPAY_RETURN_URL = 'https://goalcountdown.com/?payment=success';
 // 用户存储（内存中）
 let userStore = new Map();
 
+let customGoalsStore = new Map();
+
 // 支付订单存储
 let orderStore = new Map();
 
@@ -66,6 +70,38 @@ async function withFileLock(operation) {
     } finally {
         fileLock = false;
     }
+}
+
+// 加载自定义目标数据
+async function loadCustomGoalsData() {
+    return withFileLock(async () => {
+        try {
+            const data = await fs.readFile(CUSTOM_GOALS_FILE, 'utf8');
+            const goals = JSON.parse(data);
+            customGoalsStore = new Map(goals);
+            console.log(`✅ 已加载 ${customGoalsStore.size} 个自定义目标`);
+        } catch (error) {
+            console.log('自定义目标数据文件不存在，使用空存储');
+            customGoalsStore = new Map();
+        }
+    });
+}
+
+// 保存自定义目标数据
+async function saveCustomGoalsData() {
+    return withFileLock(async () => {
+        try {
+            const goalsArray = Array.from(customGoalsStore.entries());
+            await fs.writeFile(CUSTOM_GOALS_FILE, JSON.stringify(goalsArray, null, 2));
+        } catch (error) {
+            console.error('保存自定义目标数据失败:', error);
+        }
+    });
+}
+
+// 生成目标ID（兼容Supabase格式）
+function generateGoalId() {
+    return 'goal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 // 加载用户数据
@@ -748,6 +784,222 @@ app.get('/api/alipay/query/:orderId', async (req, res) => {
   }
 });
 
+// 获取用户的自定义目标 - 兼容现有查询逻辑
+app.get('/api/custom-goals', (req, res) => {
+    const { user_id, openid } = req.query;
+    
+    if (!user_id && !openid) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'user_id 或 openid 不能为空' 
+        });
+    }
+
+    try {
+        // 兼容两种查询方式：user_id 或 openid
+        const userGoals = Array.from(customGoalsStore.values())
+            .filter(goal => goal.user_id === user_id || goal.openid === openid)
+            .sort((a, b) => new Date(a.date) - new Date(b.date)); // 保持按日期排序
+
+        console.log(`找到用户 ${user_id || openid} 的 ${userGoals.length} 个目标`);
+
+        res.json({
+            success: true,
+            data: userGoals
+        });
+    } catch (error) {
+        console.error('获取自定义目标失败:', error);
+        res.status(500).json({
+            success: false,
+            error: '获取目标失败'
+        });
+    }
+});
+
+// 创建自定义目标 - 兼容现有创建逻辑
+app.post('/api/custom-goals', async (req, res) => {
+    const { name, date, category, user_id, openid } = req.body;
+    
+    console.log('创建自定义目标请求:', req.body);
+
+    if (!name || !date || (!user_id && !openid)) {
+        return res.status(400).json({
+            success: false,
+            error: '缺少必要参数: name, date, user_id 或 openid'
+        });
+    }
+
+    try {
+        // 通过 openid 获取用户信息（用于会员验证）
+        const user = userStore.get(openid);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: '用户不存在'
+            });
+        }
+
+        // 严格检查会员状态（与前端保持一致）
+        const now = new Date();
+        const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now;
+        const isValidMember = user.is_member && !isMemberExpired;
+
+        if (!isValidMember) {
+            return res.status(403).json({
+                success: false,
+                error: '需要有效会员才能创建自定义目标'
+            });
+        }
+
+        // 检查目标数量限制（与前端保持一致）
+        const userGoals = Array.from(customGoalsStore.values())
+            .filter(goal => goal.user_id === user_id || goal.openid === openid);
+        
+        const maxGoals = user.member_plan === 'month' ? 3 : 5;
+        if (userGoals.length >= maxGoals) {
+            return res.status(403).json({
+                success: false,
+                error: `已达到最大目标数量限制: ${maxGoals}个`
+            });
+        }
+
+        // 创建新目标（保持与Supabase兼容的数据结构）
+        const goalId = generateGoalId();
+        const goalData = {
+            id: goalId,
+            name: name.trim(),
+            date: date,
+            category: category || 'custom',
+            user_id: user_id,    // 保持 user_id 字段
+            openid: openid,      // 新增 openid 字段
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+
+        customGoalsStore.set(goalId, goalData);
+        await saveCustomGoalsData();
+
+        console.log('✅ 自定义目标创建成功:', goalData);
+
+        res.json({
+            success: true,
+            data: goalData
+        });
+
+    } catch (error) {
+        console.error('创建自定义目标失败:', error);
+        res.status(500).json({
+            success: false,
+            error: '创建目标失败: ' + error.message
+        });
+    }
+});
+
+// 删除自定义目标 - 兼容现有删除逻辑
+app.delete('/api/custom-goals/:goalId', async (req, res) => {
+    const { goalId } = req.params;
+    const { user_id, openid } = req.body; // 从body中获取
+
+    if (!user_id && !openid) {
+        return res.status(400).json({
+            success: false,
+            error: 'user_id 或 openid 不能为空'
+        });
+    }
+
+    try {
+        const goal = customGoalsStore.get(goalId);
+        if (!goal) {
+            return res.status(404).json({
+                success: false,
+                error: '目标不存在'
+            });
+        }
+
+        // 检查权限（兼容两种标识）
+        if (goal.user_id !== user_id && goal.openid !== openid) {
+            return res.status(403).json({
+                success: false,
+                error: '无权删除此目标'
+            });
+        }
+
+        customGoalsStore.delete(goalId);
+        await saveCustomGoalsData();
+
+        console.log('✅ 自定义目标删除成功:', goalId);
+
+        res.json({
+            success: true,
+            message: '目标删除成功'
+        });
+
+    } catch (error) {
+        console.error('删除自定义目标失败:', error);
+        res.status(500).json({
+            success: false,
+            error: '删除目标失败'
+        });
+    }
+});
+
+// 更新自定义目标 - 兼容现有更新逻辑
+app.put('/api/custom-goals/:goalId', async (req, res) => {
+    const { goalId } = req.params;
+    const { name, date, category, user_id, openid } = req.body;
+
+    if (!user_id && !openid) {
+        return res.status(400).json({
+            success: false,
+            error: 'user_id 或 openid 不能为空'
+        });
+    }
+
+    try {
+        const goal = customGoalsStore.get(goalId);
+        if (!goal) {
+            return res.status(404).json({
+                success: false,
+                error: '目标不存在'
+            });
+        }
+
+        // 检查权限（兼容两种标识）
+        if (goal.user_id !== user_id && goal.openid !== openid) {
+            return res.status(403).json({
+                success: false,
+                error: '无权更新此目标'
+            });
+        }
+
+        // 更新目标（保持数据结构兼容）
+        const updatedGoal = {
+            ...goal,
+            ...(name && { name: name.trim() }),
+            ...(date && { date: date }),
+            ...(category && { category: category }),
+            updated_at: new Date().toISOString()
+        };
+
+        customGoalsStore.set(goalId, updatedGoal);
+        await saveCustomGoalsData();
+
+        console.log('✅ 自定义目标更新成功:', updatedGoal);
+
+        res.json({
+            success: true,
+            data: updatedGoal
+        });
+
+    } catch (error) {
+        console.error('更新自定义目标失败:', error);
+        res.status(500).json({
+            success: false,
+            error: '更新目标失败'
+        });
+    }
+});
+
 // 健康检查
 app.get('/health', (req, res) => {
   res.json({ 
@@ -1077,10 +1329,13 @@ function verifyAlipaySign(params) {
 app.listen(PORT, '0.0.0.0', async () => {
   // 先加载用户数据
   await loadUserData();
+  await loadCustomGoalsData(); // 🔥 新增：加载自定义目标数据
+
   console.log(`✅ 支付后端运行在端口 ${PORT}`);
   console.log('✅ 微信支付路由: /api/payment-prod');
   console.log('✅ 支付宝支付路由: /api/alipay/create');
   console.log('✅ 支付宝回调: /api/alipay-notify');
+  console.log('✅ 自定义目标API: /api/custom-goals'); // 🔥 新增
   console.log('✅ 当前使用完全离线模式');
   console.log('✅ 不依赖 Supabase，使用独立用户存储');
   console.log('✅ 已修复循环调用问题，直接调用微信支付API');

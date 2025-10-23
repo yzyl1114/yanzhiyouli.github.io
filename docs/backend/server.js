@@ -129,19 +129,53 @@ async function saveUserData() {
     return withFileLock(async () => {
         try {
             const usersArray = Array.from(userStore.entries());
-            await fs.writeFile(USER_DATA_FILE, JSON.stringify(usersArray, null, 2));
-            console.log(`✅ 已保存 ${userStore.size} 个用户数据`);
+            console.log('🔥 保存用户数据到文件，用户数量:', usersArray.length);
+            
+            // 详细日志
+            usersArray.forEach(([openid, user]) => {
+                console.log(`🔥 保存用户 ${user.nickname}: is_member=${user.is_member}, plan=${user.member_plan}`);
+            });
+            
+            const filePath = USER_DATA_FILE;
+            const data = JSON.stringify(usersArray, null, 2);
+            
+            console.log('🔥 写入文件路径:', filePath);
+            console.log('🔥 写入数据长度:', data.length);
+            
+            // 确保目录存在
+            await fs.mkdir(path.dirname(filePath), { recursive: true });
+            
+            // 写入文件
+            await fs.writeFile(filePath, data, 'utf8');
+            console.log('✅ 用户数据已成功保存到文件');
+            
+            // 验证写入
+            const verifyData = await fs.readFile(filePath, 'utf8');
+            console.log('✅ 文件写入验证成功，文件大小:', verifyData.length);
+            
         } catch (error) {
-            console.error('保存用户数据失败:', error);
+            console.error('❌ 保存用户数据失败:', error);
+            console.error('❌ 错误堆栈:', error.stack);
         }
     });
 }
 
 // 修改用户存储操作函数
 function updateUserInStore(openid, userData) {
-    userStore.set(openid, userData);
-    // 自动保存到文件
-    saveUserData().catch(console.error);  // ✅ 修复：添加错误处理参数
+    console.log('🔥 更新用户存储:', {
+        openid: openid,
+        nickname: userData.nickname,
+        is_member: userData.is_member,
+        member_plan: userData.member_plan
+    });
+    
+    // 确保存储的是新对象
+    userStore.set(openid, { ...userData });
+    
+    // 立即保存到文件
+    saveUserData().catch(error => {
+        console.error('❌ 保存用户数据失败:', error);
+    });
 }
 
 // 支付路由 - 正式环境（使用真实微信支付）

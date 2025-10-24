@@ -86,8 +86,13 @@
                 await createCustomGoal({name,date:dt.toISOString(),category})
                 alert('目标创建成功')
             }
-            window.opener?.location?.reload?.()
-            window.open('index.html','_self')
+            // 修复：只执行一种跳转方式，避免重复
+            if (window.opener) {
+                window.opener.location.reload()
+                window.close() // 关闭当前窗口
+            } else {
+                window.location.href = 'index.html'
+            }
         } catch (error) {
             alert('操作失败，请重试')
         }

@@ -432,63 +432,62 @@
       function renderCustomGoalCard(g){
           const grid = document.querySelector('.entry-grid');
           if (!grid) return;
-          
-          const item=document.createElement('div');
-          item.className='entry-item custom-goal';
-          item.style.position='relative';
-          
+            
+          const item = document.createElement('div');
+          item.className = 'entry-item custom-goal';
+          item.style.position = 'relative';
+            
           // 根据分类选择图片
-          let imageSrc = 'images/custom-plus.jpg'; // 默认图片
+          let imageSrc = 'images/custom-plus.jpg';
           switch(g.category) {
-              case 'work':
-                  imageSrc = 'images/work.png';
-                  break;
-              case 'life':
-                  imageSrc = 'images/life.png';
-                  break;
-              case 'study':
-                  imageSrc = 'images/study.png';
-                  break;
-              case 'health':
-                  imageSrc = 'images/health.png';
-                  break;
-              case 'travel':
-                  imageSrc = 'images/travel.png';
-                  break;
-              case 'finance':
-                  imageSrc = 'images/finance.png';
-                  break;
-              case 'project':
-                  imageSrc = 'images/project.png';
-                  break;
-              case 'celebration':
-                  imageSrc = 'images/celebration.png';
-                  break;              
-              case 'other':
-                  imageSrc = 'images/others.png';
-                  break;
+              case 'work': imageSrc = 'images/work.png'; break;
+              case 'life': imageSrc = 'images/life.png'; break;
+              case 'study': imageSrc = 'images/study.png'; break;
+              case 'health': imageSrc = 'images/health.png'; break;
+              case 'travel': imageSrc = 'images/travel.png'; break;
+              case 'finance': imageSrc = 'images/finance.png'; break;
+              case 'project': imageSrc = 'images/project.png'; break;
+              case 'celebration': imageSrc = 'images/celebration.png'; break;              
+              case 'other': imageSrc = 'images/others.png'; break;
               case 'exam':
-              default:
-                  imageSrc = 'images/custom-plus.jpg';
+              default: imageSrc = 'images/custom-plus.jpg';
           }
-          
-          item.innerHTML=`
+            
+          item.innerHTML = `
               <img src="${imageSrc}" class="entry-image" onerror="this.src='images/custom-plus.jpg'">
               <h3 class="entry-title">${g.name}</h3>
               <div class="custom-goal-actions" style="display:none;position:absolute;top:6px;right:6px;display:flex;gap:4px;">
                   <i class="edit-icon" style="background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">✏️</i>
                   <i class="del-icon" style="background:rgba(0,0,0,.5);color:#fff;border-radius:3px;padding:2px 4px;font-size:12px;cursor:pointer">🗑️</i>
               </div>`;
-          item.onclick=()=> location.href=`countdown.html?custom=${g.id}`;
-          item.onmouseenter=()=> item.querySelector('.custom-goal-actions').style.display='flex';
-          item.onmouseleave=()=> item.querySelector('.custom-goal-actions').style.display='none';
-          item.querySelector('.edit-icon').onclick=e=>{
+            
+          // 修复：使用事件委托，确保只有点击卡片主体才跳转
+          item.addEventListener('click', (e) => {
+              // 如果点击的是操作按钮，不执行跳转
+              if (e.target.classList.contains('edit-icon') || e.target.classList.contains('del-icon')) {
+                  return;
+              }
+              // 只有点击卡片主体才跳转
+              window.location.href = `countdown.html?custom=${g.id}`;
+          });
+            
+          item.addEventListener('mouseenter', () => {
+              item.querySelector('.custom-goal-actions').style.display = 'flex';
+          });
+            
+          item.addEventListener('mouseleave', () => {
+              item.querySelector('.custom-goal-actions').style.display = 'none';
+          });
+            
+          // 单独绑定编辑和删除事件
+          item.querySelector('.edit-icon').addEventListener('click', e => {
               e.stopPropagation();
-              const btn=document.getElementById('btn-open-edit');
-              btn.dataset.gid=g.id;
+              const btn = document.getElementById('btn-open-edit');
+              btn.dataset.gid = g.id;
               btn.click();
-          };
-          item.querySelector('.del-icon').onclick=async e=>{
+          });
+            
+          item.querySelector('.del-icon').addEventListener('click', async e => {
               e.stopPropagation();
               if(!confirm('确定删除？')) return;
               try {
@@ -498,7 +497,8 @@
               } catch (error) {
                   alert('删除失败，请重试');
               }
-          };
+          });
+            
           grid.appendChild(item);
       }
 

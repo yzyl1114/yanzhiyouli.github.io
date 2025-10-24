@@ -62,8 +62,8 @@
   </div>
 
   <script type="module">
-      // ✅ 修正导入语句
-      import { getCurrentUser, createAlipayOrder, pollAlipayOrder } from './js/member.js'
+      import { getUser } from './js/auth.js'
+      import { createAlipayOrder, pollAlipayOrder } from './js/payment.js' 
         
       let plan = 'month', orderId
 
@@ -75,7 +75,7 @@
               // 等待页面完全加载
               await new Promise(resolve => setTimeout(resolve, 100))
             
-              const user = await getCurrentUser()
+              const user = await getUser()
               console.log('当前用户状态:', user)
 
               // 清除所有卡片的active状态

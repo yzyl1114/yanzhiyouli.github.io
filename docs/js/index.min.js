@@ -298,18 +298,12 @@ async function renderCustomCards(user) {
             `
             
             item.addEventListener('click', (e) => {
-                if (e.target.classList.contains('del-icon')) {
-                    e.stopPropagation()
-                    deleteCustomGoal(goal.id)
-                    return
+                // 修复：检查是否点击了操作图标
+                if (e.target.classList.contains('del-icon') || e.target.classList.contains('edit-icon')) {
+                    return; // 点击操作图标时不跳转
                 }
-                if (e.target.classList.contains('edit-icon')) {
-                    e.stopPropagation()
-                    editCustomGoal(goal)
-                    return
-                }
-                window.location.href = `countdown.html?custom=${goal.id}`
-            })
+                window.location.href = `countdown.html?custom=${goal.id}`;
+            });
             
             item.addEventListener('mouseenter', () => {
                 const editIcon = item.querySelector('.edit-icon')

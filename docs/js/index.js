@@ -257,45 +257,64 @@ async function checkMembershipOnLogin() {
 
 // 渲染自定义目标卡片
 async function renderCustomCards(user) {
-    const grid = document.querySelector('.entry-grid')
+    console.log('🔥 renderCustomCards 开始执行，用户:', user ? user.id : '未登录');
+    
+    const grid = document.querySelector('.entry-grid');
+    if (!grid) {
+        console.error('❌ 找不到 .entry-grid 元素');
+        return;
+    }
     
     // 清理现有的自定义目标卡片
-    document.querySelectorAll('.custom-goal, .custom-plus').forEach(el => el.remove())
+    const existingCards = document.querySelectorAll('.custom-goal, .custom-plus');
+    console.log(`🔥 清理 ${existingCards.length} 个现有卡片`);
+    existingCards.forEach(el => {
+        console.log('🔥 移除卡片:', el.querySelector('.entry-title')?.textContent);
+        el.remove();
+    });
     
-    if (!user) return
+    if (!user) {
+        console.log('🔥 用户未登录，跳过渲染');
+        return;
+    }
 
     try {
         // 严格的会员验证：检查是否有效会员
-        const now = new Date()
-        const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now
-        const isValidMember = user.is_member && !isMemberExpired
+        const now = new Date();
+        const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now;
+        const isValidMember = user.is_member && !isMemberExpired;
         
-        console.log('渲染自定义目标前的会员验证:', {
+        console.log('🔥 渲染自定义目标前的会员验证:', {
             isValidMember: isValidMember,
             is_member: user.is_member, 
-            isMemberExpired: isMemberExpired
-        })
+            isMemberExpired: isMemberExpired,
+            member_expires_at: user.member_expires_at,
+            now: now.toISOString()
+        });
         
         // 如果不是有效会员，完全不渲染任何自定义目标
         if (!isValidMember) {
-            console.log('用户不是有效会员，跳过渲染所有自定义目标')
-            return
+            console.log('🔥 用户不是有效会员，跳过渲染所有自定义目标');
+            return;
         }
 
-        const customGoals = await getMyCustomGoals()
-        console.log('获取到的自定义目标:', customGoals)
+        console.log('🔥 开始获取自定义目标...');
+        const customGoals = await getMyCustomGoals();
+        console.log('🔥 获取到的自定义目标数量:', customGoals.length);
+        console.log('🔥 目标列表:', customGoals);
         
         // 1. 渲染已创建的目标（只有有效会员才会执行到这里）
         customGoals.forEach(goal => {
-            const item = document.createElement('div')
-            item.className = 'entry-item custom-goal'
-            item.setAttribute('data-goal-id', goal.id)
+            console.log('🔥 渲染目标卡片:', goal.name);
+            const item = document.createElement('div');
+            item.className = 'entry-item custom-goal';
+            item.setAttribute('data-goal-id', goal.id);
             item.innerHTML = `
                 <img src="images/custom-plus.jpg" class="entry-image">
                 <h3 class="entry-title">${goal.name}</h3>
                 <i class="edit-icon" style="display:none">✏️</i>
                 <i class="del-icon" style="display:none">🗑️</i>
-            `
+            `;
             
             item.addEventListener('click', (e) => {
                 // 修复：检查是否点击了操作图标
@@ -306,39 +325,47 @@ async function renderCustomCards(user) {
             });
             
             item.addEventListener('mouseenter', () => {
-                const editIcon = item.querySelector('.edit-icon')
-                const delIcon = item.querySelector('.del-icon')
-                if (editIcon) editIcon.style.display = 'block'
-                if (delIcon) delIcon.style.display = 'block'
-            })
+                const editIcon = item.querySelector('.edit-icon');
+                const delIcon = item.querySelector('.del-icon');
+                if (editIcon) editIcon.style.display = 'block';
+                if (delIcon) delIcon.style.display = 'block';
+            });
             
             item.addEventListener('mouseleave', () => {
-                const editIcon = item.querySelector('.edit-icon')
-                const delIcon = item.querySelector('.del-icon')
-                if (editIcon) editIcon.style.display = 'none'
-                if (delIcon) delIcon.style.display = 'none'
-            })
+                const editIcon = item.querySelector('.edit-icon');
+                const delIcon = item.querySelector('.del-icon');
+                if (editIcon) editIcon.style.display = 'none';
+                if (delIcon) delIcon.style.display = 'none';
+            });
 
-            grid.prepend(item)
-        })
+            grid.prepend(item);
+            console.log('🔥 已添加目标卡片到网格:', goal.name);
+        });
 
         // 2. 检查是否可以创建新目标（只有有效会员才会显示+号）
-        const maxGoals = user.member_plan === 'month' ? 3 : 5
-        const canCreate = customGoals.length < maxGoals
+        const maxGoals = user.member_plan === 'month' ? 3 : 5;
+        const canCreate = customGoals.length < maxGoals;
         
         if (canCreate) {
-            const plus = document.createElement('div')
-            plus.className = 'entry-item custom-plus'
+            console.log('🔥 可以创建新目标，显示+号');
+            const plus = document.createElement('div');
+            plus.className = 'entry-item custom-plus';
             plus.innerHTML = `
                 <img src="images/plus.svg" class="entry-image">
                 <h3 class="entry-title">自定义目标</h3>
-            `
-            plus.onclick = () => openCustomGoalDialog()
-            grid.prepend(plus)
+            `;
+            plus.onclick = () => openCustomGoalDialog();
+            grid.prepend(plus);
+            console.log('🔥 已添加+号卡片');
+        } else {
+            console.log('🔥 已达到最大目标数量限制，不显示+号');
         }
         
+        console.log('🔥 renderCustomCards 执行完成');
+        
     } catch (error) {
-        console.error('渲染自定义目标失败:', error)
+        console.error('❌ 渲染自定义目标失败:', error);
+        console.error('❌ 错误堆栈:', error.stack);
     }
 }
 

@@ -216,8 +216,30 @@ function initSettingsModal() {
       
       // VIP图片拦截逻辑 - 修复：简化逻辑，确保执行
       if (['bg5', 'bg6', 'bg7', 'bg8', 'bg9', 'bg10', 'bg11', 'bg12', 'bg13', 'bg14', 'bg15', 'bg16', 'bg17', 'bg18', 'bg19', 'bg20', 'bg21', 'bg22', 'bg23', 'bg24'].includes(bgId)) {
-          console.log('VIP图片检查开始');
+          
+          console.log('=== VIP背景图点击调试信息 ===');
+          console.log('点击的背景图ID:', bgId);
+          
           const user = await getUser();
+          console.log('用户信息完整对象:', user);
+          console.log('user.is_member:', user?.is_member);
+          console.log('user.member_plan:', user?.member_plan);
+          console.log('user.member_expires_at:', user?.member_expires_at);
+          
+          // 检查会员状态
+          if (user) {
+              const now = new Date();
+              const isMemberExpired = user.member_expires_at && new Date(user.member_expires_at) < now;
+              console.log('会员是否过期:', isMemberExpired);
+              console.log('有效会员状态:', user.is_member && !isMemberExpired);
+              
+              // 检查本地存储的会员状态
+              const localMembership = localStorage.getItem('user_membership');
+              console.log('本地存储的会员状态:', localMembership);
+          }
+          console.log('=== VIP调试信息结束 ===');          
+          
+          console.log('VIP图片检查开始');
           console.log('VIP检查用户状态:', user);
           
           // 情况1：未登录用户

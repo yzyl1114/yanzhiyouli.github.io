@@ -1,10 +1,10 @@
-import { getCurrentUser } from './member.js'
+import { getUser } from './auth.js'  // ✅ 改为正确的用户来源
 
 // 新建目标 - 增强会员验证版本（保持原有逻辑）
 export async function createCustomGoal({ name, date, category }) {
   try {
     // 获取当前用户完整信息（保持不变）
-    const user = await getCurrentUser()
+    const user = await getUser()
     if (!user) {
       alert('用户未登录')
       return null
@@ -70,7 +70,7 @@ export async function createCustomGoal({ name, date, category }) {
 // 删除目标 - 修复版本（迁移到自有服务器）
 export async function deleteCustomGoal(id) {
   try {
-    const user = await getCurrentUser()
+    const user = await getUser()
     if (!user) {
       alert('用户未登录')
       return
@@ -110,7 +110,7 @@ export async function deleteCustomGoal(id) {
 // 编辑目标 - 修复版本（迁移到自有服务器）
 export async function updateCustomGoal(id, updates) {
   try {
-    const user = await getCurrentUser()
+    const user = await getUser()
     if (!user) {
       alert('用户未登录')
       return
@@ -151,7 +151,7 @@ export async function updateCustomGoal(id, updates) {
 // 获取我的自定义目标 - 修复版本（迁移到自有服务器）
 export async function getMyCustomGoals() {
   try {
-    const user = await getCurrentUser()
+    const user = await getUser()
     if (!user) return []
 
     // 🔥 关键修改：迁移到自有服务器 API

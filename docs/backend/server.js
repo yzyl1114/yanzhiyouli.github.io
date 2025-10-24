@@ -108,7 +108,26 @@ function generateGoalId() {
 async function loadUserData() {
     return withFileLock(async () => {
         try {
+            console.log('📁 尝试加载用户数据文件:', USER_DATA_FILE);
+            
+            // 检查文件是否存在
+            try {
+                await fs.access(USER_DATA_FILE);
+            } catch (error) {
+                console.log('📁 用户数据文件不存在，创建空存储');
+                userStore = new Map();
+                return;
+            }
+            
             const data = await fs.readFile(USER_DATA_FILE, 'utf8');
+            console.log('📁 读取到文件数据，长度:', data.length);
+            
+            if (!data || data.trim() === '') {
+                console.log('📁 文件为空，使用空存储');
+                userStore = new Map();
+                return;
+            }
+            
             const users = JSON.parse(data);
             userStore = new Map(users);
             console.log(`✅ 已加载 ${userStore.size} 个用户数据`);
@@ -118,7 +137,8 @@ async function loadUserData() {
                 console.log(`用户 ${user.nickname} (${openid}): is_member=${user.is_member}`);
             });
         } catch (error) {
-            console.log('用户数据文件不存在，使用空存储');
+            console.error('❌ 加载用户数据失败:', error);
+            console.error('❌ 错误详情:', error.message);
             userStore = new Map();
         }
     });
@@ -131,6 +151,11 @@ async function saveUserData() {
             const usersArray = Array.from(userStore.entries());
             console.log('🔥 保存用户数据到文件，用户数量:', usersArray.length);
             
+            if (usersArray.length === 0) {
+                console.log('⚠️ 用户数据为空，跳过保存');
+                return;
+            }
+            
             // 详细日志
             usersArray.forEach(([openid, user]) => {
                 console.log(`🔥 保存用户 ${user.nickname}: is_member=${user.is_member}, plan=${user.member_plan}`);
@@ -140,22 +165,22 @@ async function saveUserData() {
             const data = JSON.stringify(usersArray, null, 2);
             
             console.log('🔥 写入文件路径:', filePath);
-            console.log('🔥 写入数据长度:', data.length);
+            console.log('🔥 写入数据:', data);
             
-            // 确保目录存在
-            await fs.mkdir(path.dirname(filePath), { recursive: true });
-            
-            // 写入文件
+            // 直接写入，不检查目录（目录肯定存在）
             await fs.writeFile(filePath, data, 'utf8');
             console.log('✅ 用户数据已成功保存到文件');
             
-            // 验证写入
+            // 立即验证
             const verifyData = await fs.readFile(filePath, 'utf8');
-            console.log('✅ 文件写入验证成功，文件大小:', verifyData.length);
+            const verifyUsers = JSON.parse(verifyData);
+            console.log('✅ 文件写入验证成功，验证用户数:', verifyUsers.length);
+            console.log('✅ 验证用户会员状态:', verifyUsers[0][1].is_member);
             
         } catch (error) {
             console.error('❌ 保存用户数据失败:', error);
             console.error('❌ 错误堆栈:', error.stack);
+            throw error; // 重新抛出错误，让调用方知道失败
         }
     });
 }
@@ -172,8 +197,10 @@ function updateUserInStore(openid, userData) {
     // 确保存储的是新对象
     userStore.set(openid, { ...userData });
     
-    // 立即保存到文件
-    saveUserData().catch(error => {
+    // 立即保存到文件，并等待完成
+    saveUserData().then(() => {
+        console.log('✅ 用户数据保存完成');
+    }).catch(error => {
         console.error('❌ 保存用户数据失败:', error);
     });
 }
@@ -679,29 +706,49 @@ app.get('/api/debug/check-payment', (req, res) => {
   });
 });
 
-// 手动修复会员状态接口
+// 修复会员状态接口
 app.post('/api/debug/fix-membership', (req, res) => {
   const { user_id, plan } = req.body;
   
-  const user = Array.from(userStore.values()).find(u => u.id === user_id);
-  if (!user) {
+  // 通过 openid 查找用户
+  let targetUser = null;
+  let targetOpenid = null;
+  
+  for (let [openid, user] of userStore.entries()) {
+    if (user.id === user_id) {
+      targetUser = user;
+      targetOpenid = openid;
+      break;
+    }
+  }
+  
+  if (!targetUser) {
     return res.status(404).json({ error: '用户不存在' });
   }
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + (plan === 'month' ? 90 : 360));
 
-  user.is_member = true;
-  user.member_plan = plan;
-  user.member_expires_at = expiresAt.toISOString();
-
+  // 使用 updateUserInStore 来确保数据持久化
+  const updatedUser = {
+    ...targetUser,
+    is_member: true,
+    member_plan: plan,
+    member_expires_at: expiresAt.toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  
+  updateUserInStore(targetOpenid, updatedUser);
+  
+  console.log('🔥 手动修复会员状态完成，已调用持久化存储');
+  
   res.json({
     success: true,
     user: {
-      id: user.id,
-      is_member: user.is_member,
-      member_plan: user.member_plan,
-      expires_at: user.member_expires_at
+      id: updatedUser.id,
+      is_member: updatedUser.is_member,
+      member_plan: updatedUser.member_plan,
+      expires_at: updatedUser.member_expires_at
     }
   });
 });
@@ -1217,20 +1264,23 @@ function updateUserMembership(order) {
       expiresAt.setDate(now.getDate() + (order.plan === 'month' ? 90 : 360));
       
       // 更新用户会员状态
-      user.is_member = true;
-      user.member_plan = order.plan;
-      user.member_expires_at = expiresAt.toISOString();
-      user.member_since = now.toISOString();
-      user.updated_at = new Date().toISOString(); // 更新更新时间
+      const updatedUser = {
+        ...user,
+        is_member: true,
+        member_plan: order.plan,
+        member_expires_at: expiresAt.toISOString(),
+        member_since: now.toISOString(),
+        updated_at: new Date().toISOString()
+      };
       
       // 🔥 使用持久化存储
-      updateUserInStore(openid, user);
+      updateUserInStore(openid, updatedUser);
       
       console.log('✅ 用户会员状态已更新并持久化:', {
-          user_id: user.id,
-          is_member: user.is_member,
-          member_plan: user.member_plan,
-          expires_at: user.member_expires_at
+          user_id: updatedUser.id,
+          is_member: updatedUser.is_member,
+          member_plan: updatedUser.member_plan,
+          expires_at: updatedUser.member_expires_at
       });
 
       userFound = true;

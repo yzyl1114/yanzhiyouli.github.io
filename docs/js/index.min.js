@@ -413,28 +413,36 @@ async function initHomePage() {
         return;
     }
 
-    console.log('开始初始化首页...');
+    console.log('🔥 initHomePage 开始执行');
 
     try {
         // 1. 获取用户信息
+        console.log('🔥 步骤1: 获取用户信息');
         const user = await getUser();
-        console.log('用户信息:', user);
+        console.log('🔥 用户信息:', user);
 
         // 2. 渲染导航栏用户信息
+        console.log('🔥 步骤2: 渲染导航栏');
         renderUserBar(user);
 
         // 3. 检查会员状态并清理过期目标
+        console.log('🔥 步骤3: 检查会员状态');
         await checkMembershipOnLogin();
 
         // 4. 渲染自定义目标卡片
+        console.log('🔥 步骤4: 准备渲染自定义目标卡片');
+        console.log('🔥 调用 renderCustomCards 前');
         await renderCustomCards(user);
+        console.log('🔥 调用 renderCustomCards 后');
 
         // 5. 渲染基础内容
+        console.log('🔥 步骤5: 渲染基础内容');
         updateCurrentDate();
         renderCountdownEntries();
         showActivityModal();
 
         // 6. 绑定事件
+        console.log('🔥 步骤6: 绑定事件');
         document.querySelectorAll(".close-modal").forEach(closeBtn => {
             closeBtn.addEventListener("click", () => {
                 document.querySelectorAll(".modal").forEach(modal => {
@@ -452,14 +460,16 @@ async function initHomePage() {
         });
 
         // ① 立即执行一次会员过期检查 & 清理
+        console.log('🔥 步骤7: 监控会员状态');
         await monitorMembershipStatus();
         // ② 每 60 秒轮询一次（可自己改）
         setInterval(monitorMembershipStatus, 60_000);
 
-        console.log('首页初始化完成');
+        console.log('🔥 initHomePage 执行完成');
 
     } catch (error) {
-        console.error('首页初始化失败:', error);
+        console.error('❌ initHomePage 执行失败:', error);
+        console.error('❌ 错误堆栈:', error.stack);
     }
 }
 

@@ -338,14 +338,14 @@
           renderCountdownEntries();
 
           // 2. 已创建的自定义目标
-        //if (user) {
-            //try {
-                //const list = await getMyCustomGoals();
-                //list.forEach(g => renderCustomGoalCard(g));
-            //} catch (error) {
-                //console.error('获取自定义目标失败:', error);
-            //}
-        //}
+          if (user) {
+              try {
+                  const list = await getMyCustomGoals();
+                  list.forEach(g => renderCustomGoalCard(g));
+              } catch (error) {
+                  console.error('获取自定义目标失败:', error);
+              }
+          }
 
           // 3. 「+」卡片（始终显示）
           const plus = document.createElement('div');

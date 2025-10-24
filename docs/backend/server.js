@@ -72,7 +72,7 @@ async function withFileLock(operation) {
     }
 }
 
-// 加载自定义目标数据
+// 加载自定义目标数据 - 改进版本
 async function loadCustomGoalsData() {
     return withFileLock(async () => {
         try {
@@ -81,15 +81,41 @@ async function loadCustomGoalsData() {
                 await fs.access(CUSTOM_GOALS_FILE, fs.constants.R_OK | fs.constants.W_OK);
                 console.log('✅ 自定义目标文件可读写');
             } catch (error) {
-                console.log('自定义目标数据文件不存在，使用空存储');
+                console.log('自定义目标数据文件不存在，创建新文件');
+                await fs.writeFile(CUSTOM_GOALS_FILE, '[]');
                 customGoalsStore = new Map();
                 return;
             }
             
             const data = await fs.readFile(CUSTOM_GOALS_FILE, 'utf8');
-            const goals = JSON.parse(data);
-            customGoalsStore = new Map(goals);
-            console.log(`✅ 已加载 ${customGoalsStore.size} 个自定义目标`);
+            
+            // 检查文件是否为空或无效
+            if (!data || data.trim() === '') {
+                console.log('文件为空，初始化空数据');
+                await fs.writeFile(CUSTOM_GOALS_FILE, '[]');
+                customGoalsStore = new Map();
+                return;
+            }
+            
+            // 严格验证JSON格式
+            try {
+                const goals = JSON.parse(data);
+                if (!Array.isArray(goals)) {
+                    throw new Error('数据格式错误：不是数组');
+                }
+                customGoalsStore = new Map(goals);
+                console.log(`✅ 已加载 ${customGoalsStore.size} 个自定义目标`);
+            } catch (parseError) {
+                console.error('JSON解析失败，重置文件:', parseError);
+                // 备份损坏的文件
+                const backupFile = CUSTOM_GOALS_FILE + '.backup.' + Date.now();
+                await fs.copyFile(CUSTOM_GOALS_FILE, backupFile);
+                console.log('已备份损坏文件到:', backupFile);
+                
+                // 创建新的空文件
+                await fs.writeFile(CUSTOM_GOALS_FILE, '[]');
+                customGoalsStore = new Map();
+            }
         } catch (error) {
             console.error('加载自定义目标数据失败，使用空存储:', error);
             customGoalsStore = new Map();
@@ -97,14 +123,36 @@ async function loadCustomGoalsData() {
     });
 }
 
-// 保存自定义目标数据
+// 保存自定义目标数据 - 改进版本
 async function saveCustomGoalsData() {
     return withFileLock(async () => {
         try {
             const goalsArray = Array.from(customGoalsStore.entries());
-            await fs.writeFile(CUSTOM_GOALS_FILE, JSON.stringify(goalsArray, null, 2));
+            
+            // 使用临时文件确保写入原子性
+            const tempFile = CUSTOM_GOALS_FILE + '.tmp';
+            const data = JSON.stringify(goalsArray, null, 2);
+            
+            // 写入临时文件
+            await fs.writeFile(tempFile, data, 'utf8');
+            
+            // 验证临时文件（轻量级检查）
+            const verifyData = await fs.readFile(tempFile, 'utf8');
+            if (!verifyData || verifyData.trim() === '') {
+                throw new Error('临时文件写入失败');
+            }
+            
+            // 原子性替换
+            await fs.rename(tempFile, CUSTOM_GOALS_FILE);
+            
+            console.log(`✅ 自定义目标数据保存成功，${goalsArray.length} 个目标`);
+            
         } catch (error) {
-            console.error('保存自定义目标数据失败:', error);
+            console.error('❌ 保存自定义目标数据失败:', error);
+            // 清理可能残留的临时文件
+            try {
+                await fs.unlink(CUSTOM_GOALS_FILE + '.tmp').catch(() => {});
+            } catch (e) {}
         }
     });
 }
@@ -1421,18 +1469,33 @@ function verifyAlipaySign(params) {
   return alipay.checkNotifySign(params);
 }
 
-// 🔥 修复：将监听函数改为async
+// 监听函数
 app.listen(PORT, '0.0.0.0', async () => {
-  // 先加载用户数据
-  await loadUserData();
-  await loadCustomGoalsData(); // 🔥 新增：加载自定义目标数据
+  try {
+    // 先加载用户数据
+    await loadUserData();
+    
+    // 加载自定义目标数据，如果失败会自动恢复
+    await loadCustomGoalsData();
+    
+    // 数据完整性检查
+    console.log('🔍 数据完整性检查:');
+    console.log(`- 用户数量: ${userStore.size}`);
+    console.log(`- 自定义目标数量: ${customGoalsStore.size}`);
+    console.log(`- 订单数量: ${orderStore.size}`);
 
-  console.log(`✅ 支付后端运行在端口 ${PORT}`);
-  console.log('✅ 微信支付路由: /api/payment-prod');
-  console.log('✅ 支付宝支付路由: /api/alipay/create');
-  console.log('✅ 支付宝回调: /api/alipay-notify');
-  console.log('✅ 自定义目标API: /api/custom-goals'); // 🔥 新增
-  console.log('✅ 当前使用完全离线模式');
-  console.log('✅ 不依赖 Supabase，使用独立用户存储');
-  console.log('✅ 已修复循环调用问题，直接调用微信支付API');
+    console.log(`✅ 支付后端运行在端口 ${PORT}`);
+    console.log('✅ 微信支付路由: /api/payment-prod');
+    console.log('✅ 支付宝支付路由: /api/alipay/create');
+    console.log('✅ 支付宝回调: /api/alipay-notify');
+    console.log('✅ 自定义目标API: /api/custom-goals');
+    console.log('✅ 当前使用完全离线模式');
+    console.log('✅ 不依赖 Supabase，使用独立用户存储');
+    console.log('✅ 已修复循环调用问题，直接调用微信支付API');
+    console.log('✅ 数据加载完成，服务已启动');
+    
+  } catch (error) {
+    console.error('❌ 服务器启动失败:', error);
+    process.exit(1);
+  }
 });

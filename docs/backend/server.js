@@ -76,12 +76,22 @@ async function withFileLock(operation) {
 async function loadCustomGoalsData() {
     return withFileLock(async () => {
         try {
+            // 严格检查文件可读写
+            try {
+                await fs.access(CUSTOM_GOALS_FILE, fs.constants.R_OK | fs.constants.W_OK);
+                console.log('✅ 自定义目标文件可读写');
+            } catch (error) {
+                console.log('自定义目标数据文件不存在，使用空存储');
+                customGoalsStore = new Map();
+                return;
+            }
+            
             const data = await fs.readFile(CUSTOM_GOALS_FILE, 'utf8');
             const goals = JSON.parse(data);
             customGoalsStore = new Map(goals);
             console.log(`✅ 已加载 ${customGoalsStore.size} 个自定义目标`);
         } catch (error) {
-            console.log('自定义目标数据文件不存在，使用空存储');
+            console.error('加载自定义目标数据失败，使用空存储:', error);
             customGoalsStore = new Map();
         }
     });
@@ -110,22 +120,23 @@ async function loadUserData() {
         try {
             console.log('📁 尝试加载用户数据文件:', USER_DATA_FILE);
             
-            // 检查文件是否存在
+            // 严格检查文件是否存在且可读写
             try {
-                await fs.access(USER_DATA_FILE);
+                await fs.access(USER_DATA_FILE, fs.constants.R_OK | fs.constants.W_OK);
+                console.log('✅ 用户数据文件可读写');
             } catch (error) {
-                console.log('📁 用户数据文件不存在，创建空存储');
+                console.log('⚠️ 用户数据文件不可访问，使用空存储:', error.message);
                 userStore = new Map();
-                return;
+                return; // 不要创建新文件
             }
             
+            // 读取文件内容
             const data = await fs.readFile(USER_DATA_FILE, 'utf8');
             console.log('📁 读取到文件数据，长度:', data.length);
             
             if (!data || data.trim() === '') {
-                console.log('📁 文件为空，使用空存储');
-                userStore = new Map();
-                return;
+                console.log('📁 文件为空，使用现有存储');
+                return; // 🔥 关键修改：不要重置存储，保持现有数据
             }
             
             const users = JSON.parse(data);
@@ -136,10 +147,11 @@ async function loadUserData() {
             users.forEach(([openid, user]) => {
                 console.log(`用户 ${user.nickname} (${openid}): is_member=${user.is_member}`);
             });
+            
         } catch (error) {
-            console.error('❌ 加载用户数据失败:', error);
-            console.error('❌ 错误详情:', error.message);
-            userStore = new Map();
+            console.error('❌ 加载用户数据失败，但保持现有存储:', error.message);
+            // 🔥 关键修改：不要重置 userStore，保持现有数据
+            // 这样即使文件读取失败，内存中的数据也不会丢失
         }
     });
 }

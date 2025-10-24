@@ -57,7 +57,6 @@ export async function createCustomGoal({ name, date, category }) {
     }
     
     alert('创建成功！')
-    window.location.reload()
     return result.data
     
   } catch (error) {

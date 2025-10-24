@@ -71,7 +71,7 @@ function formatDateForDisplay(dateString) {
   return `${year}年${month}月${day}日 ${hours}时${minutes}分`;
 }
 
-// 主初始化
+// 主初始化 - 添加详细错误处理
 async function initCountdownPage() {
   console.log('开始初始化倒计时页面...');
   
@@ -87,20 +87,36 @@ async function initCountdownPage() {
     // 优先处理自定义目标
     if (customId) {
       console.log('加载自定义目标:', customId);
-      const { data, error } = await supabase
-        .from('custom_goals')
-        .select('*')
-        .eq('id', customId)
-        .single();
       
-      if (error) throw error;
-      if (!data) throw new Error('自定义目标不存在');
+      // 🔥 关键修复：使用新的API端点获取自定义目标
+      const user = await getUser();
+      if (!user) {
+        throw new Error('用户未登录');
+      }
+      
+      const response = await fetch(`/api/custom-goals?user_id=${encodeURIComponent(user.id)}&openid=${encodeURIComponent(user.openid)}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+      
+      const result = await response.json();
+      console.log('自定义目标API响应:', result);
+      
+      if (!result.success) {
+        throw new Error(result.error || '获取目标失败');
+      }
+      
+      const goal = result.data.find(g => g.id === customId);
+      if (!goal) {
+        throw new Error('自定义目标不存在');
+      }
       
       examData = {
-        name: data.name,
-        date: data.date
+        name: goal.name,
+        date: goal.date
       };
-      console.log('自定义目标数据:', examData);
+      console.log('自定义目标数据加载成功:', examData);
     } 
     // 然后是系统考试
     else if (examId) {
@@ -115,39 +131,60 @@ async function initCountdownPage() {
       console.log('使用默认考试');
       examData = getExamDataById(1);
     }
+
+    // 更新页面显示
+    document.getElementById('exam-title').textContent = examData.name;
+    document.getElementById('exam-time').textContent = formatDateForDisplay(examData.date);
+
+    // 启动倒计时
+    updateCountdownDisplay(examData.date);
+    setInterval(() => updateCountdownDisplay(examData.date), 1000);
+
+    // 设置背景图
+    const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
+    const bgImage = backgroundImages.find(b => b.id === bgSetting);
+    if (bgImage) {
+      document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
+    }
+
+    // 初始化其他功能
+    initSettingsModal();
+    showAdContainer();
+    
+    // 设置入口显示
+    const settingsEntry = document.querySelector('.settings-entry');
+    if (settingsEntry) {
+      settingsEntry.style.display = 'block';
+      console.log('设置入口已显示');
+    } else {
+      console.error('设置入口元素未找到');
+    }
+
+    console.log('倒计时页面初始化完成');
+
   } catch (error) {
-    console.error('加载考试数据失败:', error);
-    // 跳转回首页
-    window.location.href = 'index.html';
-    return;
-  }
-
-  // 更新页面显示
-  document.getElementById('exam-title').textContent = examData.name;
-  document.getElementById('exam-time').textContent = formatDateForDisplay(examData.date);
-
-  // 启动倒计时
-  updateCountdownDisplay(examData.date);
-  setInterval(() => updateCountdownDisplay(examData.date), 1000);
-
-  // 设置背景图
-  const bgSetting = localStorage.getItem('countdownBg') || 'bg1';
-  const bgImage = backgroundImages.find(b => b.id === bgSetting);
-  if (bgImage) {
-    document.getElementById('countdown-bg').style.backgroundImage = `url(${bgImage.url})`;
-  }
-
-  // 初始化其他功能
-  initSettingsModal();
-  showAdContainer();
-  
-  // 设置入口显示
-  const settingsEntry = document.querySelector('.settings-entry');
-  if (settingsEntry) {
-    settingsEntry.style.display = 'block';
-    console.log('设置入口已显示');
-  } else {
-    console.error('设置入口元素未找到');
+    console.error('❌ 页面初始化失败:', error);
+    
+    // 🔥 关键修复：显示详细错误信息，不立即跳转
+    const errorMessage = `页面加载失败: ${error.message}\n\n是否返回首页？`;
+    
+    // 在页面上显示错误信息
+    document.body.innerHTML = `
+      <div style="padding: 20px; text-align: center;">
+        <h2>页面加载失败</h2>
+        <p>${error.message}</p>
+        <button onclick="window.location.href='index.html'" style="padding: 10px 20px; margin: 10px;">返回首页</button>
+        <button onclick="location.reload()" style="padding: 10px 20px; margin: 10px;">重新加载</button>
+      </div>
+    `;
+    
+    // 同时输出到控制台
+    console.error('详细错误:', {
+      customId: customId,
+      examId: examId,
+      error: error.message,
+      stack: error.stack
+    });
   }
 }
 
